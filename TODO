@@ -1,0 +1,32 @@
+setup experiments
+
+each experiment
+
+name - eg Test xsendfile
+shortname = 'xsendfile' (this becomes the param name)
+scope: param only, request, session, host?
+enabled - on
+
+condition(s)
+ - value 's3' (if param = s3 then force on)
+ - 60% - 60% of the time this will fire
+ - value sets, (can be more than 1)
+  - $CFG->foo = 'bar', on plugin config
+
+ - if there is more than 1 condition, the % must total <= 100%
+
+
+security
+
+doesn't apply to admin user in this session, in case you frig something and need to disable
+
+test mode, query param to force it to apply
+
+cannot override forced config
+
+blacklist, maint mode
+
+
+
+
+
