@@ -1,6 +1,48 @@
-setup experiments
+There are many experiments,
+each experiemnts has a scope and conditions
+each condition has a st of actions
 
-each experiment
+Each condition is checked based on the scope
+
+- request is checked once very early (new hook?) and temp saved into $CFG 
+- session is checked once after after_require_login and the result is saved into the session
+
+All of this will be stored into whatever db data model we want, but once it is changed I want to bake that into a $CFG->
+var so that we can use this very early in the moodle bootstrap and without incurring another db call or muc call.
+
+So I'd just serialize the data into json and jam it into the var, this also gives us an easy way of forcing it via config.php too
+
+{
+  name: 'xsendfile experiment 1',
+  shortname: 'xsendfile1',
+  scope: 'request',
+  conditions: [
+    {
+      value: 60  // 60% hit this
+      ipwhiteist: '123.123.123/256'
+      set: [
+        {
+          plugin: 'core',
+          name: 'foo',
+          value: 'bar
+        }
+        {
+          plugin: 'auth_saml2', // this works by temp copying into forced_plugin_settings
+          name: 'foo'
+          value: 'bar'
+        }
+      ]
+    },
+    {
+      value: 20 // 20% hit this
+    }
+  ]
+}
+  
+  
+
+
+
 
 name - eg Test xsendfile
 shortname = 'xsendfile' (this becomes the param name)
