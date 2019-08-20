@@ -1,16 +1,11 @@
-# moodle-tool_abconfig
+# A Moodle A/B testing admin tool
 
 A way to A/B test config, or slowly turn on config for certain audiences or % of traffic
 
-* [Use cases](#usecases)
 * [Installation](#installation)
 * [Configuration](#configuration)
 * [Debugging](#debugging)
 * [Support](#support)
-
-Use cases
----------
-
 
 
 Branches
@@ -22,6 +17,21 @@ Installation
 ------------
 
 
+Configuration
+-------------
+
+## Scopes and audiences
+
+
+## Analytics
+
+### Custom dimentions 
+
+### Custom headers
+
+
+
+
 Debugging
 ---------
 
@@ -31,7 +41,7 @@ Support
 
 If you have issues please log them in github here
 
-https://github.com/catalyst/moodle-auth_saml2/issues
+https://github.com/catalyst/moodle-tool_abconfig/issues
 
 Please note our time is limited, so if you need urgent support or want to
 sponsor a new feature then please contact Catalyst IT Australia:
