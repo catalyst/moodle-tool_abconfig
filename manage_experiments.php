@@ -18,24 +18,33 @@
  * Version information.
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'A/B config';
+require_once(dirname(__FILE__) . '/../../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
+//require_once(__DIR__.'/locallib.php');
 
-// Page Name Strings
-$string['manageexperimentspagename'] = 'Manage Experiments';
+defined('MOODLE_INTERNAL') || die();
 
-// Form Strings
-$string['formaddexperiment'] = 'Add Experiment';
-$string['formexperimentname'] = 'Experiment Name:';
-$string['formexperimentnamereq'] = 'Experiment Name Required';
-$string['formexperimentshortname'] = 'Short Experiment Name:';
-$string['formexperimentshortnamereq'] = 'Short Experiment Name Required';
-$string['formexperimentscopeselect'] = 'Scope:';
+admin_externalpage_setup('tool_abconfig_manageexperiments');
 
-// Scope Strings
-$string['request'] = 'Request';
-$string['session'] = 'Session';
+$prevurl = ($CFG->wwwroot.'/admin/category.php?category=abconfig');
+
+$form = new \tool_abconfig\form\manage_experiments();
+if ($form->is_cancelled()) {
+    redirect($prevurl);
+} else if ($fromform = $form->get_data()) {
+
+}
+
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('manageexperimentspagename', 'tool_abconfig'));
+$form->display();
+echo $OUTPUT->footer();
+
+
+
+
