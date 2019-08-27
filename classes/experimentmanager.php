@@ -15,28 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Local Library
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace tool_abconfig;
 
-$string['pluginname'] = 'A/B config';
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__.'/../../../config.php');
+class experiment_manager {
 
-// Page Name Strings
-$string['manageexperimentspagename'] = 'Manage Experiments';
-
-// Form Strings
-$string['formaddexperiment'] = 'Add Experiment';
-$string['formexperimentname'] = 'Experiment Name:';
-$string['formexperimentnamereq'] = 'Experiment Name Required';
-$string['formexperimentshortname'] = 'Short Experiment Name:';
-$string['formexperimentshortnamereq'] = 'Short Experiment Name Required';
-$string['formexperimentscopeselect'] = 'Scope:';
-$string['formexperimentalreadyexists'] = 'Experiment shortname already exists';
-
-// Scope Strings
-$string['request'] = 'Request';
-$string['session'] = 'Session';
+}

@@ -25,7 +25,7 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-//require_once(__DIR__.'/locallib.php');
+require_once(__DIR__.'/locallib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,7 +37,8 @@ $form = new \tool_abconfig\form\manage_experiments();
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
-
+    // Safe to insert new experiment, unique field validated in form validation
+    
 }
 
 echo $OUTPUT->header();
