@@ -63,9 +63,9 @@ class manage_experiments extends \moodleform {
 
         $shortname = $data['experimentshortname'];
         $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiments} WHERE shortname = ?', array($sqlexperiment));
 
-        if (empty($record)) {
+        if (!empty($record)) {
             $errors['experimentshortname'] = get_string('formexperimentalreadyexists', 'tool_abconfig');
         }
 

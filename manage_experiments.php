@@ -25,7 +25,7 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-require_once(__DIR__.'/locallib.php');
+//require_once(__DIR__.'/locallib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,7 +38,11 @@ if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
     // Safe to insert new experiment, unique field validated in form validation
-    
+    $name = $fromform->experimentname;
+    $shortname = $fromform->experimentshortname;
+    $scope = $fromform->scope;
+
+    $DB->insert_record('tool_abconfig_experiments', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
 }
 
 echo $OUTPUT->header();

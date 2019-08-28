@@ -36,4 +36,14 @@ if ($hassiteconfig) {
     $ADMIN->add('abconfig', new admin_externalpage('tool_abconfig_manageexperiments',
     get_string('manageexperimentspagename', 'tool_abconfig'),
     new moodle_url('/admin/tool/abconfig/manage_experiments.php')));
+
+    $settings = new admin_settingpage('abconfigsettings', get_string('abconfigsettings', 'tool_abconfig'));
+    $ADMIN->add('abconfig', $settings);
+
+    if (!during_initial_install()) {
+
+        $settings->add(new admin_setting_configcheckbox('tool_abconfig/enable_plugin', get_string('settingsenablename', 'tool_abconfig'),
+        get_string('settingsenabledesc', 'tool_abconfig'), 0));
+
+    }
 }

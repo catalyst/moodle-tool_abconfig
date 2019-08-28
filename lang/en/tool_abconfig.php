@@ -26,6 +26,7 @@
 $string['pluginname'] = 'A/B config';
 
 // Page Name Strings
+$string['abconfigsettings'] = 'A/B Config Settings';
 $string['manageexperimentspagename'] = 'Manage Experiments';
 
 // Form Strings
@@ -40,3 +41,7 @@ $string['formexperimentalreadyexists'] = 'Experiment shortname already exists';
 // Scope Strings
 $string['request'] = 'Request';
 $string['session'] = 'Session';
+
+// Setting Strings
+$string['settingsenablename'] = 'Enable Plugin';
+$string['settingsenabledesc'] = 'Enable the plugin. While this is unchecked, users will not interact with the plugin at all. Experiments can still be set.';
