@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Plugin Strings
  *
  * @package   tool_abconfig
  * @author    Brendan Heywood <brendan@catalyst-au.net>
@@ -28,6 +28,7 @@ $string['pluginname'] = 'A/B config';
 // Page Name Strings
 $string['abconfigsettings'] = 'A/B Config Settings';
 $string['manageexperimentspagename'] = 'Manage Experiments';
+$string['editexperimentpagename'] = 'Edit Experiment';
 
 // Form Strings
 $string['formaddexperiment'] = 'Add Experiment';
@@ -37,10 +38,22 @@ $string['formexperimentshortname'] = 'Short Experiment Name:';
 $string['formexperimentshortnamereq'] = 'Short Experiment Name Required';
 $string['formexperimentscopeselect'] = 'Scope:';
 $string['formexperimentalreadyexists'] = 'Experiment shortname already exists';
+$string['formexperimentinfo'] = 'Experiment Info';
+$string['formexperimentconds'] = 'Experiment Conditions';
+$string['formipwhitelist'] = 'IP Whitelist';
+$string['formexperimentcommands'] = 'Experiment Commands';
+$string['formexperimentvalue'] = ' % value of traffic targeted';
+$string['formexperimentvalueerror'] = ' % value must be a number in range 0-100';
 
-// Scope Strings
+
+
+// short Strings
 $string['request'] = 'Request';
 $string['session'] = 'Session';
+$string['name'] = 'Experiment Name';
+$string['shortname'] = 'Short Experiment Name';
+$string['scope'] = 'Experiment Scope';
+$string['edit'] = 'Edit';
 
 // Setting Strings
 $string['settingsenablename'] = 'Enable Plugin';

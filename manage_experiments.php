@@ -25,7 +25,6 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
-//require_once(__DIR__.'/locallib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -45,11 +44,30 @@ if ($form->is_cancelled()) {
     $DB->insert_record('tool_abconfig_experiments', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
 }
 
+// Build the page output
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manageexperimentspagename', 'tool_abconfig'));
 $form->display();
+generate_table();
 echo $OUTPUT->footer();
 
+function generate_table() {
+    global $DB;
 
+    $records = $DB->get_records('tool_abconfig_experiments');
+    // Get header strings
+    $wantstrings = array('name', 'shortname', 'scope', 'edit');
+    $strings = get_strings($wantstrings, 'tool_abconfig');
+    // Generate table header
+    $table = new html_table();
+    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->edit);
 
+    foreach ($records as $record) {
+        // Setup edit link
+        $url = new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$record->id");
+        // Add table row
+        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, '<a href="'.$url.'">Edit</a>');
+    }
+    echo html_writer::table($table);
+}
 
