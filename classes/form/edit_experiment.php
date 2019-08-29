@@ -31,8 +31,8 @@ class edit_experiment extends \moodleform {
 
     public function definition() {
         $mform = $this->_form;
-        
-        //Hidden form element for experiment id
+
+        // Hidden form element for experiment id
         $mform->addElement('hidden', 'shortname', $this->_customdata['shortname']);
         $mform->setType('shortname', PARAM_TEXT);
 
@@ -45,9 +45,6 @@ class edit_experiment extends \moodleform {
         $ipwhitelist = $this->_customdata['ipwhitelist'];
         $commands = $this->_customdata['commands'];
         $value = $this->_customdata['value'];
-
-        //echo var_dump($this->_customdata);
-        //die;
 
         // Display the basic experiment information
         $mform->addElement('header', 'experimentinfo', get_string('formexperimentinfo', 'tool_abconfig'));

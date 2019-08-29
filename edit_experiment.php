@@ -46,7 +46,7 @@ if ($eid == 0) {
     if (property_exists($SESSION, 'eid')) {
         $eid = $SESSION->eid;
     } else {
-        //Else if eid is still 0, someone directly got here with no params
+        // Else if eid is still 0, someone directly got here with no params
         echo 'Do not come here directly';
         die;
     }
@@ -94,7 +94,7 @@ if ($form->is_cancelled()) {
     }
     // TODO TEMPORARY REDIRECT, FIX WHITESCREEN
     redirect($prevurl);
-    
+
 } else {
 
     // Build the page output

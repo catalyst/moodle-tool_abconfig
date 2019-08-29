@@ -50,10 +50,10 @@ class manage_experiments extends \moodleform {
         $mform->setType('experimentshortname', PARAM_TEXT);
         $mform->setDefault('experimentshortname', 'experiment');
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
-        
+
         // Select Scope
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
-        
+
         $this->add_action_buttons();
     }
 
@@ -74,3 +74,4 @@ class manage_experiments extends \moodleform {
         return $errors;
     }
 }
+

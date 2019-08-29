@@ -27,11 +27,11 @@ defined('MOODLE_INTERNAL') || die;
 function tool_abconfig_after_config() {
     global $CFG;
 
-    # example of temp override
+    // example of temp override
     $CFG->enableglobalsearch = 1;
-    # example of what *looks* like a forced override
+    // example of what *looks* like a forced override
     $CFG->config_php_settings['enableglobalsearch'] = 1;
-    # forced override of plugin
+    // forced override of plugin
     $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;
 }
 
