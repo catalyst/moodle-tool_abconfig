@@ -29,31 +29,42 @@ require_once($CFG->libdir . '/adminlib.php');
 defined('MOODLE_INTERNAL') || die();
 
 // Needs Require login admin thingy
+require_login();
 
-global $DB, $PAGE;
+global $DB, $PAGE, $SESSION;
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
 $eid = optional_param('id', 0, PARAM_INT);
 
-// Check experiment id, if not valid, complain (Undecided behaviour here)
+// store eid if set in params (for page submission and refresh)
+if ($eid != 0) {
+    $SESSION->eid = $eid;
+}
+
+// Check if eid is not set (from redirect)
 if ($eid == 0) {
-    echo 'BAD';
-    die;
-} else {
-    $experiment = $DB->get_record('tool_abconfig_experiments', array('id' => $eid));
-    if (empty($experiment)) {
-        echo 'experiment not found';
+    if (property_exists($SESSION, 'eid')) {
+        $eid = $SESSION->eid;
+    } else {
+        //Else if eid is still 0, someone directly got here with no params
+        echo 'Do not come here directly';
         die;
     }
+}
+
+$experiment = $DB->get_record('tool_abconfig_experiments', array('id' => $eid));
+if (empty($experiment)) {
+    echo 'experiment not found';
+    die;
 }
 
 $conditions = $DB->get_record('tool_abconfig_conditions', array('experiment' => $experiment->shortname));
 if (!empty($conditions)) {
     $data = array('name' => $experiment->name, 'shortname' => $experiment->shortname, 'scope' => $experiment->scope,
-    'ipwhitelist' => $conditions->ipwhitelist, 'commands' => $conditions->commands, 'value' => $conditions->value);
+    'ipwhitelist' => $conditions->ipwhitelist, 'commands' => $conditions->commands, 'value' => $conditions->value, 'id' => $eid);
 } else {
     $data = array('name' => $experiment->name, 'shortname' => $experiment->shortname, 'scope' => $experiment->scope,
-    'ipwhitelist' => '', 'commands' => '', 'value' => '');
+    'ipwhitelist' => '', 'commands' => '', 'value' => '', 'id' => $eid);
 }
 
 $form = new \tool_abconfig\form\edit_experiment(null, $data);
@@ -64,31 +75,32 @@ if ($form->is_cancelled()) {
     global $DB;
 
     // Set vars for cleaner DB queries
-    $shortname = $fromform->experimentshortname;
+    $shortname = $fromform->shortname;
     $iplist = $fromform->experimentipwhitelist;
     $commands = $fromform->experimentcommands;
     $value = $fromform->experimentvalue;
 
     $sqlconditions = $DB->sql_compare_text($shortname, strlen($shortname));
-    $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiments} WHERE shortname = ?', array($sqlexperiment));
+    $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_conditions} WHERE experiment = ?', array($sqlconditions));
 
     // If record doesnt exist, create record, else, update record
-    if (!empty($record)) {
+    if (empty($record)) {
         $DB->insert_record('tool_abconfig_conditions', array('experiment' => $shortname, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value));
     } else {
         $id = $record->id;
-        $DB->update_fields('tool_abconfig_conditions', array('id' => $id, 'experiment' => $shortname, 'ipwhitelist' => $iplist,
+        $DB->update_record('tool_abconfig_conditions', array('id' => $id, 'experiment' => $shortname, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value));
     }
-    echo 'here';
-    die;
-    // Redirect to updated form
-    redirect($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$eid");
+    // TODO TEMPORARY REDIRECT, FIX WHITESCREEN
+    redirect($prevurl);
+    
+} else {
+
+    // Build the page output
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
+    $form->display();
+    echo $OUTPUT->footer();
 }
 
-// Build the page output
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
-$form->display();
-echo $OUTPUT->footer();
