@@ -42,9 +42,6 @@ if ($hassiteconfig) {
 
     if (!during_initial_install()) {
 
-        $settings->add(new admin_setting_configcheckbox('tool_abconfig/enable_plugin', get_string('settingsenablename', 'tool_abconfig'),
-        get_string('settingsenabledesc', 'tool_abconfig'), 0));
-
     }
 }
 

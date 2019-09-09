@@ -44,7 +44,8 @@ $string['formipwhitelist'] = 'IP Whitelist';
 $string['formexperimentcommands'] = 'Experiment Commands';
 $string['formexperimentvalue'] = ' % value of traffic targeted';
 $string['formexperimentvalueerror'] = ' % value must be a number in range 0-100';
-
+$string['formexperimentcondsset'] = 'Conditions set';
+$string['formexperimentvalueexceed'] = 'Total of all condition set values must be <= 100. Currently {$a}';
 
 
 // short Strings

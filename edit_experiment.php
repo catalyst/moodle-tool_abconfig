@@ -52,22 +52,27 @@ if ($eid == 0) {
     }
 }
 
-$experiment = $DB->get_record('tool_abconfig_experiments', array('id' => $eid));
+$experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 if (empty($experiment)) {
     echo 'experiment not found';
     die;
 }
 
-$conditions = $DB->get_record('tool_abconfig_conditions', array('experiment' => $experiment->shortname));
+// Set default displays to first condition set found
+$conditions = $DB->get_records('tool_abconfig_condition', array('experiment' => $experiment->shortname));
 if (!empty($conditions)) {
-    $data = array('name' => $experiment->name, 'shortname' => $experiment->shortname, 'scope' => $experiment->scope,
-    'ipwhitelist' => $conditions->ipwhitelist, 'commands' => $conditions->commands, 'value' => $conditions->value, 'id' => $eid);
+    $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'shortname' => $experiment->shortname,
+    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => reset($conditions)->ipwhitelist,
+    'experimentcommands' =>  reset($conditions)->commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set);
 } else {
-    $data = array('name' => $experiment->name, 'shortname' => $experiment->shortname, 'scope' => $experiment->scope,
-    'ipwhitelist' => '', 'commands' => '', 'value' => '', 'id' => $eid);
+    $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,  'shortname' => $experiment->shortname,
+    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => '', 'experimentcommands' => '', 'experimentvalue' => '', 'id' => $eid, 'set' => 0);
 }
 
-$form = new \tool_abconfig\form\edit_experiment(null, $data);
+$customarray = array('shortname' => $experiment->shortname);
+
+$form = new \tool_abconfig\form\edit_experiment(null, $customarray);
+$form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
@@ -79,18 +84,19 @@ if ($form->is_cancelled()) {
     $iplist = $fromform->experimentipwhitelist;
     $commands = $fromform->experimentcommands;
     $value = $fromform->experimentvalue;
+    $set = $fromform->set;
 
     $sqlconditions = $DB->sql_compare_text($shortname, strlen($shortname));
-    $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_conditions} WHERE experiment = ?', array($sqlconditions));
+    $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_condition} WHERE experiment = ? AND set = ?', array($sqlconditions, $set));
 
     // If record doesnt exist, create record, else, update record
     if (empty($record)) {
-        $DB->insert_record('tool_abconfig_conditions', array('experiment' => $shortname, 'ipwhitelist' => $iplist,
-            'commands' => $commands, 'value' => $value));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $shortname, 'ipwhitelist' => $iplist,
+            'commands' => $commands, 'value' => $value, 'set' => $set));
     } else {
         $id = $record->id;
-        $DB->update_record('tool_abconfig_conditions', array('id' => $id, 'experiment' => $shortname, 'ipwhitelist' => $iplist,
-            'commands' => $commands, 'value' => $value));
+        $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $shortname, 'ipwhitelist' => $iplist,
+            'commands' => $commands, 'value' => $value, 'set' => $set));
     }
     // TODO TEMPORARY REDIRECT, FIX WHITESCREEN
     redirect($prevurl);

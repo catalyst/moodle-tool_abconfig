@@ -41,7 +41,7 @@ if ($form->is_cancelled()) {
     $shortname = $fromform->experimentshortname;
     $scope = $fromform->scope;
 
-    $DB->insert_record('tool_abconfig_experiments', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
+    $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
 }
 
 // Build the page output
@@ -54,7 +54,7 @@ echo $OUTPUT->footer();
 function generate_table() {
     global $DB;
 
-    $records = $DB->get_records('tool_abconfig_experiments');
+    $records = $DB->get_records('tool_abconfig_experiment');
     // Get header strings
     $wantstrings = array('name', 'shortname', 'scope', 'edit');
     $strings = get_strings($wantstrings, 'tool_abconfig');

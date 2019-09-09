@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190829" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
+<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190909" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="tool_abconfig_experiments" COMMENT="Table to store experiments">
+    <TABLE NAME="tool_abconfig_experiment" COMMENT="Table to store experiments">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Full name of experiment"/>
@@ -15,11 +15,12 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="tool_abconfig_conditions" COMMENT="Table to store conditions for experiments">
+    <TABLE NAME="tool_abconfig_condition" COMMENT="Table to store conditions for experiments">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="experiment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Experiment shortname that the conditions relate to"/>
+        <FIELD NAME="set" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Set of conditions for experiment"/>
         <FIELD NAME="ipwhitelist" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of safe IP addresses to be ignored when callbacks for experiments fire"/>
+        <FIELD NAME="experiment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Experiment shortname that the conditions relate to"/>
         <FIELD NAME="commands" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of commands to be run per condition"/>
         <FIELD NAME="value" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="The % amount of traffic on which the experiment will be executed"/>
       </FIELDS>
@@ -29,4 +30,3 @@
     </TABLE>
   </TABLES>
 </XMLDB>
-
