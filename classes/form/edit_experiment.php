@@ -33,11 +33,12 @@ class edit_experiment extends \moodleform {
         $mform = $this->_form;
 
         // Hidden form element for experiment id
-        //$mform->addElement('hidden', 'shortname', $this->_customdata['shortname']);
         $mform->addElement('hidden', 'shortname', '');
         $mform->setType('shortname', PARAM_TEXT);
+        $mform->addElement('hidden', 'id', '');
+        $mform->setType('id', PARAM_INT);
 
-        $shortname = $this->_customdata['shortname'];
+        $eid = $this->_customdata['eid'];
 
         // Display the basic experiment information
         $mform->addElement('header', 'experimentinfo', get_string('formexperimentinfo', 'tool_abconfig'));
@@ -65,7 +66,7 @@ class edit_experiment extends \moodleform {
         $mform->setType('experimentvalue', PARAM_TEXT);
         $mform->addRule('experimentvalue', get_string('formexperimentvalueerror', 'tool_abconfig'), 'client');
 
-        $mform->addElement('html', $this->generate_table($shortname));
+        $mform->addElement('html', $this->generate_table($eid));
 
         $this->add_action_buttons();
     }
@@ -74,6 +75,7 @@ class edit_experiment extends \moodleform {
         $errors = parent::validation($data, $files);
         $value = $data['experimentvalue'];
         $shortname = $data['shortname'];
+        $eid = $data['id'];
 
         global $DB;
         
@@ -84,9 +86,7 @@ class edit_experiment extends \moodleform {
             $errors['experimentvalue'] = get_string('formexperimentvalueerror', 'tool_abconfig');
         }
 
-        // Get experiment conditions records
-        $sqlconditions = $DB->sql_compare_text($shortname, strlen($shortname));
-        $records = $DB->get_records_sql('SELECT * FROM {tool_abconfig_condition} WHERE experiment = ? ORDER BY set ASC', array($sqlconditions));
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
         
         $total = 0;
         foreach ($records as $record) {
@@ -100,20 +100,10 @@ class edit_experiment extends \moodleform {
             $errors['experimentvalue'] = get_string('formexperimentvalueexceed', 'tool_abconfig', ($total + $value));
         }
 
-        // =================================================IP WHITELIST VALIDATION=======================================================
-
-        $iparray = explode(' ', $data['experimentipwhitelist']);
-
-        //blah
-        if(!empty($iparray)){
-            
-        }
-
-
         return $errors;
     }
 
-    private function generate_table($shortname) {
+    private function generate_table($eid) {
         global $DB;
 
         // Get all lang strings for table header
@@ -126,8 +116,7 @@ class edit_experiment extends \moodleform {
             $stringarr->formexperimentcommands, $stringarr->formexperimentvalue);
 
         // Get experiment conditions records
-        $sqlconditions = $DB->sql_compare_text($shortname, strlen($shortname));
-        $records = $DB->get_records_sql('SELECT * FROM {tool_abconfig_condition} WHERE experiment = ? ORDER BY set ASC', array($sqlconditions));
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
         foreach ($records as $record) {
             $table->data[] = array($record->set, $record->ipwhitelist, $record->commands, $record->value);
         }
