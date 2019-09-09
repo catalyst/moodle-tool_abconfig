@@ -28,6 +28,9 @@ require_once($CFG->libdir . '/adminlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
+$PAGE->set_context(context_system::instance());
+$PAGE->set_title('Edit Experiment Conditions');
+
 // Needs Require login admin thingy
 require_login();
 
@@ -36,27 +39,7 @@ $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
 $eid = optional_param('id', 0, PARAM_INT);
 
-// store eid if set in params (for page submission and refresh)
-if ($eid != 0) {
-    $SESSION->eid = $eid;
-}
-
-// Check if eid is not set (from redirect)
-if ($eid == 0) {
-    if (property_exists($SESSION, 'eid')) {
-        $eid = $SESSION->eid;
-    } else {
-        // Else if eid is still 0, someone directly got here with no params
-        echo 'Do not come here directly';
-        die;
-    }
-}
-
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-if (empty($experiment)) {
-    echo 'experiment not found';
-    die;
-}
 
 // Set default displays to first condition set found
 $conditions = $DB->get_records('tool_abconfig_condition', array('experiment' => $experiment->id));
@@ -75,7 +58,8 @@ $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
-} else if ($fromform = $form->get_data()) {
+} else if ($fromform = $form->get_data() && $fromform->id != '') {
+    // If eid is empty, do nothing
     // Form validation means data is safe to go to DB
     global $DB;
 
@@ -98,7 +82,7 @@ if ($form->is_cancelled()) {
         $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value, 'set' => $set));
     }
-    // TODO TEMPORARY REDIRECT, FIX WHITESCREEN
+
     redirect($prevurl);
 
 } else {

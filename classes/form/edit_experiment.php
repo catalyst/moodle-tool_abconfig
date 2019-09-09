@@ -64,7 +64,7 @@ class edit_experiment extends \moodleform {
         // Value field
         $mform->addElement('text', 'experimentvalue', get_string('formexperimentvalue', 'tool_abconfig'));
         $mform->setType('experimentvalue', PARAM_TEXT);
-        $mform->addRule('experimentvalue', get_string('formexperimentvalueerror', 'tool_abconfig'), 'client');
+        $mform->addRule('experimentvalue', get_string('formexperimentvalueerror', 'tool_abconfig'), 'numeric');
 
         $mform->addElement('html', $this->generate_table($eid));
 
