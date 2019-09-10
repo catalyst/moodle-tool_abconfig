@@ -28,7 +28,9 @@ function tool_abconfig_after_config() {
     global $CFG, $DB;
 
     // Every experiment that is per request
-    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
+    $compare = $DB->sql_compare_text('request', strlen('request'));
+    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
+
     foreach ($records as $record) {
         // get condition sets for experiment
         $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
@@ -62,13 +64,51 @@ function tool_abconfig_after_config() {
             }
         }
     }
-
     /*# example of temp override
     $CFG->enableglobalsearch = 1;
     // example of what *looks* like a forced override
     $CFG->config_php_settings['enableglobalsearch'] = 1;
     # forced override of plugin
     $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;*/
+}
+
+function tool_abconfig_after_require_login() {
+    global $CFG, $DB;
+    $compare = $DB->sql_compare_text('session', strlen('session'));
+    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
+
+    foreach ($records as $record) {
+        // get condition sets for experiment
+        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+
+        // Remove all conditions that contain the user ip in the whitelist
+        $crecords = array();
+
+        foreach ($conditionrecords as $conditionrecord) {
+            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            if (!remoteip_in_list($iplist)) {
+                array_push($crecords, $conditionrecord);
+            }
+        }
+
+        // Increment through conditions until one is selected
+        $condition = '';
+        $num = rand(1, 100);
+        $prevtotal = 0;
+        foreach ($crecords as $crecord) {
+            // If random number is within this range, set condition and break, else increment total
+            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
+                // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
+                $commands = json_decode($crecord->commands);
+                foreach ($commands as $command) {
+                    eval($command);
+                }
+            } else {
+                // Not this record, increment lower bound, and move on
+                $prevtotal += $crecord->value;
+            }
+        }
+    }
 }
 
 
