@@ -46,7 +46,7 @@ $string['formexperimentvalue'] = ' % value of traffic targeted';
 $string['formexperimentvalueerror'] = ' % value must be a number in range 0-100';
 $string['formexperimentcondsset'] = 'Conditions set';
 $string['formexperimentvalueexceed'] = 'Total of all condition set values must be <= 100. Currently {$a}';
-
+$string['formexperimentenabled'] = 'Enable Experiment';
 
 // short Strings
 $string['request'] = 'Request';
@@ -55,6 +55,9 @@ $string['name'] = 'Experiment Name';
 $string['shortname'] = 'Short Experiment Name';
 $string['scope'] = 'Experiment Scope';
 $string['edit'] = 'Edit';
+$string['enabled'] = 'Enabled';
+$string['yes'] = 'Yes';
+$string['no'] = 'No';
 
 // Setting Strings
 $string['settingsenablename'] = 'Enable Plugin';

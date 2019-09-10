@@ -46,10 +46,12 @@ $conditions = $DB->get_records('tool_abconfig_condition', array('experiment' => 
 if (!empty($conditions)) {
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'shortname' => $experiment->shortname,
     'experimentscope' => $experiment->scope, 'experimentipwhitelist' => reset($conditions)->ipwhitelist,
-    'experimentcommands' =>  reset($conditions)->commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set);
+    'experimentcommands' =>  reset($conditions)->commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
+    'enabled' => $experiment->enabled);
 } else {
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,  'shortname' => $experiment->shortname,
-    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => '', 'experimentcommands' => '', 'experimentvalue' => '', 'id' => $eid, 'set' => 0);
+    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => '', 'experimentcommands' => '', 'experimentvalue' => '', 'id' => $eid, 'set' => 0,
+    'enabled' => 0);
 }
 
 $customarray = array('eid' => $experiment->id);
@@ -58,7 +60,7 @@ $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
-} else if ($fromform = $form->get_data() && $fromform->id != '') {
+} else if ($fromform = $form->get_data()) {
     // If eid is empty, do nothing
     // Form validation means data is safe to go to DB
     global $DB;
@@ -71,6 +73,10 @@ if ($form->is_cancelled()) {
     $set = $fromform->set;
     $eid = $fromform->id;
 
+    if ($eid == 0) {
+        redirect($prevurl);
+    }
+
     $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid, 'set' => $set));
 
     // If record doesnt exist, create record, else, update record
@@ -81,6 +87,13 @@ if ($form->is_cancelled()) {
         $id = $record->id;
         $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value, 'set' => $set));
+    }
+
+    // Enable or disable experiment based on checkbox
+    if ($fromform->enabled) {
+        $DB->set_field('tool_abconfig_experiment', 'enabled', 1, array('id' => $eid));
+    } else {
+        $DB->set_field('tool_abconfig_experiment', 'enabled', 0, array('id' => $eid));
     }
 
     redirect($prevurl);

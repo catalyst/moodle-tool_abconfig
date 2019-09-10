@@ -41,7 +41,7 @@ if ($form->is_cancelled()) {
     $shortname = $fromform->experimentshortname;
     $scope = $fromform->scope;
 
-    $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
+    $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0));
 }
 
 // Build the page output
@@ -56,17 +56,22 @@ function generate_table() {
 
     $records = $DB->get_records('tool_abconfig_experiment');
     // Get header strings
-    $wantstrings = array('name', 'shortname', 'scope', 'edit');
+    $wantstrings = array('name', 'shortname', 'scope', 'edit', 'enabled');
     $strings = get_strings($wantstrings, 'tool_abconfig');
     // Generate table header
     $table = new html_table();
-    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->edit);
+    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->enabled, $strings->edit);
 
     foreach ($records as $record) {
         // Setup edit link
         $url = new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$record->id");
+        if ($record->enabled == 0) {
+            $enabled = get_string('no', 'tool_abconfig');
+        } else {
+            $enabled = get_string('yes', 'tool_abconfig');
+        }
         // Add table row
-        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, '<a href="'.$url.'">Edit</a>');
+        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, $enabled, '<a href="'.$url.'">Edit</a>');
     }
     echo html_writer::table($table);
 }

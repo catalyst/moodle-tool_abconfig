@@ -45,6 +45,9 @@ class edit_experiment extends \moodleform {
         $mform->addElement('static', 'experimentname', get_string('name', 'tool_abconfig'), '');
         $mform->addElement('static', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
         $mform->addElement('static', 'experimentscope', get_string('scope', 'tool_abconfig'), '');
+        
+        // Enabled checkbox
+        $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
 
         // Experiment conditions
         $mform->addElement('header', 'experimentconds', get_string('formexperimentconds', 'tool_abconfig'));

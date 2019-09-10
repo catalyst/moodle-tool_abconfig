@@ -10,6 +10,7 @@
         <FIELD NAME="name" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Full name of experiment"/>
         <FIELD NAME="shortname" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="internal name of experiments"/>
         <FIELD NAME="scope" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Bool flag for whether the experiment is enabled or disabled"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
