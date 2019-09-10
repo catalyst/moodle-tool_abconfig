@@ -25,6 +25,13 @@
 defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
+
+    // Initial Checks
+    // Make admin immune
+    if (is_siteadmin()) {
+        return null;
+    }
+
     global $CFG, $DB;
 
     // Every experiment that is per request
