@@ -25,14 +25,42 @@
 defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
-    global $CFG;
+    global $CFG, $DB;
+    
+    // Every experiment that is per request
+    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
+    foreach ($records as $record) {
+        // get condition sets for experiment
+        $crecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
 
-    // example of temp override
+        // Increment through conditions until one is selected
+        $condition = '';
+        $num = rand(1,100);
+        $prevtotal = 0;
+        foreach ($crecords as $crecord) {
+            // If random number is within this range, set condition and break, else increment total
+            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
+                echo var_dump($prevtotal).' '.var_dump($num).' '.var_dump($prevtotal + $crecord->value);
+
+                // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
+                $commands = json_decode($crecord->commands);
+                foreach ($commands as $command) {
+                    eval($command);
+                }
+            } else {
+                // Not this record, increment lower bound, and move on
+                $prevtotal += $crecord->value;
+            }
+        }
+    }
+    
+    
+    /*# example of temp override
     $CFG->enableglobalsearch = 1;
     // example of what *looks* like a forced override
     $CFG->config_php_settings['enableglobalsearch'] = 1;
-    // forced override of plugin
-    $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;
+    # forced override of plugin
+    $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;*/
 }
 
 
