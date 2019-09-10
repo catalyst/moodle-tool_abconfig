@@ -18,21 +18,30 @@
  * AB testing admin tool
  *
  * @package    tool_abconfig
- * @copyright  2019 Brendan Heywood <brendan@catalyst-au.net>
+ * @copyright  2019 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-function tool_abconfig_after_config() {
-    global $CFG;
 
-    // example of temp override
-    $CFG->enableglobalsearch = 1;
-    // example of what *looks* like a forced override
-    $CFG->config_php_settings['enableglobalsearch'] = 1;
-    // forced override of plugin
-    $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;
+global $CFG;
+
+if ($hassiteconfig) {
+
+    // Create category for settings and external pages
+    $ADMIN->add('tools', new admin_category('abconfig', get_string('pluginname', 'tool_abconfig')));
+
+    // Add external page for managing experiments
+    $ADMIN->add('abconfig', new admin_externalpage('tool_abconfig_manageexperiments',
+    get_string('manageexperimentspagename', 'tool_abconfig'),
+    new moodle_url('/admin/tool/abconfig/manage_experiments.php')));
+
+    $settings = new admin_settingpage('abconfigsettings', get_string('abconfigsettings', 'tool_abconfig'));
+    $ADMIN->add('abconfig', $settings);
+
+    if (!during_initial_install()) {
+
+    }
 }
-
 

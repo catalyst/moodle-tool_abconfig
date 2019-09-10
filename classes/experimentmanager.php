@@ -15,24 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AB testing admin tool
+ * Local Library
  *
- * @package    tool_abconfig
- * @copyright  2019 Brendan Heywood <brendan@catalyst-au.net>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace tool_abconfig;
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
+class experiment_manager {
 
-function tool_abconfig_after_config() {
-    global $CFG;
-
-    // example of temp override
-    $CFG->enableglobalsearch = 1;
-    // example of what *looks* like a forced override
-    $CFG->config_php_settings['enableglobalsearch'] = 1;
-    // forced override of plugin
-    $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;
 }
-
 
