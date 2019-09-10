@@ -43,10 +43,15 @@ $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 
 // Set default displays to first condition set found
 $conditions = $DB->get_records('tool_abconfig_condition', array('experiment' => $experiment->id));
+
 if (!empty($conditions)) {
+    // Unserialise data for display
+    $commands = implode(PHP_EOL, json_decode(reset($conditions)->commands));
+    $iplist = implode(PHP_EOL, json_decode(reset($conditions)->ipwhitelist));
+
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'shortname' => $experiment->shortname,
-    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => reset($conditions)->ipwhitelist,
-    'experimentcommands' =>  reset($conditions)->commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
+    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => $iplist,
+    'experimentcommands' =>  $commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
     'enabled' => $experiment->enabled);
 } else {
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,  'shortname' => $experiment->shortname,
@@ -72,6 +77,10 @@ if ($form->is_cancelled()) {
     $value = $fromform->experimentvalue;
     $set = $fromform->set;
     $eid = $fromform->id;
+
+    // JSON Serialise commands and IP whitelist for storage
+    $commands = json_encode(explode(PHP_EOL, $commands));
+    $iplist = json_encode(explode(PHP_EOL, $iplist));
 
     if ($eid == 0) {
         redirect($prevurl);
