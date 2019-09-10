@@ -31,7 +31,17 @@ function tool_abconfig_after_config() {
     $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
     foreach ($records as $record) {
         // get condition sets for experiment
-        $crecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+
+        // Remove all conditions that contain the user ip in the whitelist
+        $crecords = array();
+
+        foreach ($conditionrecords as $conditionrecord) {
+            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            if (!remoteip_in_list($iplist)) {
+                array_push($crecords, $conditionrecord);
+            }
+        }
 
         // Increment through conditions until one is selected
         $condition = '';
@@ -40,8 +50,7 @@ function tool_abconfig_after_config() {
         foreach ($crecords as $crecord) {
             // If random number is within this range, set condition and break, else increment total
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                echo var_dump($prevtotal).' '.var_dump($num).' '.var_dump($prevtotal + $crecord->value);
-
+                
                 // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
                 $commands = json_decode($crecord->commands);
                 foreach ($commands as $command) {
