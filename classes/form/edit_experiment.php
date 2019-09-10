@@ -45,7 +45,7 @@ class edit_experiment extends \moodleform {
         $mform->addElement('static', 'experimentname', get_string('name', 'tool_abconfig'), '');
         $mform->addElement('static', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
         $mform->addElement('static', 'experimentscope', get_string('scope', 'tool_abconfig'), '');
-        
+
         // Enabled checkbox
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
 
@@ -81,7 +81,7 @@ class edit_experiment extends \moodleform {
         $eid = $data['id'];
 
         global $DB;
-        
+
         // ==================================================VALUE VALIDATION=======================================================
 
         // Check value is inside accepted range
@@ -90,7 +90,7 @@ class edit_experiment extends \moodleform {
         }
 
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
-        
+
         $total = 0;
         foreach ($records as $record) {
             // If record is already present for form 'set', ignore value, update rather than addition
@@ -123,7 +123,7 @@ class edit_experiment extends \moodleform {
         foreach ($records as $record) {
             $table->data[] = array($record->set, $record->ipwhitelist, $record->commands, $record->value);
         }
-        
+
         return \html_writer::table($table);
     }
 }

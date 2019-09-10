@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
     global $CFG, $DB;
-    
+
     // Every experiment that is per request
     $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
     foreach ($records as $record) {
@@ -45,12 +45,12 @@ function tool_abconfig_after_config() {
 
         // Increment through conditions until one is selected
         $condition = '';
-        $num = rand(1,100);
+        $num = rand(1, 100);
         $prevtotal = 0;
         foreach ($crecords as $crecord) {
             // If random number is within this range, set condition and break, else increment total
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                
+
                 // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
                 $commands = json_decode($crecord->commands);
                 foreach ($commands as $command) {
@@ -62,8 +62,7 @@ function tool_abconfig_after_config() {
             }
         }
     }
-    
-    
+
     /*# example of temp override
     $CFG->enableglobalsearch = 1;
     // example of what *looks* like a forced override
