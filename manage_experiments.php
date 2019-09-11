@@ -52,7 +52,7 @@ generate_table();
 echo $OUTPUT->footer();
 
 function generate_table() {
-    global $DB;
+    global $CFG, $DB;
 
     $records = $DB->get_records('tool_abconfig_experiment');
     // Get header strings

@@ -29,7 +29,7 @@ function tool_abconfig_after_config() {
     // Initial Checks
     // Make admin immune
     if (is_siteadmin()) {
-        return null;
+        //return null;
     }
 
     global $CFG, $DB;
@@ -64,6 +64,11 @@ function tool_abconfig_after_config() {
                 foreach ($commands as $command) {
                     // Evaluate the command to figure the type out
                     $commandarray = explode(',', $command);
+                    // Protection form malformed commands
+                    if (count($commandarray) != 3) {
+                        return null;
+                    }
+
                     if ($commandarray[0] == 'CFG') {
                         $CFG->{$commandarray[1]} = $commandarray[2];
                     } else {
@@ -124,5 +129,4 @@ function tool_abconfig_after_require_login() {
         }
     }
 }
-
 
