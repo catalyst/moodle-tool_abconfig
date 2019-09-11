@@ -66,7 +66,7 @@ function tool_abconfig_after_config() {
                     $commandarray = explode(',', $command);
                     // Protection form malformed commands
                     if (count($commandarray) != 3) {
-                        return null;
+                        break;
                     }
 
                     if ($commandarray[0] == 'CFG') {
@@ -83,23 +83,19 @@ function tool_abconfig_after_config() {
             }
         }
     }
-    /*# example of temp override
-    $CFG->enableglobalsearch = 1;
-    // example of what *looks* like a forced override
-    $CFG->config_php_settings['enableglobalsearch'] = 1;
-    # forced override of plugin
-    $CFG->forced_plugin_settings['auth_saml2']['debug'] = 1;*/
 }
 
 function tool_abconfig_after_require_login() {
-    global $CFG, $DB;
+    global $CFG, $DB, $SESSION;
     $compare = $DB->sql_compare_text('session', strlen('session'));
     $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
 
     foreach ($records as $record) {
+        // Create experiment session var identifier
+        $unique = 'abconfig_'.$record->shortname;
+
         // get condition sets for experiment
         $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
-
         // Remove all conditions that contain the user ip in the whitelist
         $crecords = array();
 
@@ -110,21 +106,71 @@ function tool_abconfig_after_require_login() {
             }
         }
 
-        // Increment through conditions until one is selected
-        $condition = '';
-        $num = rand(1, 100);
-        $prevtotal = 0;
-        foreach ($crecords as $crecord) {
-            // If random number is within this range, set condition and break, else increment total
-            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
-                $commands = json_decode($crecord->commands);
-                foreach ($commands as $command) {
-                    eval($command);
+        // If condition set hasnt been selected, select a condition set, or none
+        if (!property_exists($SESSION, $unique)) {
+            // Increment through conditions until one is selected
+            $condition = '';
+            $num = rand(1, 100);
+            $prevtotal = 0;
+            foreach ($crecords as $crecord) {
+                // If random number is within this range, set condition and break, else increment total
+                if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
+                    $commands = json_decode($crecord->commands);
+                    foreach ($commands as $command) {
+                        // Evaluate the command to figure the type out
+                        $commandarray = explode(',', $command);
+                        // Protection form malformed commands
+                        if (count($commandarray) != 3) {
+                            break;
+                        }
+
+                        // Parse and execute command
+                        if ($commandarray[0] == 'CFG') {
+                            $CFG->{$commandarray[1]} = $commandarray[2];
+                            $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                        } else {
+                            $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
+                        }
+                    }
+                    // Set a session var for this command, so it is not executed again this session
+                    $SESSION->{$unique} = $crecord->set;
+
+                    // Do not execute any more conditions
+                    break;
+
+                } else {
+                    // Not this record, increment lower bound, and move on
+                    $prevtotal += $crecord->value;
                 }
+            }
+
+            // If session var is not set, no set selected, update var
+            if (!property_exists($SESSION, $unique)) {
+                $SESSION->$unique = '';
+            }
+
+            // Now exit condition loop, this call is finished
+            break;
+        }
+        
+        // This branch is where a condition set was already selected
+        $condition = $DB->get_record('tool_abconfig_condition', array('set' => $SESSION->$unique, 'experiment' => $record->id));
+
+        $commands = json_decode($condition->commands);
+        foreach ($commands as $command) {
+            // Evaluate the command to figure the type out
+            $commandarray = explode(',', $command);
+            // Protection form malformed commands
+            if (count($commandarray) != 3) {
+                break;
+            }
+
+            // Parse and execute command
+            if ($commandarray[0] == 'CFG') {
+                $CFG->{$commandarray[1]} = $commandarray[2];
+                $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
             } else {
-                // Not this record, increment lower bound, and move on
-                $prevtotal += $crecord->value;
+                $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
             }
         }
     }
