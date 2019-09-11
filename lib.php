@@ -29,10 +29,10 @@ function tool_abconfig_after_config() {
     // Initial Checks
     // Make admin immune
     if (is_siteadmin()) {
-        //return null;
+        return null;
     }
 
-    global $CFG, $DB;
+    global $CFG, $DB, $SESSION;
 
     // Every experiment that is per request
     $compare = $DB->sql_compare_text('request', strlen('request'));
@@ -80,6 +80,37 @@ function tool_abconfig_after_config() {
             } else {
                 // Not this record, increment lower bound, and move on
                 $prevtotal += $crecord->value;
+            }
+        }
+    }
+
+    // Now we must check for session level requests, that require the config to be the same, but applied every request
+    $sessioncompare = $DB->sql_compare_text('session', strlen('session'));
+    $sessionrecords = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($sessioncompare));
+
+    foreach ($sessionrecords as $record) {
+        // Check if a session var has been set for this experiment, only care if has been set
+        $unique = 'abconfig_'.$record->shortname;
+
+        if (property_exists($SESSION, $unique)) {
+            // If set, execute commands
+            $condition = $DB->get_record('tool_abconfig_condition', array('set' => $SESSION->$unique, 'experiment' => $record->id));
+            $commands = json_decode($condition->commands);
+            foreach ($commands as $command) {
+                // Evaluate the command to figure the type out
+                $commandarray = explode(',', $command);
+                // Protection form malformed commands
+                if (count($commandarray) != 3) {
+                    break;
+                }
+
+                // Parse and execute command
+                if ($commandarray[0] == 'CFG') {
+                    $CFG->{$commandarray[1]} = $commandarray[2];
+                    $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                } else {
+                    $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
+                }
             }
         }
     }
@@ -151,27 +182,6 @@ function tool_abconfig_after_require_login() {
 
             // Now exit condition loop, this call is finished
             break;
-        }
-        
-        // This branch is where a condition set was already selected
-        $condition = $DB->get_record('tool_abconfig_condition', array('set' => $SESSION->$unique, 'experiment' => $record->id));
-
-        $commands = json_decode($condition->commands);
-        foreach ($commands as $command) {
-            // Evaluate the command to figure the type out
-            $commandarray = explode(',', $command);
-            // Protection form malformed commands
-            if (count($commandarray) != 3) {
-                break;
-            }
-
-            // Parse and execute command
-            if ($commandarray[0] == 'CFG') {
-                $CFG->{$commandarray[1]} = $commandarray[2];
-                $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
-            } else {
-                $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
-            }
         }
     }
 }
