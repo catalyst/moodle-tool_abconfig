@@ -29,7 +29,7 @@ function tool_abconfig_after_config() {
     // Initial Checks
     // Make admin immune
     if (is_siteadmin()) {
-        //return null;
+        return null;
     }
 
     global $CFG, $DB;
@@ -60,21 +60,18 @@ function tool_abconfig_after_config() {
             // If random number is within this range, set condition and break, else increment total
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
 
-                // TEMP PHP EVAL TO TEST WHETHER INTERACTION IS WORKING
                 $commands = json_decode($crecord->commands);
                 foreach ($commands as $command) {
+                    // Evaluate the command to figure the type out
                     $commandarray = explode(',', $command);
                     if ($commandarray[0] == 'CFG') {
-                        $CFG->$commandarray[1] = $commandarray[2];
-                        $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                        $CFG->{$commandarray[1]} = $commandarray[2];
                     } else {
                         $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
-                        //echo "CFG->forced_plugin"
                     }
-                    
-                    // Break out of all conditions for this experiment
-                    break 2;
                 }
+                // Do not execute any more conditions
+                break;
             } else {
                 // Not this record, increment lower bound, and move on
                 $prevtotal += $crecord->value;
