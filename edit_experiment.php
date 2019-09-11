@@ -51,7 +51,7 @@ if (!empty($conditions)) {
 
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'shortname' => $experiment->shortname,
     'experimentscope' => $experiment->scope, 'experimentipwhitelist' => $iplist,
-    'experimentcommands' =>  $commands, 'experimentvalue' =>  reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
+    'experimentcommands' => $commands, 'experimentvalue' => reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
     'enabled' => $experiment->enabled);
 } else {
     $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,  'shortname' => $experiment->shortname,
