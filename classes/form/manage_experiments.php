@@ -40,21 +40,19 @@ class manage_experiments extends \moodleform {
         $mform->addElement('header', 'addexperiment', get_string('formaddexperiment', 'tool_abconfig'));
 
         // Name
-        $mform->addElement('text', 'experimentname', get_string('formexperimentname', 'tool_abconfig'));
+        $mform->addElement('text', 'experimentname', get_string('formexperimentname', 'tool_abconfig'), array('placeholder' => 'Experiment'));
         $mform->setType('experimentname', PARAM_TEXT);
-        $mform->setDefault('experimentname', 'Experiment');
         $mform->addRule('experimentname', get_string('formexperimentnamereq', 'tool_abconfig'), 'required', null, 'client');
 
         // Short Name
-        $mform->addElement('text', 'experimentshortname', get_string('formexperimentshortname', 'tool_abconfig'));
+        $mform->addElement('text', 'experimentshortname', get_string('formexperimentshortname', 'tool_abconfig'), array('placeholder' => 'experiment'));
         $mform->setType('experimentshortname', PARAM_TEXT);
-        $mform->setDefault('experimentshortname', 'experiment');
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
 
         // Select Scope
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
 
-        $this->add_action_buttons();
+        $this->add_action_buttons(true, get_string('formaddexperiment', 'tool_abconfig'));
     }
 
     public function validation($data, $files) {

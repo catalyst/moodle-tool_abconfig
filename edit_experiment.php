@@ -41,68 +41,41 @@ $eid = optional_param('id', 0, PARAM_INT);
 
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 
-// Set default displays to first condition set found
-$conditions = $DB->get_records('tool_abconfig_condition', array('experiment' => $experiment->id));
-
-if (!empty($conditions)) {
-    // Unserialise data for display
-    $commands = implode(PHP_EOL, json_decode(reset($conditions)->commands));
-    $iplist = implode(PHP_EOL, json_decode(reset($conditions)->ipwhitelist));
-
-    $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'shortname' => $experiment->shortname,
-    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => $iplist,
-    'experimentcommands' => $commands, 'experimentvalue' => reset($conditions)->value, 'id' => $eid, 'set' => reset($conditions)->set,
-    'enabled' => $experiment->enabled);
-} else {
-    $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,  'shortname' => $experiment->shortname,
-    'experimentscope' => $experiment->scope, 'experimentipwhitelist' => '', 'experimentcommands' => '', 'experimentvalue' => '', 'id' => $eid, 'set' => 0,
-    'enabled' => 0);
-}
-
+$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
+    'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled);
 $customarray = array('eid' => $experiment->id);
 
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
+} else if ($form->no_submit_button_pressed()) {
+    // Conditions button action
+    redirect(new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_conditions.php?id=$experiment->id"));
 } else if ($fromform = $form->get_data()) {
     // If eid is empty, do nothing
     // Form validation means data is safe to go to DB
     global $DB;
 
     // Set vars for cleaner DB queries
-    $shortname = $fromform->shortname;
-    $iplist = $fromform->experimentipwhitelist;
-    $commands = $fromform->experimentcommands;
-    $value = $fromform->experimentvalue;
-    $set = $fromform->set;
+    $name = $fromform->experimentname;
+    $shortname = $fromform->experimentshortname;
+    $scope = $fromform->scope;
+    $enabled = $fromform->enabled;
     $eid = $fromform->id;
-
-    // JSON Serialise commands and IP whitelist for storage
-    $commands = json_encode(explode(PHP_EOL, $commands));
-    $iplist = json_encode(explode(PHP_EOL, $iplist));
 
     if ($eid == 0) {
         redirect($prevurl);
     }
 
-    $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid, 'set' => $set));
-
-    // If record doesnt exist, create record, else, update record
-    if (empty($record)) {
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => $iplist,
-            'commands' => $commands, 'value' => $value, 'set' => $set));
+    if ($fromform->delete) {
+        // Delete experiment record
+        $DB->delete_records('tool_abconfig_experiment', array('id' => $eid));
+        // Also delete orphaned experiment conditions
+        $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
     } else {
-        $id = $record->id;
-        $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'ipwhitelist' => $iplist,
-            'commands' => $commands, 'value' => $value, 'set' => $set));
-    }
-
-    // Enable or disable experiment based on checkbox
-    if ($fromform->enabled) {
-        $DB->set_field('tool_abconfig_experiment', 'enabled', 1, array('id' => $eid));
-    } else {
-        $DB->set_field('tool_abconfig_experiment', 'enabled', 0, array('id' => $eid));
+        // Write form data to catch any changes
+        $DB->update_record('tool_abconfig_experiment', array('id' => $eid, 'name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled));
     }
 
     redirect($prevurl);
