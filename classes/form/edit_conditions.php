@@ -30,6 +30,51 @@ require_once("$CFG->libdir/formslib.php");
 class edit_conditions extends \moodleform {
     public function definition() {
         $mform = $this->_form;
+        global $DB;
+        $eid = $this->_customdata['eid'];
+        // Hidden element to track experiment id
+        $mform->addElement('hidden', 'eid', $eid);
+
+        // Get Data for repeating elements
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
+        $setcount = 1;
+        foreach ($records as $record) {
+            // Hidden to track sets
+            $id = $record->id;
+            $mform->addElement('hidden', "hidden{$id}");
+
+            // Section Header
+            $mform->addElement('header', "header{$id}", get_string('formheader', 'tool_abconfig', $setcount));
+            $mform->setExpanded("header{$id}");
+
+            // Shortname
+            $mform->addElement('text', "shortname{$id}", get_string('formexperimentcondsset', 'tool_abconfig'), array("size" => 20));
+            $mform->setType("shortname{$id}", PARAM_TEXT);
+            $mform->setDefault("shortname{$id}", $record->set);
+
+            // Commands
+            $mform->addElement('textarea', "commands{$id}", get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 5, 'cols' => 60));
+            $mform->setType("commands{$id}", PARAM_TEXT);
+            $mform->setDefault("commands{$id}", implode(PHP_EOL, json_decode($record->commands)));
+
+            // Value
+            $mform->addElement('text', "value{$id}", get_string("formexperimentvalue", "tool_abconfig"), array("size" => 20));
+            $mform->setType("value{$id}", PARAM_TEXT);
+            $mform->setDefault("value{$id}", $record->value);
+
+            // Delete
+            $mform->addElement('advcheckbox', "delete{$id}", get_string("formdeleterepeat", "tool_abconfig"), '', array(), array(0, 1));
+            $mform->setDefault("delete{$id}", 0);
+
+            $setcount++;
+        }
+
+        // Initial elements count
+        if (count($records) == 0) {
+            $count = 1;
+        } else {
+            $count = 0;
+        }
 
         // Setup repeating elements array
         $repeatarray = array();
@@ -40,17 +85,27 @@ class edit_conditions extends \moodleform {
         );
 
         $repeatarray[] = $mform->createElement(
+            'header',
+            'repeatheader',
+            get_string('formnnewconditions', 'tool_abconfig')
+        );
+
+        $repeatarray[] = $mform->createElement(
             "text",
             "repeatshortname",
             get_string("formexperimentcondsset", "tool_abconfig"),
-            array("size" => 40)
+            array("size" => 20)
         );
 
         $repeatarray[] = $mform->createElement(
             "textarea",
             "repeatcommands",
             get_string("formexperimentcommands", "tool_abconfig"),
-            array("size" => 40)
+            array(
+                "placeholder" => 'CFG,passwordpolicy,true',
+                "rows" => 5,
+                "cols" => 60
+            )
         );
 
         $repeatarray[] = $mform->createElement(
@@ -58,29 +113,56 @@ class edit_conditions extends \moodleform {
             "repeatvalue",
             get_string("formexperimentvalue", "tool_abconfig"),
             array(
-                "size" => 40
+                "size" => 20,
+                "placeholder" => '50'
             )
         );
 
         $repeatarray[] = $mform->createElement(
             "advcheckbox",
             "repeatdelete",
-            get_string("setdeleted", "local_envbar"),
+            get_string("formdeleterepeat", "tool_abconfig"),
             '',
             array(),
             array(0, 1)
         );
 
         $repeatarray[] = $mform->addElement("html", "<hr>");
+        
         $repeatoptions = array();
+        $repeatoptions["repeatid"]["default"] = "{no}";
+        $repeatoptions["repeatid"]["type"] = PARAM_INT;
 
-        $this->repeat_elements($repeatarray, 1, $repeatoptions, 'repeats', 'add_condition', 1, 'add', false);
+        $repeatoptions["repeatheader"]["expanded"] = true;
+
+        $repeatoptions["repeatshortname"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
+
+
+        $this->repeat_elements($repeatarray, $count, $repeatoptions, 'repeats', 'add_condition', 1, get_string('formaddrepeat', 'tool_abconfig'), false);
 
         $this->add_action_buttons();
     }
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+        global $DB;
+        $eid = $data['eid'];
+
+        $total = 0;
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+
+        foreach ($records as $record) {
+            $key = "value{$record->id}";
+            $total += $data[$key];
+        }
+
+        //echo var_dump($data['repeats']);
+        //die;
+
+
+
         return $errors;
     }
 }

@@ -47,6 +47,10 @@ $string['formexperimentvalueerror'] = ' % value must be a number in range 0-100'
 $string['formexperimentcondsset'] = 'Conditions set';
 $string['formexperimentvalueexceed'] = 'Total of all condition set values must be <= 100. Currently {$a}';
 $string['formexperimentenabled'] = 'Enable Experiment';
+$string['formdeleterepeat'] = 'Delete';
+$string['formaddrepeat'] = 'Add Condition Set';
+$string['formheader'] = 'Condition Set {$a}';
+$string['formnnewconditions'] = 'New Condition Set';
 
 // short Strings
 $string['request'] = 'Request';

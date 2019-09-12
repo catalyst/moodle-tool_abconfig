@@ -38,18 +38,63 @@ require_login();
 global $DB, $PAGE, $SESSION;
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
-$eid = optional_param('id', 0, PARAM_INT);
+$eid = optional_param('id', null, PARAM_INT);
+//$eid = required_param('id', PARAM_INT);
+
+$url = new moodle_url('/admin/tool/abconfig/edit_conditions.php');
+$url->param('id', $eid);
+$PAGE->set_url($url);
+
+if (empty($eid)) {
+
+}
+
+$customdata = array('eid' => $eid);
 
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 
-$form = new \tool_abconfig\form\edit_conditions();
+$form = new \tool_abconfig\form\edit_conditions($url, $customdata);
 
 if ($form->is_cancelled()) {
     redirect($prevurl);
-}
+} else if ($fromform = $form->get_data()) {
+    global $DB;
+    $eid = $fromform->eid;
 
-// Build the page output
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
-$form->display();
-echo $OUTPUT->footer();
+
+    //Updating old data
+    $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
+    foreach ($records as $record) {
+        $shortname = "shortname{$record->id}";
+        $commands = "commands{$record->id}";
+        $value = "value{$record->id}";
+
+        $DB->update_record('tool_abconfig_condition', array(
+            'id' => $record->id,
+            'experiment' => $record->experiment,
+            'set' => $fromform->$shortname,
+            'commands' => json_encode(explode(PHP_EOL, $fromform->$commands)),
+            'value' => $fromform->$value
+        ));
+    }
+
+    // Adding new data
+    $repeats = array_keys($fromform->repeatid);
+    foreach ($repeats as $key => $value) {
+        $DB->insert_record('tool_abconfig_condition', array (
+            'experiment' => $eid,
+            'set' => $fromform->repeatshortname[$value],
+            'commands' => json_encode(explode(PHP_EOL, $fromform->repeatcommands[$value])),
+            'value' => $fromform->repeatvalue[$value]
+        ));
+    }
+    redirect($prevurl);
+
+} else {
+
+    // Build the page output
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
+    $form->display();
+    echo $OUTPUT->footer();
+}
