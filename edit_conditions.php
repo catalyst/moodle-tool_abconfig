@@ -25,7 +25,6 @@
 
 
 require_once(dirname(__FILE__) . '/../../../config.php');
-//require_once($CFG->libdir . '/adminlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,15 +38,10 @@ global $DB, $PAGE, $SESSION;
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
 $eid = optional_param('id', null, PARAM_INT);
-//$eid = required_param('id', PARAM_INT);
 
 $url = new moodle_url('/admin/tool/abconfig/edit_conditions.php');
 $url->param('id', $eid);
 $PAGE->set_url($url);
-
-if (empty($eid)) {
-
-}
 
 $customdata = array('eid' => $eid);
 
@@ -60,9 +54,12 @@ if ($form->is_cancelled()) {
 } else if ($fromform = $form->get_data()) {
     global $DB;
     $eid = $fromform->eid;
+    // Page doesnt have an experiment, do nothing
+    if (empty($eid)) {
+        redirect($prevurl);
+    }
 
-
-    //Updating old data
+    // Updating old data
     $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
     foreach ($records as $record) {
         $shortname = "shortname{$record->id}";

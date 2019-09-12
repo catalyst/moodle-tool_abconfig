@@ -128,7 +128,7 @@ class edit_conditions extends \moodleform {
         );
 
         $repeatarray[] = $mform->addElement("html", "<hr>");
-        
+
         $repeatoptions = array();
         $repeatoptions["repeatid"]["default"] = "{no}";
         $repeatoptions["repeatid"]["type"] = PARAM_INT;
@@ -138,7 +138,6 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatshortname"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
-
 
         $this->repeat_elements($repeatarray, $count, $repeatoptions, 'repeats', 'add_condition', 1, get_string('formaddrepeat', 'tool_abconfig'), false);
 
@@ -157,12 +156,7 @@ class edit_conditions extends \moodleform {
             $key = "value{$record->id}";
             $total += $data[$key];
         }
-
-        //echo var_dump($data['repeats']);
-        //die;
-
-
-
+        
         return $errors;
     }
 }
