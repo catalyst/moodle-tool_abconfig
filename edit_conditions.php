@@ -35,13 +35,14 @@ $PAGE->set_title('Edit Experiment Conditions');
 require_login();
 
 global $DB, $PAGE, $SESSION;
-$prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
 $eid = optional_param('id', null, PARAM_INT);
 
 $url = new moodle_url('/admin/tool/abconfig/edit_conditions.php');
 $url->param('id', $eid);
 $PAGE->set_url($url);
+
+$prevurl = ($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$eid");
 
 $customdata = array('eid' => $eid);
 
@@ -63,9 +64,18 @@ if ($form->is_cancelled()) {
     $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
     foreach ($records as $record) {
         $shortname = "shortname{$record->id}";
-        $commands = "commands{$record->id}";
+        $iplist = "iplist{$record->id}";
+        $commandskey = "commands{$record->id}";
         $value = "value{$record->id}";
         $delete = "delete{$record->id}";
+
+        // Check if commands are present before json_encode
+        $commandstring = $fromform->$commandskey;
+        if (empty($commandstring)) {
+            $commands = $commandstring;
+        } else {
+            $commands = json_encode(explode(PHP_EOL, $commandstring));
+        }
 
         if ($fromform->$delete) {
             // Delete record if delete checkbox enabled
@@ -76,7 +86,8 @@ if ($form->is_cancelled()) {
                 'id' => $record->id,
                 'experiment' => $record->experiment,
                 'set' => $fromform->$shortname,
-                'commands' => json_encode(explode(PHP_EOL, $fromform->$commands)),
+                'ipwhitelist' => $fromform->$iplist,
+                'commands' => $commands,
                 'value' => $fromform->$value
             ));
         }
@@ -95,11 +106,21 @@ if ($form->is_cancelled()) {
             // If accidentally added condition set and wishes to delete
             continue;
         } else {
+
+            // Check if commands are present before json_encode
+            $commandstring = $fromform->repeatcommands[$value];
+            if (empty($commandstring)) {
+                $commands = $commandstring;
+            } else {
+                $commands = json_encode(explode(PHP_EOL, $commandstring));
+            }
+
             // else add record to DB
             $DB->insert_record('tool_abconfig_condition', array (
                 'experiment' => $eid,
                 'set' => $fromform->repeatshortname[$value],
-                'commands' => json_encode(explode(PHP_EOL, $fromform->repeatcommands[$value])),
+                'ipwhitelist' => $fromform->repeatiplist[$value],
+                'commands' => $commands,
                 'value' => $fromform->repeatvalue[$value]
             ));
         }

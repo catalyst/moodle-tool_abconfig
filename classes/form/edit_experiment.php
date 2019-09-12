@@ -33,75 +33,58 @@ class edit_experiment extends \moodleform {
         $mform = $this->_form;
 
         // Hidden form element for experiment id
-        $mform->addElement('hidden', 'shortname', '');
-        $mform->setType('shortname', PARAM_TEXT);
         $mform->addElement('hidden', 'id', '');
         $mform->setType('id', PARAM_INT);
 
+        // eid to pass to table generation
         $eid = $this->_customdata['eid'];
 
         // Display the basic experiment information
         $mform->addElement('header', 'experimentinfo', get_string('formexperimentinfo', 'tool_abconfig'));
-        $mform->addElement('static', 'experimentname', get_string('name', 'tool_abconfig'), '');
-        $mform->addElement('static', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
-        $mform->addElement('static', 'experimentscope', get_string('scope', 'tool_abconfig'), '');
+
+        $mform->addElement('text', 'experimentname', get_string('name', 'tool_abconfig'), '');
+        $mform->setType('experimentname', PARAM_TEXT);
+        $mform->addRule('experimentname', get_string('formexperimentnamereq'), 'required');
+
+        $mform->addElement('text', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
+        $mform->setType('experimentshortname', PARAM_TEXT);
+        $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq'), 'required');
+
+
+        // Setup Data array for scopes
+        $scopes = ['request' => get_string('request', 'tool_abconfig'), 'session' => get_string('session', 'tool_abconfig')];
+        $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
 
         // Enabled checkbox
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
 
+        // Delete experiment checkbox
+        $mform->addElement('advcheckbox', 'delete', get_string('formdeleteexperiment', 'tool_abconfig'));
+
         // Experiment conditions
         $mform->addElement('header', 'experimentconds', get_string('formexperimentconds', 'tool_abconfig'));
 
-        // Condition set to edit
-        $mform->addElement('text', 'set', get_string('formexperimentcondsset', 'tool_abconfig'));
-        $mform->setType('set', PARAM_INT);
-
-        // Ip Whitelist field
-        $mform->addElement('textarea', 'experimentipwhitelist', get_string('formipwhitelist', 'tool_abconfig'));
-        $mform->setType('experimentipwhitelist', PARAM_TEXT);
-
-        // Commands field
-        $mform->addElement('textarea', 'experimentcommands', get_string('formexperimentcommands', 'tool_abconfig'));
-        $mform->setType('experimentcommands', PARAM_RAW);
-
-        // Value field
-        $mform->addElement('text', 'experimentvalue', get_string('formexperimentvalue', 'tool_abconfig'));
-        $mform->setType('experimentvalue', PARAM_TEXT);
-        $mform->addRule('experimentvalue', get_string('formexperimentvalueerror', 'tool_abconfig'), 'numeric');
-
         $mform->addElement('html', $this->generate_table($eid));
 
-        $this->add_action_buttons();
+        // Conditions button
+        //$mform->addElement('submit', 'conditions', get_string('formeditconditions', 'tool_abconfig'));
+
+
+        // Setup button group
+        $buttonarray = array();
+        $buttonarray[] =& $mform->createElement('submit', 'savechanges', get_string('save'));
+        $buttonarray[] =& $mform->createElement('submit', 'conditions', get_string('formeditconditions', 'tool_abconfig'));
+        $mform->registerNoSubmitButton('conditions');
+        $mform->closeHeaderBefore('conditions');
+        $buttonarray[] =& $mform->createElement('cancel', 'cancel', get_string('cancel'));
+
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+
+        //$this->add_action_buttons();
     }
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $value = $data['experimentvalue'];
-        $shortname = $data['shortname'];
-        $eid = $data['id'];
-
-        global $DB;
-
-        // ==================================================VALUE VALIDATION=======================================================
-
-        // Check value is inside accepted range
-        if ($value < 0 || $value > 100 || !is_numeric($value)) {
-            $errors['experimentvalue'] = get_string('formexperimentvalueerror', 'tool_abconfig');
-        }
-
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
-
-        $total = 0;
-        foreach ($records as $record) {
-            // If record is already present for form 'set', ignore value, update rather than addition
-            if ($record->set != $data['set']) {
-                $total += $record->value;
-            }
-        }
-
-        if (($total + $value) > 100) {
-            $errors['experimentvalue'] = get_string('formexperimentvalueexceed', 'tool_abconfig', ($total + $value));
-        }
 
         return $errors;
     }
@@ -121,7 +104,21 @@ class edit_experiment extends \moodleform {
         // Get experiment conditions records
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
         foreach ($records as $record) {
-            $table->data[] = array($record->set, $record->ipwhitelist, $record->commands, $record->value);
+            // Check for empty commands
+            if (empty($record->commands)) {
+                $commands = get_string('formnocommands', 'tool_abconfig');
+            } else {
+                $commands = $record->commands;
+            }
+
+            // Check for empty IPs
+            if (empty($record->ipwhitelist)) {
+                $iplist = get_string('formnoips', 'tool_abconfig');
+            } else {
+                $iplist = $record->ipwhitelist;
+            }
+
+            $table->data[] = array($record->set, $iplist, $commands, $record->value);
         }
 
         return \html_writer::table($table);

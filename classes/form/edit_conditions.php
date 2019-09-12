@@ -52,6 +52,11 @@ class edit_conditions extends \moodleform {
             $mform->setType("shortname{$id}", PARAM_TEXT);
             $mform->setDefault("shortname{$id}", $record->set);
 
+            // IP Whitelist
+            $mform->addElement('textarea', "iplist{$id}", get_string('formipwhitelist', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
+            $mform->setType("iplist{$id}", PARAM_TEXT);
+            $mform->setDefault("iplist{$id}", $record->ipwhitelist);
+
             // Commands
             $mform->addElement('textarea', "commands{$id}", get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 5, 'cols' => 60));
             $mform->setType("commands{$id}", PARAM_TEXT);
@@ -99,6 +104,17 @@ class edit_conditions extends \moodleform {
 
         $repeatarray[] = $mform->createElement(
             "textarea",
+            "repeatiplist",
+            get_string("formipwhitelist", "tool_abconfig"),
+            array(
+                "placeholder" => '127.0.0.1',
+                "rows" => 3,
+                "cols" => 60
+            )
+        );
+
+        $repeatarray[] = $mform->createElement(
+            "textarea",
             "repeatcommands",
             get_string("formexperimentcommands", "tool_abconfig"),
             array(
@@ -136,6 +152,7 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatheader"]["expanded"] = true;
 
         $repeatoptions["repeatshortname"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatiplist"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
 
@@ -152,11 +169,44 @@ class edit_conditions extends \moodleform {
         $total = 0;
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
 
+        // Validate edited form entries
         foreach ($records as $record) {
+            // Check if record is being deleted, if so, ignore value
+            $deletedkey = "deleted{$record->id}";
+            if ($data[$deletedkey]) {
+                continue;
+            }
+
             $key = "value{$record->id}";
+            // Ensure value is numeric in correct range
+            if ($data[$key] < 0 || $data[$key] > 100 || !is_numeric($data[$key])) {
+                $errors[$key] = get_string('formexperimentvalueerror', 'tool_abconfig');
+            }
+            // Increment total and check value
             $total += $data[$key];
+            if ($total > 100) {
+                $errors[$key] = get_string('formexperimentvalueexceed', 'tool_abconfig', $total);
+            }
         }
-        
+
+        // Validate added fields
+        $repeats = array_keys($data['repeatid']);
+        foreach ($repeats as $key => $value) {
+            // Check if record is being deleted, if so, ignore value
+            if ($data['repeatdelete'][$value]) {
+                continue;
+            }
+            // Ensure value is numeric in correct range
+            if ($data['repeatvalue'][$value] < 0 || $data['repeatvalue'][$value] > 100 || !is_numeric($data['repeatvalue'][$value])) {
+                $errors["repeatvalue[$value]"] = get_string('formexperimentvalueerror', 'tool_abconfig');
+            }
+            // Increment total and check value
+            $total += $data['repeatvalue'][$value];
+            if ($total > 100) {
+                $errors["repeatvalue[$value]"] = get_string('formexperimentvalueexceed', 'tool_abconfig', $total);
+            }
+        }
+
         return $errors;
     }
 }

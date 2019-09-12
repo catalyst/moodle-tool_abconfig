@@ -51,6 +51,11 @@ $string['formdeleterepeat'] = 'Delete';
 $string['formaddrepeat'] = 'Add Condition Set';
 $string['formheader'] = 'Condition Set {$a}';
 $string['formnnewconditions'] = 'New Condition Set';
+$string['formeditconditions'] = 'Edit Conditions';
+$string['formnocommands'] = 'No Commands';
+$string['formnoips'] = 'No IPs';
+$string['formaddexperiment'] = 'Add Experiment';
+$string['formdeleteexperiment'] = 'Delete Experiment';
 
 // short Strings
 $string['request'] = 'Request';
