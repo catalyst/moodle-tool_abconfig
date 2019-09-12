@@ -68,26 +68,46 @@ if ($form->is_cancelled()) {
         $shortname = "shortname{$record->id}";
         $commands = "commands{$record->id}";
         $value = "value{$record->id}";
+        $delete = "delete{$record->id}";
 
-        $DB->update_record('tool_abconfig_condition', array(
-            'id' => $record->id,
-            'experiment' => $record->experiment,
-            'set' => $fromform->$shortname,
-            'commands' => json_encode(explode(PHP_EOL, $fromform->$commands)),
-            'value' => $fromform->$value
-        ));
+        if ($fromform->$delete) {
+            // Delete record if delete checkbox enabled
+            $DB->delete_records('tool_abconfig_condition', array('id' => $record->id));
+        } else {
+            // Else write data back to DB
+            $DB->update_record('tool_abconfig_condition', array(
+                'id' => $record->id,
+                'experiment' => $record->experiment,
+                'set' => $fromform->$shortname,
+                'commands' => json_encode(explode(PHP_EOL, $fromform->$commands)),
+                'value' => $fromform->$value
+            ));
+        }
     }
 
     // Adding new data
     $repeats = array_keys($fromform->repeatid);
     foreach ($repeats as $key => $value) {
-        $DB->insert_record('tool_abconfig_condition', array (
-            'experiment' => $eid,
-            'set' => $fromform->repeatshortname[$value],
-            'commands' => json_encode(explode(PHP_EOL, $fromform->repeatcommands[$value])),
-            'value' => $fromform->repeatvalue[$value]
-        ));
+
+        // Protect from empty data
+        if (empty($fromform->repeatshortname[$value])) {
+            continue;
+        }
+
+        if ($fromform->repeatdelete[$value]) {
+            // If accidentally added condition set and wishes to delete
+            continue;
+        } else {
+            // else add record to DB
+            $DB->insert_record('tool_abconfig_condition', array (
+                'experiment' => $eid,
+                'set' => $fromform->repeatshortname[$value],
+                'commands' => json_encode(explode(PHP_EOL, $fromform->repeatcommands[$value])),
+                'value' => $fromform->repeatvalue[$value]
+            ));
+        }
     }
+    // Back to experiment
     redirect($prevurl);
 
 } else {
