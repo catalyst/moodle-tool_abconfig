@@ -255,12 +255,44 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 0);
     }
 
-    public function test_session_no_experiment() {
-
-    }
-
     public function test_session_core_experiment() {
+        $this->resetAfterTest(true);
+        global $DB, $CFG;
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
+        // Setup a new user
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Set config control to be modified by the experiment
+        $CFG->passwordpolicy = 0;
+
+        // Setup a valid experiment, and some conditions
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
+        $commandstring = 'CFG,passwordpolicy,1';
+        $commands = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'set' => 0, 'value' => 100));
+
+        $commandstring2 = 'CFG,passwordpolicy,0';
+        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'set' => 1, 'value' => 0));
+
+        // Call the hook and verify result
+        tool_abconfig_after_require_login();
+        $this->assertEquals($CFG->passwordpolicy, 1);
+
+        // Now update the values to force the opposite control, and ensure actual config doesnt change
+        $DB->set_field('tool_abconfig_condition', 'value', 0, array('experiment' => $eid, 'set' => 0));
+        $DB->set_field('tool_abconfig_condition', 'value', 100, array('experiment' => $eid, 'set' => 1));
+        
+        // Call the hook and test for no change
+        tool_abconfig_after_require_login();
+        $this->assertEquals($CFG->passwordpolicy, 1);
+
+        // Now set control manually to incorrect state, as if another page load performed, and test correct behaviour is set in the after_config hook
+        $CFG->passwordpolicy = 0;
+        tool_abconfig_after_config();
+        $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
     public function test_session_plugin_experiment() {
