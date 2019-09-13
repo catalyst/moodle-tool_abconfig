@@ -185,7 +185,33 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
     }
 
     public function test_request_ip_whitelist() {
+        $this->resetAfterTest(true);
+        global $DB, $CFG;
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
+        // Setup a new user
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Set config to test against
+        $CFG->passwordpolicy = 0;
+
+        // Setup a valid experiment, and multi conditions
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
+        
+        $commandstring = 'CFG,passwordpolicy,1';
+        $commands = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123', 'commands' => $commands, 'set' => 0, 'value' => 100));
+
+        // Now execute first hook, and check core value hasnt changed
+        tool_abconfig_after_config();
+
+        $this->assertEquals($CFG->passwordpolicy, 0);
+
+        // Now update condition field to remove ip whitelist, and check that value is updated
+        $DB->set_field('tool_abconfig_condition', 'ipwhitelist', '', array('experiment' => $eid, 'set' => 0));
+        tool_abconfig_after_config();
+        $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
     public function test_session_no_execute() {
