@@ -46,7 +46,7 @@ function tool_abconfig_after_config() {
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            $iplist = $conditionrecord->ipwhitelist;
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
