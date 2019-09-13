@@ -215,11 +215,44 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
     }
 
     public function test_session_no_execute() {
+        $this->resetAfterTest(true);
+        global $DB, $CFG;
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
+        // Setup a new user
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        $preconfig = $CFG;
+
+        // Execute hook call
+        tool_abconfig_after_require_login();
+
+        // Check Config wasnt changed by hook (more for unintended side effect regression testing)
+        $this->assertSame($preconfig, $CFG);
     }
 
     public function test_session_admin_immunity () {
+        $this->resetAfterTest(true);
+        global $DB, $CFG;
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
+        $this->setAdminUser();
+
+        // Set config control to be modified by the experiment
+        $CFG->passwordpolicy = 0;
+
+        // Setup a valid experiment, and some conditions
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
+        $commandstring = 'CFG,passwordpolicy,1';
+        $commands = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'set' => 0, 'value' => 100));
+
+        // Call the hook
+        tool_abconfig_after_require_login();
+        
+        // Test that the configuration was NOT applied
+        $this->assertEquals($CFG->passwordpolicy, 0);
     }
 
     public function test_session_no_experiment() {

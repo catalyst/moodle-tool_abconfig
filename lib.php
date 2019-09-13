@@ -117,6 +117,12 @@ function tool_abconfig_after_config() {
 }
 
 function tool_abconfig_after_require_login() {
+
+    // Make admin immune
+    if (is_siteadmin()) {
+        return null;
+    }
+
     global $CFG, $DB, $SESSION;
     $compare = $DB->sql_compare_text('session', strlen('session'));
     $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
@@ -131,7 +137,7 @@ function tool_abconfig_after_require_login() {
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            $iplist = $conditionrecord->ipwhitelist;
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
