@@ -46,7 +46,7 @@ function tool_abconfig_after_config() {
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            $iplist = $conditionrecord->ipwhitelist;
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
@@ -92,9 +92,9 @@ function tool_abconfig_after_config() {
         // Check if a session var has been set for this experiment, only care if has been set
         $unique = 'abconfig_'.$record->shortname;
 
-        if (property_exists($SESSION, $unique)) {
+        if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
             // If set, execute commands
-            $condition = $DB->get_record('tool_abconfig_condition', array('set' => $SESSION->$unique, 'experiment' => $record->id));
+            $condition = $DB->get_record('tool_abconfig_condition', array('condset' => $SESSION->$unique, 'experiment' => $record->id));
             $commands = json_decode($condition->commands);
             foreach ($commands as $command) {
                 // Evaluate the command to figure the type out
@@ -117,6 +117,12 @@ function tool_abconfig_after_config() {
 }
 
 function tool_abconfig_after_require_login() {
+
+    // Make admin immune
+    if (is_siteadmin()) {
+        return null;
+    }
+
     global $CFG, $DB, $SESSION;
     $compare = $DB->sql_compare_text('session', strlen('session'));
     $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
@@ -131,7 +137,7 @@ function tool_abconfig_after_require_login() {
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = implode(PHP_EOL, json_decode($conditionrecord->ipwhitelist));
+            $iplist = $conditionrecord->ipwhitelist;
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
@@ -164,7 +170,7 @@ function tool_abconfig_after_require_login() {
                         }
                     }
                     // Set a session var for this command, so it is not executed again this session
-                    $SESSION->{$unique} = $crecord->set;
+                    $SESSION->{$unique} = $crecord->condset;
 
                     // Do not execute any more conditions
                     break;

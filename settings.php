@@ -40,8 +40,7 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('abconfigsettings', get_string('abconfigsettings', 'tool_abconfig'));
     $ADMIN->add('abconfig', $settings);
 
-    if (!during_initial_install()) {
-
-    }
+    // if (!during_initial_install()) {
+    // }
 }
 

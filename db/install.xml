@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190909" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
+<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190916" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -20,7 +20,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="experiment" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Experiment ID that the conditions relate to"/>
-        <FIELD NAME="set" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Set of conditions for experiment"/>
+        <FIELD NAME="condset" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Set of conditions for experiment"/>
         <FIELD NAME="ipwhitelist" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of safe IP addresses to be ignored when callbacks for experiments fire"/>
         <FIELD NAME="commands" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of commands to be run per condition"/>
         <FIELD NAME="value" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="The % amount of traffic on which the experiment will be executed"/>
