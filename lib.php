@@ -92,7 +92,7 @@ function tool_abconfig_after_config() {
         // Check if a session var has been set for this experiment, only care if has been set
         $unique = 'abconfig_'.$record->shortname;
 
-        if (property_exists($SESSION, $unique)) {
+        if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
             // If set, execute commands
             $condition = $DB->get_record('tool_abconfig_condition', array('set' => $SESSION->$unique, 'experiment' => $record->id));
             $commands = json_decode($condition->commands);
