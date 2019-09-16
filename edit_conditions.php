@@ -85,7 +85,7 @@ if ($form->is_cancelled()) {
             $DB->update_record('tool_abconfig_condition', array(
                 'id' => $record->id,
                 'experiment' => $record->experiment,
-                'set' => $fromform->$shortname,
+                'condset' => $fromform->$shortname,
                 'ipwhitelist' => $fromform->$iplist,
                 'commands' => $commands,
                 'value' => $fromform->$value
@@ -118,7 +118,7 @@ if ($form->is_cancelled()) {
             // else add record to DB
             $DB->insert_record('tool_abconfig_condition', array (
                 'experiment' => $eid,
-                'set' => $fromform->repeatshortname[$value],
+                'condset' => $fromform->repeatshortname[$value],
                 'ipwhitelist' => $fromform->repeatiplist[$value],
                 'commands' => $commands,
                 'value' => $fromform->repeatvalue[$value]

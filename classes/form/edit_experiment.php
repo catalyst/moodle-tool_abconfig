@@ -95,7 +95,7 @@ class edit_experiment extends \moodleform {
             $stringarr->formexperimentcommands, $stringarr->formexperimentvalue);
 
         // Get experiment conditions records
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'set ASC');
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
         foreach ($records as $record) {
             // Check for empty commands
             if (empty($record->commands)) {
@@ -111,7 +111,7 @@ class edit_experiment extends \moodleform {
                 $iplist = $record->ipwhitelist;
             }
 
-            $table->data[] = array($record->set, $iplist, $commands, $record->value);
+            $table->data[] = array($record->condset, $iplist, $commands, $record->value);
         }
 
         return \html_writer::table($table);

@@ -50,7 +50,7 @@ class edit_conditions extends \moodleform {
             // Shortname
             $mform->addElement('text', "shortname{$id}", get_string('formexperimentcondsset', 'tool_abconfig'), array("size" => 20));
             $mform->setType("shortname{$id}", PARAM_TEXT);
-            $mform->setDefault("shortname{$id}", $record->set);
+            $mform->setDefault("shortname{$id}", $record->condset);
 
             // IP Whitelist
             $mform->addElement('textarea', "iplist{$id}", get_string('formipwhitelist', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
