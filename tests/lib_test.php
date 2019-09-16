@@ -321,11 +321,9 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         tool_abconfig_after_require_login();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
         
-
         // Change experiment conditions so the other set always fires
         $DB->set_field('tool_abconfig_condition', 'value', 0, array('experiment' => $eid, 'set' => 0));
         $DB->set_field('tool_abconfig_condition', 'value', 100, array('experiment' => $eid, 'set' => 1));
-
 
         // Now execute hook again and check that it remains the same as first call
         tool_abconfig_after_require_login();
@@ -340,14 +338,46 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
     }
 
     public function test_session_multi_condition() {
+        $this->resetAfterTest(true);
+        global $DB, $CFG;
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
+        // Setup a new user
+        $user = $this->getDataGenerator()->create_user();
+        $this->setUser($user);
+
+        // Set config control to be modified by the experiment
+        $CFG->passwordpolicy = 0;
+
+        // Set plugin config control to be modified by the experiment
+        set_config('expiration', 'no', 'auth_manual');
+
+        // Setup a valid experiment, and some conditions
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
+        $commandstring = 'CFG,passwordpolicy,1'.PHP_EOL.'auth_manual,expiration,yes';
+        $commands = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'set' => 0, 'value' => 100));
+ 
+        $commandstring2 = 'auth_manual,expiration,yes';
+        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'set' => 1, 'value' => 0));
+
+        // Execute the hook and test that the session config applied
+        tool_abconfig_after_require_login();
+        $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
+        $this->assertEquals($CFG->passwordpolicy, 1);
+
+        // Manually reset settings (simulates new page load)
+        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
+        $CFG->passwordpolicy = 0;
+
+        // Test that after_config correctly applies both settings
+        tool_abconfig_after_config();
+        $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
+        $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
     public function test_session_ip_whitelist() {
-
-    }
-
-    public function test_request_no_execute() {
 
     }
 }
