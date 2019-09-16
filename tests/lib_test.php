@@ -127,7 +127,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         tool_abconfig_after_config();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
     }
-    
+
     public function test_request_multi_condition() {
         $this->resetAfterTest(true);
         global $DB, $CFG;
@@ -144,7 +144,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        
+
         $commandstring = 'auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'set' => 0, 'value' => 100));
@@ -198,7 +198,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        
+
         $commandstring = 'CFG,passwordpolicy,1';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123', 'commands' => $commands, 'set' => 0, 'value' => 100));
@@ -250,7 +250,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Call the hook
         tool_abconfig_after_require_login();
-        
+
         // Test that the configuration was NOT applied
         $this->assertEquals($CFG->passwordpolicy, 0);
     }
@@ -284,7 +284,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         // Now update the values to force the opposite control, and ensure actual config doesnt change
         $DB->set_field('tool_abconfig_condition', 'value', 0, array('experiment' => $eid, 'set' => 0));
         $DB->set_field('tool_abconfig_condition', 'value', 100, array('experiment' => $eid, 'set' => 1));
-        
+
         // Call the hook and test for no change
         tool_abconfig_after_require_login();
         $this->assertEquals($CFG->passwordpolicy, 1);
@@ -316,11 +316,11 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         $commandstring2 = 'auth_manual,expiration,no';
         $commands2 = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'set' => 1, 'value' => 0));
-    
+
         // Call the hook and verify result
         tool_abconfig_after_require_login();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
-        
+
         // Change experiment conditions so the other set always fires
         $DB->set_field('tool_abconfig_condition', 'value', 0, array('experiment' => $eid, 'set' => 0));
         $DB->set_field('tool_abconfig_condition', 'value', 100, array('experiment' => $eid, 'set' => 1));
@@ -337,7 +337,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
     }
 
-    public function test_session_multi_condition() {
+    public function test_session_multi_command() {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -357,7 +357,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         $commandstring = 'CFG,passwordpolicy,1'.PHP_EOL.'auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'set' => 0, 'value' => 100));
- 
+
         $commandstring2 = 'auth_manual,expiration,yes';
         $commands2 = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'set' => 1, 'value' => 0));
@@ -375,6 +375,10 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         tool_abconfig_after_config();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
         $this->assertEquals($CFG->passwordpolicy, 1);
+    }
+
+    public function test_session_multi_condition() {
+
     }
 
     public function test_session_ip_whitelist() {

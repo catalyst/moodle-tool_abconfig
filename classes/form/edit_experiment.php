@@ -50,7 +50,6 @@ class edit_experiment extends \moodleform {
         $mform->setType('experimentshortname', PARAM_TEXT);
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq'), 'required');
 
-
         // Setup Data array for scopes
         $scopes = ['request' => get_string('request', 'tool_abconfig'), 'session' => get_string('session', 'tool_abconfig')];
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
@@ -66,10 +65,6 @@ class edit_experiment extends \moodleform {
 
         $mform->addElement('html', $this->generate_table($eid));
 
-        // Conditions button
-        //$mform->addElement('submit', 'conditions', get_string('formeditconditions', 'tool_abconfig'));
-
-
         // Setup button group
         $buttonarray = array();
         $buttonarray[] =& $mform->createElement('submit', 'savechanges', get_string('save'));
@@ -79,8 +74,6 @@ class edit_experiment extends \moodleform {
         $buttonarray[] =& $mform->createElement('cancel', 'cancel', get_string('cancel'));
 
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
-
-        //$this->add_action_buttons();
     }
 
     public function validation($data, $files) {
