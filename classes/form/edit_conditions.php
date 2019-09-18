@@ -58,7 +58,7 @@ class edit_conditions extends \moodleform {
             $mform->setDefault("iplist{$id}", $record->ipwhitelist);
 
             // Commands
-            $mform->addElement('textarea', "commands{$id}", get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 5, 'cols' => 60));
+            $mform->addElement('textarea', "commands{$id}", get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 6, 'cols' => 60));
             $mform->setType("commands{$id}", PARAM_TEXT);
             $mform->setDefault("commands{$id}", implode(PHP_EOL, json_decode($record->commands)));
 
@@ -118,8 +118,9 @@ class edit_conditions extends \moodleform {
             "repeatcommands",
             get_string("formexperimentcommands", "tool_abconfig"),
             array(
-                "placeholder" => 'CFG,passwordpolicy,true',
-                "rows" => 5,
+                "placeholder" => 'CFG,passwordpolicy,true'.PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes'.PHP_EOL.'http_header,From,example@example.org'
+                .PHP_EOL.'error_log,example error message'.PHP_EOL."js_header,console.log('example')".PHP_EOL."js_footer,console.log('example')",
+                "rows" => 6,
                 "cols" => 60
             )
         );

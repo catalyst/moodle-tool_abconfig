@@ -27,9 +27,9 @@ defined('MOODLE_INTERNAL') || die;
 function tool_abconfig_after_config() {
     // Initial Checks
     // Make admin immune
-    /*if (is_siteadmin()) {
+    if (is_siteadmin()) {
         return null;
-    }*/
+    }
 
     global $CFG, $DB, $SESSION;
     $SESSION->count = 0;
@@ -64,7 +64,7 @@ function tool_abconfig_after_config() {
                 foreach ($commands as $command) {
                     // Evaluate the command to figure the type out
                     $commandarray = explode(',', $command);
-                    
+
                     tool_abconfig_execute_command_array($commandarray, $record->shortname);
                 }
                 // Do not execute any more conditions
@@ -100,9 +100,9 @@ function tool_abconfig_after_config() {
 function tool_abconfig_after_require_login() {
 
     // Make admin immune
-    /*if (is_siteadmin()) {
+    if (is_siteadmin()) {
         return null;
-    }*/
+    }
 
     global $CFG, $DB, $SESSION;
     $compare = $DB->sql_compare_text('session', strlen('session'));
@@ -192,7 +192,7 @@ function tool_abconfig_before_http_headers() {
     foreach ($records as $record) {
         $unique = 'abconfig_js_header_'.$record->shortname;
 
-        if (property_exists($SESSION,$unique)) {
+        if (property_exists($SESSION, $unique)) {
             // Found a JS footer to be executed
             echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
         }
@@ -215,29 +215,30 @@ function tool_abconfig_execute_command_array($commandarray, $shortname) {
     } else if ($commandarray[0] == 'forced_plugin_setting') {
         // Check for plugin commands
         $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
-    
+
     } else if ($commandarray[0] == 'http_header') {
         // Check for http header commands
         header("$commandarray[1]: $commandarray[2]");
 
     } else if ($commandarray[0] == 'error_log') {
         // Check for error logs
-        error_log($commandarray[1]);
+        // Must ignore coding standards as typically error_log is not allowed
+        error_log($commandarray[1]); // @codingStandardsIgnoreLine
 
     } else if ($commandarray[0] == 'js_header') {
         // Check for JS header scripts
         // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
-        $js_header_unique = 'abconfig_js_header_'.$shortname;
+        $jsheaderunique = 'abconfig_js_header_'.$shortname;
 
         // Store the unique in the session to be picked up by the header render hook
-        $SESSION->$js_header_unique = $commandarray[1];
+        $SESSION->$jsheaderunique = $commandarray[1];
 
     }
     if ($commandarray[0] == 'js_footer') {
         // Check for JS footer scripts
-        $js_footer_unique = 'abconfig_js_footer_'.$shortname;
+        $jsfooterunique = 'abconfig_js_footer_'.$shortname;
         // Store the javascript in the session unique to be picked up by the footer render hook
-        $SESSION->$js_footer_unique = $commandarray[1];
+        $SESSION->$jsfooterunique = $commandarray[1];
     }
 }
 
