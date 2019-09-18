@@ -70,7 +70,7 @@ class tool_abconfig_experiment_manager {
             return false;
         } else {
             $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-            $record = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+            $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
         }
     }
 
@@ -93,9 +93,9 @@ class tool_abconfig_experiment_manager {
         }
     }
 
-    public function update_condition($eid, $id, $condset, $iplist, $commands, $value) {
+    public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value) {
         global $DB;
-        if (!$this->condition_exists($eid, $condset)) {
+        if (!$this->condition_exists($eid, $prevcondset)) {
             return false;
         } else {
             return $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
@@ -108,7 +108,8 @@ class tool_abconfig_experiment_manager {
         if (!$this->condition_exists($eid, $condset)) {
             return false;
         } else {
-            return $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset));
+            $sqlcondition = $DB->sql_compare_text($condset, strlen($condset));
+            $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?', array($eid, $sqlcondition));
         }
     }
 

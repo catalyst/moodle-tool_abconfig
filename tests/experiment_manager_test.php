@@ -105,23 +105,98 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
     }
 
     public function test_condition_exists() {
+        $this->resetAfterTest(true);
+        global $DB;
+        $manager = new tool_abconfig_experiment_manager();
 
+        // Manually add experiment
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+    
+        // Check returns false for unfound condition set
+        $this->assertFalse($manager->condition_exists($eid, 'condset1'));
+
+        // Manually add condition set
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+
+        // verify now found
+        $this->assertTrue($manager->condition_exists($eid, 'condset1'));
     }
 
     public function test_add_condition() {
+        $this->resetAfterTest(true);
+        global $DB;
+        $manager = new tool_abconfig_experiment_manager();
 
+        // Manually add experiment
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+
+        // Add condition for experiment
+        $manager->add_condition($eid, 'condset1', '', '', 50);
+
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+
+        // Verify fields of inserted record
+        $this->assertEquals(count($records), 1);
+        $this->assertEquals(reset($records)->condset, 'condset1');
+        $this->assertEquals(reset($records)->ipwhitelist, '');
+        $this->assertEquals(reset($records)->commands, '');
+        $this->assertEquals(reset($records)->value, 50);
     }
 
     public function test_update_condition() {
+        $this->resetAfterTest(true);
+        global $DB;
+        $manager = new tool_abconfig_experiment_manager();
 
+        // Manually add experiment and condition
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $id = $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+
+        // Update condition
+        $manager->update_condition($eid, $id, 'condset1', 'condset2', '123.123.123.123', 'command', 51);
+
+        $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid));
+        $this->assertEquals($record->condset, 'condset2');
+        $this->assertEquals($record->ipwhitelist, '123.123.123.123');
+        $this->assertEquals($record->commands, 'command');
+        $this->assertEquals($record->value, 51);
     }
 
     public function test_delete_condition() {
+        $this->resetAfterTest(true);
+        global $DB;
+        $manager = new tool_abconfig_experiment_manager();
 
+        // Manually add experiment and condition
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+
+        $manager->delete_condition($eid, 'condset1');
+
+        // Check that only 1 was deleted, and that the remaining condition is not the deleted one
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+
+        $this->assertEquals(count($records), 1);
+        $this->assertEquals(reset($records)->condset, 'condset2');
     }
 
     public function test_delete_all_conditions() {
+        $this->resetAfterTest(true);
+        global $DB;
+        $manager = new tool_abconfig_experiment_manager();
 
+        // Manually add experiment and condition
+        $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+
+        $manager->delete_all_conditions($eid);
+
+        // Check that only 1 was deleted, and that the remaining condition is not the deleted one
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+
+        $this->assertEquals(count($records), 0);
     }
 
 }
