@@ -65,6 +65,7 @@ if ($form->is_cancelled()) {
     // Updating old data
     $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
     foreach ($records as $record) {
+        $prevshortname = "prevshortname{$record->id}";
         $shortname = "shortname{$record->id}";
         $iplist = "iplist{$record->id}";
         $commandskey = "commands{$record->id}";
@@ -84,7 +85,7 @@ if ($form->is_cancelled()) {
             $manager->delete_condition($eid, $fromform->$shortname);
         } else {
             // Else write data back to DB
-            $manager->update_condition($eid, $record->id, $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
+            $manager->update_condition($eid, $record->id, $fromform->$prevshortname, $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
         }
     }
 

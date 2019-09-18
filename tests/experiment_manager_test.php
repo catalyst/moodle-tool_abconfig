@@ -57,12 +57,12 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         // Verify that experiment is found
         $this->assertTrue($manager->experiment_exists('shortname'));
 
-        //Now delete this record, and add a new one
+        // Now delete this record, and add a new one
         $sqlcompare = $DB->sql_compare_text('shortname', strlen('shortname'));
         $record = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlcompare));
         $DB->insert_record('tool_abconfig_experiment', array('name' => 'name2', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0));
 
-        //Verify the first record still isnt found
+        // Verify the first record still isnt found
         $this->assertFalse($manager->experiment_exists('shortname'));
     }
 
@@ -75,7 +75,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
 
         // Update all the values of the experiment
-        $manager->update_experiment('shortname','name2', 'shortname2', 'session', 1);
+        $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1);
 
         // Get record and verify fields
         $sqlexperiment = $DB->sql_compare_text('shortname2', strlen('shortname2'));
@@ -97,7 +97,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0));
 
         $manager->delete_experiment('shortname');
-        
+
         // Check records to ensure only correct record deleted
         $records = $DB->get_records('tool_abconfig_experiment');
         $this->assertEquals(1, count($records));
@@ -111,7 +111,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
 
         // Manually add experiment
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
-    
+
         // Check returns false for unfound condition set
         $this->assertFalse($manager->condition_exists($eid, 'condset1'));
 

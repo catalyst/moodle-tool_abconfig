@@ -43,6 +43,10 @@ class edit_conditions extends \moodleform {
             $id = $record->id;
             $mform->addElement('hidden', "hidden{$id}");
 
+            // Hidden to track previous condset incase of change
+            $mform->addElement('hidden', "prevshortname{$id}", $record->condset);
+            $mform->setType("prevshortname{$id}", PARAM_TEXT);
+
             // Section Header
             $mform->addElement('header', "header{$id}", get_string('formheader', 'tool_abconfig', $setcount));
             $mform->setExpanded("header{$id}");
