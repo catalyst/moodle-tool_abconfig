@@ -58,16 +58,12 @@ class manage_experiments extends \moodleform {
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         global $DB;
+        $manager = new \tool_abconfig_experiment_manager();
 
         $shortname = $data['experimentshortname'];
-        $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
-
-        if (!empty($record)) {
+        if ($manager->experiment_exists($shortname)) {
             $errors['experimentshortname'] = get_string('formexperimentalreadyexists', 'tool_abconfig');
         }
-
-        $experiments = $DB->get_records('tool_abconfig_experiment');
 
         return $errors;
     }

@@ -26,6 +26,8 @@
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
+$manager = new tool_abconfig_experiment_manager();
+
 defined('MOODLE_INTERNAL') || die();
 
 admin_externalpage_setup('tool_abconfig_manageexperiments');
@@ -41,7 +43,7 @@ if ($form->is_cancelled()) {
     $shortname = $fromform->experimentshortname;
     $scope = $fromform->scope;
 
-    $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0));
+    $manager->add_experiment($name, $shortname, $scope);
 }
 
 // Build the page output

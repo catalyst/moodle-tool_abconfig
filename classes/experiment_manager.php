@@ -22,10 +22,9 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace tool_abconfig;
 
 defined('MOODLE_INTERNAL') || die();
-class experiment_manager {
+class tool_abconfig_experiment_manager {
 
     // ========================================EXPERIMENT FUNCTIONS================================================================
 
@@ -35,21 +34,27 @@ class experiment_manager {
         if ($this->experiment_exists($shortname)) {
             return false;
         } else {
-            $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, $scope => 'scope'));
+            $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0));
         }
     }
 
     public function experiment_exists($shortname){ 
         global $DB;
-        return $DB->record_exists('tool_abconfig_experiment', array('shortname' => $shortname));
+        $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
+        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+        if (empty($record)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
-    public function update_experiment($name, $shortname, $scope) {
+    public function update_experiment($name, $shortname, $scope, $enabled) {
         //Check whether the experiment exists to be updated
         if (!$this->experiment_exists($shortname)) {
             return false;
         } else {
-            $DB->update_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope));
+            $DB->update_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled));
         }
     }
 
@@ -59,7 +64,8 @@ class experiment_manager {
         if (!$this->experiment_exists($shortname)) {
             return false;
         } else {
-            $DB->delete_records('tool_abconfig_experiment', array('shortname' => $shortname));
+            $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
+            $record = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
         }
     }
 
@@ -80,12 +86,12 @@ class experiment_manager {
         }
     }
 
-    public function update_condition($eid, $condset, $iplist, $commands, $value) {
+    public function update_condition($eid, $id, $condset, $iplist, $commands, $value) {
         global $DB;
         if (!$this->condition_exists($eid, $condset)) {
             return false;
         } else {
-            return $DB->update_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
+            return $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value));
         }
     }
@@ -99,5 +105,9 @@ class experiment_manager {
         } 
     }
 
+    public function delete_all_conditions($eid) {
+        global $DB;
+        $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
+    }
 }
 
