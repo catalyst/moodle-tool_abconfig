@@ -42,6 +42,8 @@ $url = new moodle_url('/admin/tool/abconfig/edit_conditions.php');
 $url->param('id', $eid);
 $PAGE->set_url($url);
 
+$manager = new tool_abconfig_experiment_manager();
+
 $prevurl = ($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$eid");
 
 $customdata = array('eid' => $eid);
@@ -53,7 +55,7 @@ $form = new \tool_abconfig\form\edit_conditions($url, $customdata);
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
-    global $DB;
+
     $eid = $fromform->eid;
     // Page doesnt have an experiment, do nothing
     if (empty($eid)) {
@@ -63,6 +65,7 @@ if ($form->is_cancelled()) {
     // Updating old data
     $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
     foreach ($records as $record) {
+        $prevshortname = "prevshortname{$record->id}";
         $shortname = "shortname{$record->id}";
         $iplist = "iplist{$record->id}";
         $commandskey = "commands{$record->id}";
@@ -79,17 +82,10 @@ if ($form->is_cancelled()) {
 
         if ($fromform->$delete) {
             // Delete record if delete checkbox enabled
-            $DB->delete_records('tool_abconfig_condition', array('id' => $record->id));
+            $manager->delete_condition($eid, $fromform->$shortname);
         } else {
             // Else write data back to DB
-            $DB->update_record('tool_abconfig_condition', array(
-                'id' => $record->id,
-                'experiment' => $record->experiment,
-                'condset' => $fromform->$shortname,
-                'ipwhitelist' => $fromform->$iplist,
-                'commands' => $commands,
-                'value' => $fromform->$value
-            ));
+            $manager->update_condition($eid, $record->id, $fromform->$prevshortname, $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
         }
     }
 
@@ -116,13 +112,7 @@ if ($form->is_cancelled()) {
             }
 
             // else add record to DB
-            $DB->insert_record('tool_abconfig_condition', array (
-                'experiment' => $eid,
-                'condset' => $fromform->repeatshortname[$value],
-                'ipwhitelist' => $fromform->repeatiplist[$value],
-                'commands' => $commands,
-                'value' => $fromform->repeatvalue[$value]
-            ));
+            $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value], $commands, $fromform->repeatvalue[$value]);
         }
     }
     // Back to experiment

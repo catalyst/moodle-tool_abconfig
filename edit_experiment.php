@@ -34,6 +34,8 @@ $PAGE->set_title('Edit Experiment Conditions');
 // Needs Require login admin thingy
 require_login();
 
+$manager = new tool_abconfig_experiment_manager();
+
 global $DB, $PAGE, $SESSION;
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 
@@ -41,7 +43,7 @@ $eid = optional_param('id', 0, PARAM_INT);
 
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 
-$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
+$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'prevshortname' => $experiment->shortname,
     'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled);
 $customarray = array('eid' => $experiment->id);
 
@@ -63,19 +65,18 @@ if ($form->is_cancelled()) {
     $scope = $fromform->scope;
     $enabled = $fromform->enabled;
     $eid = $fromform->id;
+    $prevshortname = $fromform->prevshortname;
 
     if ($eid == 0) {
         redirect($prevurl);
     }
 
     if ($fromform->delete) {
-        // Delete experiment record
-        $DB->delete_records('tool_abconfig_experiment', array('id' => $eid));
-        // Also delete orphaned experiment conditions
-        $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
+        // Delete experiment, and all orphaned experiment conditions
+        $manager->delete_experiment($shortname);
+        $manager->delete_all_conditions($eid);
     } else {
-        // Write form data to catch any changes
-        $DB->update_record('tool_abconfig_experiment', array('id' => $eid, 'name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled));
+        $manager->update_experiment($prevshortname, $name, $shortname, $scope, $enabled);
     }
 
     redirect($prevurl);

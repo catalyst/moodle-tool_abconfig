@@ -36,6 +36,9 @@ class edit_experiment extends \moodleform {
         $mform->addElement('hidden', 'id', '');
         $mform->setType('id', PARAM_INT);
 
+        $mform->addElement('hidden', 'prevshortname', '');
+        $mform->setType('prevshortname', PARAM_TEXT);
+
         // eid to pass to table generation
         $eid = $this->_customdata['eid'];
 
