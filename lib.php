@@ -85,7 +85,9 @@ function tool_abconfig_after_config() {
         $unique = 'abconfig_'.$record->shortname;
         if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
             // If set, execute commands
-            $condition = $DB->get_record('tool_abconfig_condition', array('condset' => $SESSION->$unique, 'experiment' => $record->id));
+            $sqlcondition = $DB->sql_compare_text($SESSION->$unique, strlen($SESSION->$unique));
+            $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
+
             $commands = json_decode($condition->commands);
             foreach ($commands as $command) {
                 // Evaluate the command to figure the type out
