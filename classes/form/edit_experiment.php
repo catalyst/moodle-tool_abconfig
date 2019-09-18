@@ -48,7 +48,7 @@ class edit_experiment extends \moodleform {
 
         $mform->addElement('text', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
         $mform->setType('experimentshortname', PARAM_TEXT);
-        $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq'), 'required');
+        $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required');
 
         // Setup Data array for scopes
         $scopes = ['request' => get_string('request', 'tool_abconfig'), 'session' => get_string('session', 'tool_abconfig')];

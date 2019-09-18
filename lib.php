@@ -25,7 +25,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
-
     // Initial Checks
     // Make admin immune
     if (is_siteadmin()) {
@@ -33,6 +32,7 @@ function tool_abconfig_after_config() {
     }
 
     global $CFG, $DB, $SESSION;
+    $SESSION->count = 0;
 
     // Every experiment that is per request
     $compare = $DB->sql_compare_text('request', strlen('request'));
@@ -64,16 +64,8 @@ function tool_abconfig_after_config() {
                 foreach ($commands as $command) {
                     // Evaluate the command to figure the type out
                     $commandarray = explode(',', $command);
-                    // Protection form malformed commands
-                    if (count($commandarray) != 3) {
-                        break;
-                    }
 
-                    if ($commandarray[0] == 'CFG') {
-                        $CFG->{$commandarray[1]} = $commandarray[2];
-                    } else {
-                        $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
-                    }
+                    tool_abconfig_execute_command_array($commandarray, $record->shortname);
                 }
                 // Do not execute any more conditions
                 break;
@@ -91,7 +83,6 @@ function tool_abconfig_after_config() {
     foreach ($sessionrecords as $record) {
         // Check if a session var has been set for this experiment, only care if has been set
         $unique = 'abconfig_'.$record->shortname;
-
         if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
             // If set, execute commands
             $condition = $DB->get_record('tool_abconfig_condition', array('condset' => $SESSION->$unique, 'experiment' => $record->id));
@@ -99,18 +90,8 @@ function tool_abconfig_after_config() {
             foreach ($commands as $command) {
                 // Evaluate the command to figure the type out
                 $commandarray = explode(',', $command);
-                // Protection form malformed commands
-                if (count($commandarray) != 3) {
-                    break;
-                }
 
-                // Parse and execute command
-                if ($commandarray[0] == 'CFG') {
-                    $CFG->{$commandarray[1]} = $commandarray[2];
-                    $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
-                } else {
-                    $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
-                }
+                tool_abconfig_execute_command_array($commandarray, $record->shortname);
             }
         }
     }
@@ -130,7 +111,6 @@ function tool_abconfig_after_require_login() {
     foreach ($records as $record) {
         // Create experiment session var identifier
         $unique = 'abconfig_'.$record->shortname;
-
         // get condition sets for experiment
         $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
         // Remove all conditions that contain the user ip in the whitelist
@@ -156,18 +136,8 @@ function tool_abconfig_after_require_login() {
                     foreach ($commands as $command) {
                         // Evaluate the command to figure the type out
                         $commandarray = explode(',', $command);
-                        // Protection form malformed commands
-                        if (count($commandarray) != 3) {
-                            break;
-                        }
 
-                        // Parse and execute command
-                        if ($commandarray[0] == 'CFG') {
-                            $CFG->{$commandarray[1]} = $commandarray[2];
-                            $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
-                        } else {
-                            $CFG->forced_plugin_settings[$commandarray[0]][$commandarray[1]] = $commandarray[2];
-                        }
+                        tool_abconfig_execute_command_array($commandarray, $record->shortname);
                     }
                     // Set a session var for this command, so it is not executed again this session
                     $SESSION->{$unique} = $crecord->condset;
@@ -189,6 +159,86 @@ function tool_abconfig_after_require_login() {
             // Now exit condition loop, this call is finished
             break;
         }
+    }
+}
+
+function tool_abconfig_before_footer() {
+    global $DB, $SESSION;
+
+    // Get all active experiments
+    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
+
+    foreach ($records as $record) {
+        $unique = 'abconfig_js_footer_'.$record->shortname;
+        if (property_exists($SESSION, $unique)) {
+            // Found a JS footer to be executed
+            echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
+        }
+
+        // If experiment is request scope, unset var so it doesnt fire again
+        if ($record->scope == 'request') {
+            unset($SESSION->$unique);
+        }
+
+    }
+}
+
+function tool_abconfig_before_http_headers() {
+    global $DB, $SESSION;
+
+    // Get all active experiments
+    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
+
+    foreach ($records as $record) {
+        $unique = 'abconfig_js_header_'.$record->shortname;
+
+        if (property_exists($SESSION, $unique)) {
+            // Found a JS footer to be executed
+            echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
+        }
+
+        // If experiment is request scope, unset var so it doesnt fire again
+        if ($record->scope == 'request') {
+            unset($SESSION->$unique);
+        }
+    }
+}
+
+function tool_abconfig_execute_command_array($commandarray, $shortname) {
+    global $SESSION, $CFG;
+
+    // Check for core commands
+    if ($commandarray[0] == 'CFG') {
+        $CFG->{$commandarray[1]} = $commandarray[2];
+        $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+
+    } else if ($commandarray[0] == 'forced_plugin_setting') {
+        // Check for plugin commands
+        $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+
+    } else if ($commandarray[0] == 'http_header') {
+        // Check for http header commands
+        header("$commandarray[1]: $commandarray[2]");
+
+    } else if ($commandarray[0] == 'error_log') {
+        // Check for error logs
+        // Must ignore coding standards as typically error_log is not allowed
+        error_log($commandarray[1]); // @codingStandardsIgnoreLine
+
+    } else if ($commandarray[0] == 'js_header') {
+        // Check for JS header scripts
+        // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
+        $jsheaderunique = 'abconfig_js_header_'.$shortname;
+
+        // Store the unique in the session to be picked up by the header render hook
+        $SESSION->$jsheaderunique = $commandarray[1];
+
+    }
+    if ($commandarray[0] == 'js_footer') {
+        // Check for JS footer scripts
+        $jsfooterunique = 'abconfig_js_footer_'.$shortname;
+        // Store the javascript in the session unique to be picked up by the footer render hook
+        $SESSION->$jsfooterunique = $commandarray[1];
     }
 }
 

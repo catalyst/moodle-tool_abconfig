@@ -111,7 +111,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $commandstring = 'auth_manual,expiration,yes';
+        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
@@ -145,7 +145,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
 
-        $commandstring = 'auth_manual,expiration,yes';
+        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
@@ -201,7 +201,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
 
-        $commandstring = 'auth_manual,expiration,yes'.PHP_EOL.'CFG,passwordpolicy,1';
+        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes'.PHP_EOL.'CFG,passwordpolicy,1';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
@@ -345,11 +345,11 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'auth_manual,expiration,yes';
+        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
-        $commandstring2 = 'auth_manual,expiration,no';
+        $commandstring2 = 'forced_plugin_setting,auth_manual,expiration,no';
         $commands2 = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 1, 'value' => 0));
 
@@ -390,11 +390,11 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1'.PHP_EOL.'auth_manual,expiration,yes';
+        $commandstring = 'CFG,passwordpolicy,1'.PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes';
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
-        $commandstring2 = 'auth_manual,expiration,yes';
+        $commandstring2 = 'forced_plugin_setting,auth_manual,expiration,yes';
         $commands2 = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 1, 'value' => 0));
 
@@ -434,7 +434,7 @@ class tool_securityquestions_locallib_testcase extends advanced_testcase {
         $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
 
-        $commandstring2 = 'auth_manual,expiration,yes';
+        $commandstring2 = 'forced_plugin_setting,auth_manual,expiration,yes';
         $commands2 = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 1, 'value' => 0));
 
