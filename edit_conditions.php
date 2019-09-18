@@ -55,7 +55,6 @@ $form = new \tool_abconfig\form\edit_conditions($url, $customdata);
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
-    //global $DB;
 
     $eid = $fromform->eid;
     // Page doesnt have an experiment, do nothing

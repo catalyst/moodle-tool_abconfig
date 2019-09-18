@@ -38,7 +38,7 @@ class tool_abconfig_experiment_manager {
         }
     }
 
-    public function experiment_exists($shortname){ 
+    public function experiment_exists($shortname) {
         global $DB;
         $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
         $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
@@ -50,7 +50,7 @@ class tool_abconfig_experiment_manager {
     }
 
     public function update_experiment($name, $shortname, $scope, $enabled) {
-        //Check whether the experiment exists to be updated
+        // Check whether the experiment exists to be updated
         if (!$this->experiment_exists($shortname)) {
             return false;
         } else {
@@ -73,7 +73,9 @@ class tool_abconfig_experiment_manager {
 
     public function condition_exists($eid, $condset) {
         global $DB;
-        return $DB->record_exists('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset));
+        $condsetsql = $DB->sql_compare_text($condset, strlen($condset));
+        $sql = 'SELECT * FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?';
+        return $DB->record_exists_sql($sql, array($eid, $condsetsql));
     }
 
     public function add_condition($eid, $condset, $iplist, $commands, $value) {
@@ -102,7 +104,7 @@ class tool_abconfig_experiment_manager {
             return false;
         } else {
             return $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset));
-        } 
+        }
     }
 
     public function delete_all_conditions($eid) {
