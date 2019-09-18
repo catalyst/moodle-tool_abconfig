@@ -49,12 +49,17 @@ class tool_abconfig_experiment_manager {
         }
     }
 
-    public function update_experiment($name, $shortname, $scope, $enabled) {
+    public function update_experiment($prevshortname, $name, $shortname, $scope, $enabled) {
+        global $DB;
         // Check whether the experiment exists to be updated
-        if (!$this->experiment_exists($shortname)) {
+        if (!$this->experiment_exists($prevshortname)) {
             return false;
         } else {
-            $DB->update_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled));
+            // Get id of record
+            $sqlexperiment = $DB->sql_compare_text($prevshortname, strlen($prevshortname));
+            $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+
+            $DB->update_record('tool_abconfig_experiment', array('id' => $record->id, 'name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled));
         }
     }
 

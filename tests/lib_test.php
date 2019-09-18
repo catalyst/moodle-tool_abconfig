@@ -24,7 +24,7 @@
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__.'/../lib.php');
 
-class tool_securityquestions_locallib_testcase extends advanced_testcase {
+class tool_abconfig_lib_testcase extends advanced_testcase {
 
     public function test_request_no_experiment() {
         $this->resetAfterTest(true);
