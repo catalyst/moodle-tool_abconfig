@@ -61,12 +61,7 @@ function tool_abconfig_after_config() {
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
 
                 $commands = json_decode($crecord->commands);
-                foreach ($commands as $command) {
-                    // Evaluate the command to figure the type out
-                    $commandarray = explode(',', $command);
-
-                    tool_abconfig_execute_command_array($commandarray, $record->shortname);
-                }
+                tool_abconfig_execute_command_array($commands, $record->shortname);
                 // Do not execute any more conditions
                 break;
             } else {
@@ -89,12 +84,7 @@ function tool_abconfig_after_config() {
             $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
 
             $commands = json_decode($condition->commands);
-            foreach ($commands as $command) {
-                // Evaluate the command to figure the type out
-                $commandarray = explode(',', $command);
-
-                tool_abconfig_execute_command_array($commandarray, $record->shortname);
-            }
+            tool_abconfig_execute_command_array($commands, $record->shortname);
         }
     }
 }
@@ -135,12 +125,8 @@ function tool_abconfig_after_require_login() {
                 // If random number is within this range, set condition and break, else increment total
                 if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
                     $commands = json_decode($crecord->commands);
-                    foreach ($commands as $command) {
-                        // Evaluate the command to figure the type out
-                        $commandarray = explode(',', $command);
+                    tool_abconfig_execute_command_array($commands, $record->shortname);
 
-                        tool_abconfig_execute_command_array($commandarray, $record->shortname);
-                    }
                     // Set a session var for this command, so it is not executed again this session
                     $SESSION->{$unique} = $crecord->condset;
 
@@ -206,41 +192,54 @@ function tool_abconfig_before_http_headers() {
     }
 }
 
-function tool_abconfig_execute_command_array($commandarray, $shortname) {
-    global $SESSION, $CFG;
+function tool_abconfig_execute_command_array($commands, $shortname) {
+    global $CFG, $SESSION;
+    foreach ($commands as $commandstring) {
 
-    // Check for core commands
-    if ($commandarray[0] == 'CFG') {
-        $CFG->{$commandarray[1]} = $commandarray[2];
-        $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+        $command = strtok($commandstring, ',');
 
-    } else if ($commandarray[0] == 'forced_plugin_setting') {
-        // Check for plugin commands
-        $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+        // Check for core commands
+        if ($command == 'CFG') {
+            $commandarray = explode(',', $commandstring, 3);
+            $CFG->{$commandarray[1]} = $commandarray[2];
+            $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
 
-    } else if ($commandarray[0] == 'http_header') {
-        // Check for http header commands
-        header("$commandarray[1]: $commandarray[2]");
+        }
+        if ($command == 'forced_plugin_setting') {
+            // Check for plugin commands
+            $commandarray = explode(',', $commandstring, 4);
+            $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+        }
+        if ($command == 'http_header') {
+            // Check for http header commands
+            $commandarray = explode(',', $commandstring, 3);
+            header("$commandarray[1]: $commandarray[2]");
+        }
+        if ($command == 'error_log') {
+            // Check for error logs
+            $commandarray = explode(',', $commandstring, 2);
+            // Must ignore coding standards as typically error_log is not allowed
+            error_log($commandarray[1]); // @codingStandardsIgnoreLine
 
-    } else if ($commandarray[0] == 'error_log') {
-        // Check for error logs
-        // Must ignore coding standards as typically error_log is not allowed
-        error_log($commandarray[1]); // @codingStandardsIgnoreLine
+        }
+        if ($command == 'js_header') {
+            // Check for JS header scripts
+            $commandarray = explode(',', $commandstring, 2);
+            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
+            $jsheaderunique = 'abconfig_js_header_'.$shortname;
 
-    } else if ($commandarray[0] == 'js_header') {
-        // Check for JS header scripts
-        // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
-        $jsheaderunique = 'abconfig_js_header_'.$shortname;
+            // Store the unique in the session to be picked up by the header render hook
+            $SESSION->$jsheaderunique = $commandarray[1];
 
-        // Store the unique in the session to be picked up by the header render hook
-        $SESSION->$jsheaderunique = $commandarray[1];
-
-    }
-    if ($commandarray[0] == 'js_footer') {
-        // Check for JS footer scripts
-        $jsfooterunique = 'abconfig_js_footer_'.$shortname;
-        // Store the javascript in the session unique to be picked up by the footer render hook
-        $SESSION->$jsfooterunique = $commandarray[1];
+        }
+        if ($command == 'js_footer') {
+            // Check for JS footer scripts
+            $commandarray = explode(',', $commandstring, 2);
+            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
+            $jsfooterunique = 'abconfig_js_footer_'.$shortname;
+            // Store the javascript in the session unique to be picked up by the footer render hook
+            $SESSION->$jsfooterunique = $commandarray[1];
+        }
     }
 }
 
