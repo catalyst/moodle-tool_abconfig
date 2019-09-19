@@ -37,7 +37,7 @@ class edit_experiment extends \moodleform {
         $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'prevshortname', '');
-        $mform->setType('prevshortname', PARAM_TEXT);
+        $mform->setType('prevshortname', PARAM_ALPHANUM);
 
         // eid to pass to table generation
         $eid = $this->_customdata['eid'];
@@ -50,7 +50,7 @@ class edit_experiment extends \moodleform {
         $mform->addRule('experimentname', get_string('formexperimentnamereq'), 'required');
 
         $mform->addElement('text', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
-        $mform->setType('experimentshortname', PARAM_TEXT);
+        $mform->setType('experimentshortname', PARAM_ALPHANUM);
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required');
 
         // Setup Data array for scopes

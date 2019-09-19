@@ -46,7 +46,7 @@ class manage_experiments extends \moodleform {
 
         // Short Name
         $mform->addElement('text', 'experimentshortname', get_string('formexperimentshortname', 'tool_abconfig'), array('placeholder' => 'experiment'));
-        $mform->setType('experimentshortname', PARAM_TEXT);
+        $mform->setType('experimentshortname', PARAM_ALPHANUM);
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
 
         // Select Scope
