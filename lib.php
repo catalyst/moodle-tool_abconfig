@@ -24,79 +24,27 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-/*function tool_abconfig_after_config() {
-    // Initial Checks
-    // Make admin immune
-    if (is_siteadmin()) {
-        return null;
-    }
-
-    global $CFG, $DB, $SESSION;
-    $SESSION->count = 0;
-
-    // Every experiment that is per request
-    $compare = $DB->sql_compare_text('request', strlen('request'));
-    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
-
-    foreach ($records as $record) {
-        // get condition sets for experiment
-        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
-
-        // Remove all conditions that contain the user ip in the whitelist
-        $crecords = array();
-
-        foreach ($conditionrecords as $conditionrecord) {
-            $iplist = $conditionrecord->ipwhitelist;
-            if (!remoteip_in_list($iplist)) {
-                array_push($crecords, $conditionrecord);
-            }
-        }
-
-        // Increment through conditions until one is selected
-        $condition = '';
-        $num = rand(1, 100);
-        $prevtotal = 0;
-        foreach ($crecords as $crecord) {
-            // If random number is within this range, set condition and break, else increment total
-            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-
-                $commands = json_decode($crecord->commands);
-                tool_abconfig_execute_command_array($commands, $record->shortname);
-                // Do not execute any more conditions
-                break;
-            } else {
-                // Not this record, increment lower bound, and move on
-                $prevtotal += $crecord->value;
-            }
-        }
-    }
-
-    // Now we must check for session level requests, that require the config to be the same, but applied every request
-    $sessioncompare = $DB->sql_compare_text('session', strlen('session'));
-    $sessionrecords = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($sessioncompare));
-
-    foreach ($sessionrecords as $record) {
-        // Check if a session var has been set for this experiment, only care if has been set
-        $unique = 'abconfig_'.$record->shortname;
-        if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
-            // If set, execute commands
-            $sqlcondition = $DB->sql_compare_text($SESSION->$unique, strlen($SESSION->$unique));
-            $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
-
-            $commands = json_decode($condition->commands);
-            tool_abconfig_execute_command_array($commands, $record->shortname);
-        }
-    }
-}*/
-
 function tool_abconfig_after_config() {
-    // Initial Checks
+    global $CFG, $DB, $SESSION;
+    
+    // Check URL params, and fire any experiments in the params
+    foreach ($_GET as $experiment => $condition) {
+        $excompare = $DB->sql_compare_text($experiment, strlen($experiment));
+        $exrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?", array($excompare));
+
+        if (!empty($exrecord)) {
+            $condcompare = $DB->sql_compare_text($condition, strlen($condition));
+            $condrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_condition} WHERE condset = ? and experiment = ?", array($condcompare, $exrecord->id));
+            if (!empty($condrecord)) {
+                tool_abconfig_execute_command_array($condrecord->commands, $exrecord->shortname);
+            }
+        }
+    }
+    
     // Make admin immune
     if (is_siteadmin()) {
         return null;
     }
-
-    global $CFG, $DB, $SESSION;
 
     $commandarray = array();
 
@@ -125,10 +73,8 @@ function tool_abconfig_after_config() {
         foreach ($crecords as $crecord) {
             // If random number is within this range, set condition and break, else increment total
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-
-                $commands = json_decode($crecord->commands);
                 //array_push($requestcommandarray, $commands);
-                $commandarray[$record->shortname] = $commands;
+                $commandarray[$record->shortname] = $crecord->commands;
                 // Do not select any more conditions
                 break;
             } else {
@@ -151,14 +97,12 @@ function tool_abconfig_after_config() {
             $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
             $commands = json_decode($condition->commands);
             
-            $commandarray[$record->shortname] = $commands;
+            $commandarray[$record->shortname] = $condition->commands;
         }
     }
 
+    
     // Now, execute all commands in the arrays
-    foreach ($commandarray as $shortname => $command) {
-        tool_abconfig_execute_command_array($command, $shortname);
-    }
     foreach ($commandarray as $shortname => $command) {
         tool_abconfig_execute_command_array($command, $shortname);
     }
@@ -200,7 +144,7 @@ function tool_abconfig_after_require_login() {
                 // If random number is within this range, set condition and break, else increment total
                 if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
                     $commands = json_decode($crecord->commands);
-                    tool_abconfig_execute_command_array($commands, $record->shortname);
+                    tool_abconfig_execute_command_array($crecord->commands, $record->shortname);
 
                     // Set a session var for this command, so it is not executed again this session
                     $SESSION->{$unique} = $crecord->condset;
@@ -227,11 +171,11 @@ function tool_abconfig_after_require_login() {
 
 function tool_abconfig_before_footer() {
     global $DB, $SESSION;
-
     // Get all active experiments
-    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
-
+    $records = $DB->get_records('tool_abconfig_experiment');
+    
     foreach ($records as $record) {
+        
         $unique = 'abconfig_js_footer_'.$record->shortname;
         if (property_exists($SESSION, $unique)) {
             // Found a JS footer to be executed
@@ -239,7 +183,7 @@ function tool_abconfig_before_footer() {
         }
 
         // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request') {
+        if ($record->scope == 'request' || $record->enabled == 0) {
             unset($SESSION->$unique);
         }
 
@@ -248,27 +192,25 @@ function tool_abconfig_before_footer() {
 
 function tool_abconfig_before_http_headers() {
     global $DB, $SESSION;
-
     // Get all active experiments
-    $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
-
+    $records = $DB->get_records('tool_abconfig_experiment');
     foreach ($records as $record) {
         $unique = 'abconfig_js_header_'.$record->shortname;
-
         if (property_exists($SESSION, $unique)) {
             // Found a JS footer to be executed
             echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
         }
 
         // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request') {
+        if ($record->scope == 'request' || $record->enabled == 0) {
             unset($SESSION->$unique);
         }
     }
 }
 
-function tool_abconfig_execute_command_array($commands, $shortname) {
+function tool_abconfig_execute_command_array($commandsencoded, $shortname) {
     global $CFG, $SESSION;
+    $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
 
         $command = strtok($commandstring, ',');
