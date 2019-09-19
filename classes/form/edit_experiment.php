@@ -89,13 +89,13 @@ class edit_experiment extends \moodleform {
         global $DB;
 
         // Get all lang strings for table header
-        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue', 'formexperimentcondsset');
+        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue', 'formexperimentcondsset', 'formexperimentforceurl');
         $stringarr = get_strings($stringsreqd, 'tool_abconfig');
 
         // Setup table
         $table = new \html_table();
         $table->head = array($stringarr->formexperimentcondsset, $stringarr->formipwhitelist,
-            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue);
+            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
 
         // Get experiment conditions records
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
@@ -114,7 +114,14 @@ class edit_experiment extends \moodleform {
                 $iplist = $record->ipwhitelist;
             }
 
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value);
+            // Construct URL for forcing condition
+            $url = '?';
+            // Get experiment shortname
+            $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
+            $url .= $experiment->shortname .= '=';
+            $url .= $record->condset;
+
+            $table->data[] = array($record->condset, $iplist, $commands, $record->value, $url);
         }
 
         return \html_writer::table($table);

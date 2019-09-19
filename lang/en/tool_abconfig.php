@@ -56,6 +56,7 @@ $string['formnocommands'] = 'No Commands';
 $string['formnoips'] = 'No IPs';
 $string['formaddexperiment'] = 'Add Experiment';
 $string['formdeleteexperiment'] = 'Delete Experiment';
+$string['formexperimentforceurl'] = 'Force URL params';
 
 // short Strings
 $string['request'] = 'Request';
