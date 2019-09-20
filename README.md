@@ -19,9 +19,33 @@ Installation
 
 Configuration
 -------------
+## Setting up Experiments
+Visit the Site Administration menu and navigate to Plugins->Admin Tools->Manage Experiments. This page allows you to add new experiments, as well as edit existing experiments. To add a new experiment, fill in the fields, and click 'Add Experiment'. To edit the details of an existing experiment, click on the Edit link inside of the experiments table, to go to the edit page.
+### Scopes and audiences
+The plugin currently has two scopes that experiments can lie under, Request scope and Session scope.
 
-## Scopes and audiences
+*Request scope* experiments are called every time Moodle is loaded. Any request scope will treat a new page load as a new experiment call, and so a new set of conditions will be decided on. This means that behaviour can vary between loads of Moodle, so be careful when putting changes here that will affect a user's experience, as this may lead to an inconsistent experience for users.
 
+*Session scope* experiments are called when a user logs into the site. At this time, a condition set will be decided on, and users will continue to have that condition set applied for the length of their session. This does not apply to guest users, only logged in users. When a user logs out, and logs back in, a new set of conditions is applied to the account, which may be the same condition set.
+
+### Conditions
+Each experiment can have multiple condition sets avaiable, of which 1 is applied to a given user at a given time. The condition set is picked based on the weighting you specify when creating the condition, which corresponds to the % of users that it applies to.
+
+*IP Whitelist:* In this condition, an IP whitelist can be specified, and any users that have an IP that matches the whitelist, will not have this condition applied to them if this is the condition set that is selected. Instead, no action will be taken for that user.
+
+*Experiment Commands:* Here is where the commands for a condition set can be specified. These are applied sequentially right after loading Moodle. Each command should be on a newline. A list of valid commands is below:
+
+
+|Command |Syntax |Example | Description|
+|--------|-------|--------|------------|
+|CFG|`CFG,config,value`|`CFG,passwordpolicy,1`|This command sets moodle core configurations to a specified value.|
+|forced_plugin_setting|`forced_plugin_setting,plugin,config,value`|`forced_plugin_setting,auth_manual,expiration,1`| This command sets a plugin configuration to a specified value.|
+|http_header|`http_header,header,content`|`http_header,From,example@example.org`|This command sends HTTP headers during the page load.|
+|error_log|`error_log,message`|`error_log,error message`| This command logs the given messages into the PHP error_log for the webserver.|
+|js_header|`js_header,javascript`|`js_header,console.log('example');`| This command runs small JavaScript chunks just before the page headers are sent.|
+|js_footer|`js_footer,javascript`|`js_footer,console.log('exmaple');`| This command runs small JavaScript chunks just before the page footer is sent.|
+
+Note: `CFG` and `forced_plugin_setting` commands will not overwrite config set inside config.php.
 
 ## Analytics
 
