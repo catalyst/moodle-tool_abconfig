@@ -1,5 +1,9 @@
 # A Moodle A/B testing admin tool
 
+<a href="https://travis-ci.org/catalyst/moodle-tool_abconfig">
+<img src="https://travis-ci.org/catalyst/moodle-tool_abconfig.svg?branch=master">
+</a>
+
 A way to A/B test config, or slowly turn on config for certain audiences or % of traffic
 
 * [Installation](#installation)
@@ -15,11 +19,10 @@ Branches
 
 Installation
 ------------
-
+To install the plugin, 
 
 Configuration
 -------------
-## Setting up Experiments
 Visit the Site Administration menu and navigate to Plugins->Admin Tools->Manage Experiments. This page allows you to add new experiments, as well as edit existing experiments. To add a new experiment, fill in the fields, and click 'Add Experiment'. To edit the details of an existing experiment, click on the Edit link inside of the experiments table, to go to the edit page.
 ### Scopes and audiences
 The plugin currently has two scopes that experiments can lie under, Request scope and Session scope.
@@ -57,9 +60,6 @@ Once an experiment is enabled, it can also be enabled for admin accounts as well
 ### Custom dimentions 
 
 ### Custom headers
-
-
-
 
 Debugging
 ---------
