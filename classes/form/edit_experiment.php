@@ -115,13 +115,16 @@ class edit_experiment extends \moodleform {
             }
 
             // Construct URL for forcing condition
-            $url = '?';
+            $paramstring = '?';
             // Get experiment shortname
             $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-            $url .= $experiment->shortname .= '=';
-            $url .= $record->condset;
+            $paramstring .= $experiment->shortname . '=';
+            $paramstring .= $record->condset;
 
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value, $url);
+            // URL for redirecting to the dashboard with conditions active2
+            $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
+
+            $table->data[] = array($record->condset, $iplist, $commands, $record->value, \html_writer::link($url, $paramstring));
         }
 
         return \html_writer::table($table);
