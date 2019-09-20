@@ -57,6 +57,7 @@ $string['formnoips'] = 'No IPs';
 $string['formaddexperiment'] = 'Add Experiment';
 $string['formdeleteexperiment'] = 'Delete Experiment';
 $string['formexperimentforceurl'] = 'Force URL params';
+$string['formexperimentadminenable'] = 'Enable this experiment for site admins.';
 
 // short Strings
 $string['request'] = 'Request';
@@ -68,6 +69,7 @@ $string['edit'] = 'Edit';
 $string['enabled'] = 'Enabled';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
+$string['adminenabled'] = 'Enabled for Admin';
 
 // Setting Strings
 $string['settingsenablename'] = 'Enable Plugin';

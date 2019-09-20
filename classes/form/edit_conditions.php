@@ -123,7 +123,7 @@ class edit_conditions extends \moodleform {
             get_string("formexperimentcommands", "tool_abconfig"),
             array(
                 "placeholder" => 'CFG,passwordpolicy,true'.PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes'.PHP_EOL.'http_header,From,example@example.org'
-                .PHP_EOL.'error_log,example error message'.PHP_EOL."js_header,console.log('example')".PHP_EOL."js_footer,console.log('example')",
+                .PHP_EOL.'error_log,example error message'.PHP_EOL."js_header,console.log('example');".PHP_EOL."js_footer,console.log('example');",
                 "rows" => 6,
                 "cols" => 60
             )

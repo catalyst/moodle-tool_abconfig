@@ -27,6 +27,11 @@ defined('MOODLE_INTERNAL') || die;
 function tool_abconfig_after_config() {
     global $CFG, $DB, $SESSION;
 
+    // Check if the param to disable ABconfig is present, if so, exit
+    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+        return null;
+    }
+
     // Check URL params, and fire any experiments in the params
     foreach ($_GET as $experiment => $condition) {
         $excompare = $DB->sql_compare_text($experiment, strlen($experiment));
@@ -41,11 +46,6 @@ function tool_abconfig_after_config() {
         }
     }
 
-    // Make admin immune
-    if (is_siteadmin()) {
-        return null;
-    }
-
     $commandarray = array();
 
     // First, Build a list of all commands that need to be executed
@@ -54,6 +54,14 @@ function tool_abconfig_after_config() {
     $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
 
     foreach ($records as $record) {
+
+        // Make admin immune unless enabled for admin
+        if (is_siteadmin()) {
+            if ($record->adminenabled == 0) {
+                continue;
+            }
+        }
+
         $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
 
         // Remove all conditions that contain the user ip in the whitelist
@@ -109,8 +117,8 @@ function tool_abconfig_after_config() {
 
 function tool_abconfig_after_require_login() {
 
-    // Make admin immune
-    if (is_siteadmin()) {
+    // Check if the param to disable ABconfig is present, if so, exit
+    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
         return null;
     }
 
@@ -119,6 +127,13 @@ function tool_abconfig_after_require_login() {
     $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
 
     foreach ($records as $record) {
+        // Make admin immune unless enabled for admin
+        if (is_siteadmin()) {
+            if ($record->adminenabled == 0) {
+                continue;
+            }
+        }
+
         // Create experiment session var identifier
         $unique = 'abconfig_'.$record->shortname;
         // get condition sets for experiment
@@ -241,6 +256,11 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 }
 
 function tool_abconfig_execute_js($type) {
+    // Check if the param to disable ABconfig is present, if so, exit
+    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+        return null;
+    }
+
     global $DB, $SESSION;
     // Get all active experiments
     $records = $DB->get_records('tool_abconfig_experiment');

@@ -60,6 +60,9 @@ class edit_experiment extends \moodleform {
         // Enabled checkbox
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
 
+        // Admin Enabled Checkbox
+        $mform->addElement('advcheckbox', 'adminenabled', '', get_string('formexperimentadminenable', 'tool_abconfig'));
+
         // Delete experiment checkbox
         $mform->addElement('advcheckbox', 'delete', get_string('formdeleteexperiment', 'tool_abconfig'));
 
