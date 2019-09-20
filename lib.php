@@ -188,14 +188,24 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
         // Check for core commands
         if ($command == 'CFG') {
             $commandarray = explode(',', $commandstring, 3);
-            $CFG->{$commandarray[1]} = $commandarray[2];
-            $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
 
+            // ensure that command hasnt already been set in config.php
+            if (!array_key_exists($commandarray[1], $CFG->config_php_settings)) {
+                $CFG->{$commandarray[1]} = $commandarray[2];
+                $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+            }
         }
         if ($command == 'forced_plugin_setting') {
             // Check for plugin commands
             $commandarray = explode(',', $commandstring, 4);
-            $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+
+            // Ensure that command hasnt already been forced in config.php
+            // If plugin settings array doesnt exist, or the actualy config key doesnt exist
+            if (!array_key_exists($commandarray[1], $CFG->forced_plugin_settings) ||
+                !array_key_exists($commandarray[2], $CFG->forced_plugin_settings[$commandarray[1]])) {
+
+                $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+            }
         }
         if ($command == 'http_header') {
             // Check for http header commands
