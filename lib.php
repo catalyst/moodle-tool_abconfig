@@ -169,46 +169,17 @@ function tool_abconfig_after_require_login() {
 }
 
 function tool_abconfig_before_footer() {
-    global $DB, $SESSION;
-    // Get all active experiments
-    $records = $DB->get_records('tool_abconfig_experiment');
-
-    foreach ($records as $record) {
-
-        $unique = 'abconfig_js_footer_'.$record->shortname;
-        if (property_exists($SESSION, $unique)) {
-            // Found a JS footer to be executed
-            echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
-        }
-
-        // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request' || $record->enabled == 0) {
-            unset($SESSION->$unique);
-        }
-
-    }
+    tool_abconfig_execute_js('footer');
 }
 
 function tool_abconfig_before_http_headers() {
-    global $DB, $SESSION;
-    // Get all active experiments
-    $records = $DB->get_records('tool_abconfig_experiment');
-    foreach ($records as $record) {
-        $unique = 'abconfig_js_header_'.$record->shortname;
-        if (property_exists($SESSION, $unique)) {
-            // Found a JS footer to be executed
-            echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
-        }
-
-        // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request' || $record->enabled == 0) {
-            unset($SESSION->$unique);
-        }
-    }
+    tool_abconfig_execute_js('header');
 }
 
-function tool_abconfig_execute_command_array($commandsencoded, $shortname) {
+function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, $string = null) {
     global $CFG, $SESSION;
+
+    // execute any commands passed in
     $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
 
@@ -255,6 +226,31 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname) {
             $jsfooterunique = 'abconfig_js_footer_'.$shortname;
             // Store the javascript in the session unique to be picked up by the footer render hook
             $SESSION->$jsfooterunique = $commandarray[1];
+        }
+    }
+}
+
+function tool_abconfig_execute_js($type) {
+    global $DB, $SESSION;
+    // Get all active experiments
+    $records = $DB->get_records('tool_abconfig_experiment');
+
+    foreach ($records as $record) {
+        // If called from header
+        if ($type == 'header') {
+            $unique = 'abconfig_js_header_'.$record->shortname;
+        } else if ($type == 'footer') {
+            $unique = 'abconfig_js_footer_'.$record->shortname;
+        }
+
+        if (property_exists($SESSION, $unique)) {
+            // Found JS to be executed
+            echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
+        }
+
+        // If experiment is request scope, unset var so it doesnt fire again
+        if ($record->scope == 'request' || $record->enabled == 0) {
+            unset($SESSION->$unique);
         }
     }
 }
