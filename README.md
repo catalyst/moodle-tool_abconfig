@@ -15,7 +15,7 @@ A way to A/B test config, or slowly turn on config for certain audiences or % of
 Branches
 --------
 
-* For all supported Moodle versions use the master branch
+* For all supported Moodle versions use the master branch.
 
 Installation
 ------------
@@ -61,7 +61,9 @@ Once an experiment is enabled, it can also be enabled for admin accounts as well
 
 ## Analytics
 
-### Custom dimentions 
+To integrate analytics into the plugin configurations, you can use the Javascript Footer command inside of condition sets, which can be used to interact with the chosen analytics engine.
+
+### Custom dimensions 
 
 ### Custom headers
 
