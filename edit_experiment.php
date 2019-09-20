@@ -31,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title('Edit Experiment Conditions');
 
-// Needs Require login admin thingy
 require_login();
+require_capability('moodle/site:config', context_system::instance());
 
 $manager = new tool_abconfig_experiment_manager();
 
