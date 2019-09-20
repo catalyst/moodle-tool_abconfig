@@ -58,11 +58,12 @@ function generate_table() {
 
     $records = $DB->get_records('tool_abconfig_experiment');
     // Get header strings
-    $wantstrings = array('name', 'shortname', 'scope', 'edit', 'enabled');
+    $wantstrings = array('name', 'shortname', 'scope', 'edit', 'enabled', 'adminenabled');
     $strings = get_strings($wantstrings, 'tool_abconfig');
     // Generate table header
     $table = new html_table();
-    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->enabled, $strings->edit);
+    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->enabled, $strings->adminenabled, $strings->edit);
+    $table->colclasses = array('centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign');
 
     foreach ($records as $record) {
         // Setup edit link
@@ -72,8 +73,15 @@ function generate_table() {
         } else {
             $enabled = get_string('yes', 'tool_abconfig');
         }
+
+        if ($record->adminenabled == 0) {
+            $adminenabled = get_string('no', 'tool_abconfig');
+        } else {
+            $adminenabled = get_string('yes', 'tool_abconfig');
+        }
+
         // Add table row
-        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, $enabled, '<a href="'.$url.'">Edit</a>');
+        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, $enabled, $adminenabled, '<a href="'.$url.'">Edit</a>');
     }
     echo html_writer::table($table);
 }

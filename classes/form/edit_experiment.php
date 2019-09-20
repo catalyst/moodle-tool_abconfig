@@ -37,7 +37,7 @@ class edit_experiment extends \moodleform {
         $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'prevshortname', '');
-        $mform->setType('prevshortname', PARAM_TEXT);
+        $mform->setType('prevshortname', PARAM_ALPHANUM);
 
         // eid to pass to table generation
         $eid = $this->_customdata['eid'];
@@ -50,7 +50,7 @@ class edit_experiment extends \moodleform {
         $mform->addRule('experimentname', get_string('formexperimentnamereq'), 'required');
 
         $mform->addElement('text', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
-        $mform->setType('experimentshortname', PARAM_TEXT);
+        $mform->setType('experimentshortname', PARAM_ALPHANUM);
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required');
 
         // Setup Data array for scopes
@@ -59,6 +59,9 @@ class edit_experiment extends \moodleform {
 
         // Enabled checkbox
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
+
+        // Admin Enabled Checkbox
+        $mform->addElement('advcheckbox', 'adminenabled', '', get_string('formexperimentadminenable', 'tool_abconfig'));
 
         // Delete experiment checkbox
         $mform->addElement('advcheckbox', 'delete', get_string('formdeleteexperiment', 'tool_abconfig'));
@@ -89,13 +92,13 @@ class edit_experiment extends \moodleform {
         global $DB;
 
         // Get all lang strings for table header
-        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue', 'formexperimentcondsset');
+        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue', 'formexperimentcondsset', 'formexperimentforceurl');
         $stringarr = get_strings($stringsreqd, 'tool_abconfig');
 
         // Setup table
         $table = new \html_table();
         $table->head = array($stringarr->formexperimentcondsset, $stringarr->formipwhitelist,
-            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue);
+            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
 
         // Get experiment conditions records
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
@@ -114,7 +117,17 @@ class edit_experiment extends \moodleform {
                 $iplist = $record->ipwhitelist;
             }
 
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value);
+            // Construct URL for forcing condition
+            $paramstring = '?';
+            // Get experiment shortname
+            $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
+            $paramstring .= $experiment->shortname . '=';
+            $paramstring .= $record->condset;
+
+            // URL for redirecting to the dashboard with conditions active2
+            $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
+
+            $table->data[] = array($record->condset, $iplist, $commands, $record->value, \html_writer::link($url, $paramstring));
         }
 
         return \html_writer::table($table);

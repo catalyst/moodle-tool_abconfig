@@ -75,7 +75,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $DB->insert_record('tool_abconfig_experiment', array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
 
         // Update all the values of the experiment
-        $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1);
+        $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1, 1);
 
         // Get record and verify fields
         $sqlexperiment = $DB->sql_compare_text('shortname2', strlen('shortname2'));
@@ -85,6 +85,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals($record->shortname, 'shortname2');
         $this->assertEquals($record->scope, 'session');
         $this->assertEquals($record->enabled, 1);
+        $this->assertEquals($record->adminenabled, 1);
     }
 
     public function test_delete_experiment() {

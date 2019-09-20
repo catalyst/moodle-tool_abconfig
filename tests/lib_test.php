@@ -51,7 +51,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
@@ -76,7 +76,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
@@ -92,7 +92,9 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
 
         // Manually set config back to false, then call hook again, and test
         // (simulates next page load)
-        $CFG->passwordpolicy = 0;
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
+
         tool_abconfig_after_config();
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
@@ -138,9 +140,10 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set plugin config control to be modified by the experiment
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
+        set_config('expiration', 'no', 'auth_manual');
+
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
@@ -166,8 +169,11 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $DB->set_field_select('tool_abconfig_condition', 'value', 100, 'condset = ? AND experiment = ?', array($sqlcondition2, $eid));
 
         // Reset configs
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
-        $CFG->passwordpolicy = 0;
+        // unset forced_plugin_settings so it can be forced again by the plugin
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
+        set_config('expiration', 'no', 'auth_manual');
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
 
         // Now execute second hook, and check the plugin value
         tool_abconfig_after_config();
@@ -175,8 +181,10 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
 
         // Reset configs
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
-        $CFG->passwordpolicy = 0;
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
+        set_config('expiration', 'no', 'auth_manual');
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
 
         // Update value fields so either one may fire equally
         $sqlcondition3 = $DB->sql_compare_text('set1', strlen('set1'));
@@ -200,9 +208,9 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set plugin config control to be modified by the experiment
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
+        set_config('expiration', 'no', 'auth_manual');
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
@@ -217,8 +225,10 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
 
         // Reset configs
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
-        $CFG->passwordpolicy = 0;
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
+        set_config('expiration', 'no', 'auth_manual');
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
 
         // Now execute second hook, and check the plugin value
         tool_abconfig_after_config();
@@ -236,7 +246,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config to test against
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
@@ -285,7 +295,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setAdminUser();
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
@@ -310,7 +320,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
@@ -338,7 +348,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
 
         // Now set control manually to incorrect state, as if another page load performed, and test correct behaviour is set in the after_config hook
-        $CFG->passwordpolicy = 0;
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
         tool_abconfig_after_config();
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
@@ -380,8 +391,9 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         tool_abconfig_after_require_login();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
 
-        // Manually reset plugin setting (simulates new page load)
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
+        // Reset config (simulates page load)
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
+        set_config('expiration', 'no', 'auth_manual');
 
         // Now test that the after_config hook sets to the correct session conditions
         tool_abconfig_after_config();
@@ -398,7 +410,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Set plugin config control to be modified by the experiment
         set_config('expiration', 'no', 'auth_manual');
@@ -419,8 +431,10 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
 
         // Manually reset settings (simulates new page load)
-        $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
-        $CFG->passwordpolicy = 0;
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
+        set_config('expiration', 'no', 'auth_manual');
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
 
         // Test that after_config correctly applies both settings
         tool_abconfig_after_config();
@@ -438,7 +452,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Set plugin config control to be modified by the experiment
         set_config('expiration', 'no', 'auth_manual');
@@ -459,8 +473,10 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
 
         // Manually reset settings (simulates new page load)
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
         $CFG->forced_plugin_settings['auth_manual']['expiration'] = 'no';
-        $CFG->passwordpolicy = 0;
+        unset($CFG->config_php_settings['passwordpolicy']);
+        set_config('passwordpolicy', 0);
 
         // Test that after_config only applies one setting
         tool_abconfig_after_config();
@@ -478,7 +494,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $this->setUser($user);
 
         // Set config control to be modified by the experiment
-        $CFG->passwordpolicy = 0;
+        set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions
         $eid = $DB->insert_record('tool_abconfig_experiment', array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));

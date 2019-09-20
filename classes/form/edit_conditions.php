@@ -45,7 +45,7 @@ class edit_conditions extends \moodleform {
 
             // Hidden to track previous condset incase of change
             $mform->addElement('hidden', "prevshortname{$id}", $record->condset);
-            $mform->setType("prevshortname{$id}", PARAM_TEXT);
+            $mform->setType("prevshortname{$id}", PARAM_ALPHANUM);
 
             // Section Header
             $mform->addElement('header', "header{$id}", get_string('formheader', 'tool_abconfig', $setcount));
@@ -53,7 +53,7 @@ class edit_conditions extends \moodleform {
 
             // Shortname
             $mform->addElement('text', "shortname{$id}", get_string('formexperimentcondsset', 'tool_abconfig'), array("size" => 20));
-            $mform->setType("shortname{$id}", PARAM_TEXT);
+            $mform->setType("shortname{$id}", PARAM_ALPHANUM);
             $mform->setDefault("shortname{$id}", $record->condset);
 
             // IP Whitelist
@@ -123,7 +123,7 @@ class edit_conditions extends \moodleform {
             get_string("formexperimentcommands", "tool_abconfig"),
             array(
                 "placeholder" => 'CFG,passwordpolicy,true'.PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes'.PHP_EOL.'http_header,From,example@example.org'
-                .PHP_EOL.'error_log,example error message'.PHP_EOL."js_header,console.log('example')".PHP_EOL."js_footer,console.log('example')",
+                .PHP_EOL.'error_log,example error message'.PHP_EOL."js_header,console.log('example');".PHP_EOL."js_footer,console.log('example');",
                 "rows" => 6,
                 "cols" => 60
             )
@@ -156,7 +156,7 @@ class edit_conditions extends \moodleform {
 
         $repeatoptions["repeatheader"]["expanded"] = true;
 
-        $repeatoptions["repeatshortname"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatshortname"]["type"] = PARAM_ALPHANUM;
         $repeatoptions["repeatiplist"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;

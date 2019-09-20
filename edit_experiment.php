@@ -31,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title('Edit Experiment Conditions');
 
-// Needs Require login admin thingy
 require_login();
+require_capability('moodle/site:config', context_system::instance());
 
 $manager = new tool_abconfig_experiment_manager();
 
@@ -44,7 +44,7 @@ $eid = optional_param('id', 0, PARAM_INT);
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
 
 $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'prevshortname' => $experiment->shortname,
-    'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled);
+    'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled);
 $customarray = array('eid' => $experiment->id);
 
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
@@ -66,6 +66,7 @@ if ($form->is_cancelled()) {
     $enabled = $fromform->enabled;
     $eid = $fromform->id;
     $prevshortname = $fromform->prevshortname;
+    $adminenabled = $fromform->adminenabled;
 
     if ($eid == 0) {
         redirect($prevurl);
@@ -76,7 +77,7 @@ if ($form->is_cancelled()) {
         $manager->delete_experiment($shortname);
         $manager->delete_all_conditions($eid);
     } else {
-        $manager->update_experiment($prevshortname, $name, $shortname, $scope, $enabled);
+        $manager->update_experiment($prevshortname, $name, $shortname, $scope, $enabled, $adminenabled);
     }
 
     redirect($prevurl);

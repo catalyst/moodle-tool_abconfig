@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190918" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
+<XMLDB PATH="admin/tool/abconfig/db" VERSION="20190920" COMMENT="XMLDB file for Moodle admin/tool/abconfig"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
 >
@@ -11,6 +11,7 @@
         <FIELD NAME="shortname" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="internal name of experiments"/>
         <FIELD NAME="scope" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="enabled" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Bool flag for whether the experiment is enabled or disabled"/>
+        <FIELD NAME="adminenabled" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Field to track whether this experiment is enabled for admins"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
