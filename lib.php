@@ -29,7 +29,9 @@ function tool_abconfig_after_config() {
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
-        return null;
+        if (is_siteadmin()) {
+            return null;
+        }
     }
 
     // Check URL params, and fire any experiments in the params
@@ -119,7 +121,9 @@ function tool_abconfig_after_require_login() {
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
-        return null;
+        if (is_siteadmin()) {
+            return null;
+        }
     }
 
     global $CFG, $DB, $SESSION;
@@ -258,7 +262,9 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 function tool_abconfig_execute_js($type) {
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
-        return null;
+        if (is_siteadmin()) {
+            return null;
+        }
     }
 
     global $DB, $SESSION;
