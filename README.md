@@ -47,6 +47,11 @@ Each experiment can have multiple condition sets avaiable, of which 1 is applied
 
 Note: `CFG` and `forced_plugin_setting` commands will not overwrite config set inside config.php.
 
+### Enabling Experiments and forcing conditions
+By default all experiments start disabled, so you can't accidentally apply broken behaviour to the full user group. Once conditions have specified for an experiment, they can be tested by using some URL params on any page. The params to use for any given condition are listed inside the table for the conditions. They follow the syntax `?experimentshortname=conditionset`. It is encouraged to use these params to properly test all conditions before enabling an experiment.
+
+Once an experiment is enabled, it can also be enabled for admin accounts as well, which are ignored by the plugin by default. This option should be used with care, as bad configuration may result in all administrator accounts being locked out from the moodle instance, in extreme cases. In the event that something goes wrong when applying experiments to admins as well, the URL parameter `?abconfig=off` can be used to ignore the plugin entirely for that page, which can be used to regain access.
+
 ## Analytics
 
 ### Custom dimentions 
