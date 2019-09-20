@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
     global $CFG, $DB, $SESSION;
-    
+
     // Check URL params, and fire any experiments in the params
     foreach ($_GET as $experiment => $condition) {
         $excompare = $DB->sql_compare_text($experiment, strlen($experiment));
@@ -40,7 +40,7 @@ function tool_abconfig_after_config() {
             }
         }
     }
-    
+
     // Make admin immune
     if (is_siteadmin()) {
         return null;
@@ -73,8 +73,8 @@ function tool_abconfig_after_config() {
         foreach ($crecords as $crecord) {
             // If random number is within this range, set condition and break, else increment total
             if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                //array_push($requestcommandarray, $commands);
                 $commandarray[$record->shortname] = $crecord->commands;
+
                 // Do not select any more conditions
                 break;
             } else {
@@ -96,12 +96,11 @@ function tool_abconfig_after_config() {
             $sqlcondition = $DB->sql_compare_text($SESSION->$unique, strlen($SESSION->$unique));
             $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
             $commands = json_decode($condition->commands);
-            
+
             $commandarray[$record->shortname] = $condition->commands;
         }
     }
 
-    
     // Now, execute all commands in the arrays
     foreach ($commandarray as $shortname => $command) {
         tool_abconfig_execute_command_array($command, $shortname);
@@ -173,9 +172,9 @@ function tool_abconfig_before_footer() {
     global $DB, $SESSION;
     // Get all active experiments
     $records = $DB->get_records('tool_abconfig_experiment');
-    
+
     foreach ($records as $record) {
-        
+
         $unique = 'abconfig_js_footer_'.$record->shortname;
         if (property_exists($SESSION, $unique)) {
             // Found a JS footer to be executed
