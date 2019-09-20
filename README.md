@@ -19,7 +19,11 @@ Branches
 
 Installation
 ------------
-To install the plugin, 
+### Requirements
+
+This plugin will work natively from Moodle 3.8 onwards, but can be used on earlier versions of Moodle. To use on an older version of Moodle, MDL-66340 must be backported to the moodle instance. This plugin relies on a new hook, that enables configuration to be applied immediately following the Moodle setup process each page. For Moodle versions earlier than 3.7, MDL-60470 is required to enable Session scope experiments to be decided on, immediately after a user logs in.
+
+To install the plugin, simply drop it into `path/to/moodle/admin/tool/abconfig` directory. When moodle is accessed it will prompt for installation of the plugin. Press Upgrade database now, and the plugin will be installed.
 
 Configuration
 -------------
@@ -76,3 +80,5 @@ Please note our time is limited, so if you need urgent support or want to
 sponsor a new feature then please contact Catalyst IT Australia:
 
 https://www.catalyst-au.net/contact-us
+
+<a href="https://www.catalyst-au.net/"><img alt="Catalyst IT" src="https://cdn.rawgit.com/CatalystIT-AU/moodle-auth_saml2/master/pix/catalyst-logo.svg" width="400"></a>
