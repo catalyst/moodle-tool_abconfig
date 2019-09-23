@@ -9,7 +9,7 @@ A way to A/B test config, or slowly turn on config for certain audiences or % of
 * [Branches](#branches)
 * [Installation](#installation)
 * [Configuration](#configuration)
-* [Debugging](#debugging)
+* [Example use cases](#example-use-cases)
 * [Support](#support)
 
 
@@ -41,13 +41,14 @@ The plugin currently has two scopes that experiments can lie under, Request scop
 
 #### Request scope
 
-Request scope experiments are called every time Moodle is loaded. Any request scope will treat a new page load as a new experiment call, and so a new set of conditions will be decided on. This means that behaviour can vary between loads of Moodle, so be careful when putting changes here that will affect a user's experience, as this may lead to an inconsistent experience for users. This includes each request including ajax calls within a single html page load.
+Request scope experiments are run on every http request. Any request scope will treat a new page load as a new experiment call, and so a new set of conditions will be decided on. This means that behaviour can vary between loads of Moodle, so be careful when putting changes here that will affect a user's experience, as this may lead to an inconsistent experience for users. This includes each request including ajax calls within a single html page load.
 
 #### Session scope
 
 Session scope experiments are called when a user logs into the site. At this time, a condition set will be decided on, and users will continue to have that condition set applied for the length of their session. This does not apply to guest users, only logged in users. When a user logs out, and logs back in, a new set of conditions is applied to the account, which may be the same condition set.
 
 ### Conditions
+
 Each experiment can have multiple condition sets avaiable, of which 1 is applied to a given user at a given time. The condition set is picked based on the weighting you specify when creating the condition, which corresponds to the % of users that it applies to.
 
 #### IP Whitelist
@@ -75,13 +76,14 @@ By default all experiments start disabled, so you can't accidentally apply broke
 
 Once an experiment is enabled, it can also be enabled for admin accounts as well, which are ignored by the plugin by default. This option should be used with care, as bad configuration may result in all administrator accounts being locked out from the moodle instance, in extreme cases. In the event that something goes wrong when applying experiments to admins as well, the URL parameter `?abconfig=off` can be used to ignore the plugin entirely for that page, which can be used to regain access.
 
-## Analytics
+Example use cases
+-----------------
+
+### Analytics
 
 To integrate analytics into the plugin configurations, you can use the Javascript Footer command inside of condition sets, which can be used to interact with the chosen analytics engine.
 
 
-Debugging
----------
 
 
 Support
