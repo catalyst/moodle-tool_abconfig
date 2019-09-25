@@ -128,7 +128,12 @@ function tool_abconfig_after_require_login() {
 
     global $CFG, $DB, $SESSION;
     $compare = $DB->sql_compare_text('session', strlen('session'));
-    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
+    try {
+        $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
+    } catch (Exception $e) {
+        // Always fail cleanly and don't block a working moodle.
+        return;
+    }
 
     foreach ($records as $record) {
         // Make admin immune unless enabled for admin
@@ -269,7 +274,12 @@ function tool_abconfig_execute_js($type) {
 
     global $DB, $SESSION;
     // Get all active experiments
-    $records = $DB->get_records('tool_abconfig_experiment');
+    try {
+        $records = $DB->get_records('tool_abconfig_experiment');
+    } catch (Exception $e) {
+        // Always fail cleanly and don't block a working moodle.
+        return;
+    }
 
     foreach ($records as $record) {
         // If called from header
