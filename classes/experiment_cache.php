@@ -26,9 +26,15 @@ namespace tool_abconfig;
 
 class experiment_cache implements \cache_data_source {
 
-    /** @var question_finder the singleton instance of this class. */
+    /** @var experiment_cache the singleton instance of this class. */
     protected static $experimentcache = null;
 
+    /**
+     * Returns the instance of cache definition
+     *
+     * @param string $definition the definition of the cache
+     * @return mixed The singleton instance of the cache data source
+     */
     public static function get_instance_for_cache(\cache_definition $definition) {
         if (is_null(self::$experimentcache)) {
             self::$experimentcache = new experiment_cache();
@@ -82,41 +88,17 @@ class experiment_cache implements \cache_data_source {
     private function experiment_data_array($experimentrecord) {
         global $DB;
 
-        // Prepare array for storing at shortname
-        $experimentdata = array (
-            'name' => $experimentrecord->name,
-            'shortname' => $experimentrecord->shortname,
-            'scope' => $experimentrecord->scope,
-            'enabled' => $experimentrecord->enabled,
-            'adminenabled' => $experimentrecord->adminenabled,
-        );
+        $experimentdata = (array) $experimentrecord;
 
         // Get all the conditions for the experiment
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $experimentrecord->id));
         $data = array();
         foreach ($records as $record) {
-            $data[$record->condset] = self::condition_data_array($record);
+            $data[$record->condset] = (array) $record;
         }
 
         // Append condition data onto the experiment array and return
         $experimentdata['conditions'] = $data;
         return $experimentdata;
-    }
-
-    /**
-     * Constructs a formatted data array of a conditionset
-     *
-     * @param array $conditionrecord the experiment record to construct data array for
-     * @return mixed A data array representing the condition, or false if it can't be loaded.
-     */
-    private function condition_data_array($conditionrecord) {
-        $conditiondata = array (
-            'condset' => $conditionrecord->condset,
-            'experiment' => $conditionrecord->experiment,
-            'ipwhitelist' => $conditionrecord->ipwhitelist,
-            'commands' => $conditionrecord->commands,
-            'value' => $conditionrecord->value
-        );
-        return $conditiondata;
     }
 }

@@ -139,37 +139,40 @@ class tool_abconfig_experiment_manager {
     public function get_active_request() {
         $experiments = self::get_experiments();
 
-        $return = array();
-        foreach ($experiments as $experiment) {
+        // Filter array for only enabled session experiments
+        return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1 && $experiment['scope'] == 'request') {
-                $return[$experiment['shortname']] = $experiment;
+                return true;
+            } else {
+                return false;
             }
-        }
-        return $return;
+        });
     }
 
     public function get_active_session() {
         $experiments = self::get_experiments();
 
-        $return = array();
-        foreach ($experiments as $experiment) {
+        // Filter array for only enabled session experiments
+        return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1 && $experiment['scope'] == 'session') {
-                $return[$experiment['shortname']] = $experiment;
+                return true;
+            } else {
+                return false;
             }
-        }
-        return $return;
+        });
     }
 
     public function get_active_experiments() {
         $experiments = self::get_experiments();
 
-        $return = array();
-        foreach ($experiments as $experiment) {
+        // Filter array for only enabled experiments
+        return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1) {
-                $return[$experiment['shortname']] = $experiment;
+                return true;
+            } else {
+                return false;
             }
-        }
-        return $return;
+        });
     }
 }
 

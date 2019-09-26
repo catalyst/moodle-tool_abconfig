@@ -38,10 +38,14 @@ function tool_abconfig_after_config() {
             }
         }
 
+        // Get all experiments
+        $experiments = $manager->get_experiments();
         // Check URL params, and fire any experiments in the params
         foreach ($_GET as $experiment => $condition) {
-            // Get all experiments
-            $experiments = $manager->get_experiments();
+            // first, only admins can fire additional experiments
+            if (!is_siteadmin()) {
+                break;
+            }
             // Check if experiment exists
             if (array_key_exists($experiment, $experiments)) {
                 // If so, check if condition exists
