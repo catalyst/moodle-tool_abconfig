@@ -75,4 +75,9 @@ $string['adminenabled'] = 'Enabled for Admin';
 $string['settingsenablename'] = 'Enable Plugin';
 $string['settingsenabledesc'] = 'Enable the plugin. While this is unchecked, users will not interact with the plugin at all. Experiments can still be set.';
 
+// Cache Strings
 $string['cachedef_experiments'] = 'Cache to store experiments and conditions in.';
+
+// Privacy Strings
+$string['privacy:metadata'] = 'This plugin does not collect or store any user information.';
+

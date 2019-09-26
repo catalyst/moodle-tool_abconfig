@@ -263,27 +263,11 @@ function tool_abconfig_execute_js($type) {
         }
     }
 
-<<<<<<< HEAD
-    global $DB, $SESSION;
-    // Get all active experiments
-    try {
-        $records = $DB->get_records('tool_abconfig_experiment');
-    } catch (Exception $e) {
-        // Always fail cleanly and don't block a working moodle.
-        return;
-    }
-=======
     global $SESSION;
 
     // Get all experiments
-<<<<<<< HEAD
-    $cache = cache::make('tool_abconfig', 'experiments');
-    $records = $cache->get('allexperiment');
->>>>>>> 7937725... Refactored JS chunk to MUC
-=======
     $manager = new tool_abconfig_experiment_manager();
     $records = $manager->get_experiments();
->>>>>>> 952616a... Refactored caching to be centralised in experiment_manager and avoid unnecessary DB calls
 
     foreach ($records as $record) {
         // If called from header
