@@ -39,13 +39,42 @@ class experiment_cache implements \cache_data_source {
     public function load_for_cache($key) {
         global $DB;
         $data = array();
-        if ($key == 'activeexperiments') {
+        // All active experiments
+        if ($key == 'activeexperiment') {
             $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
             foreach ($records as $record) {
                 $data[$record->shortname] = self::experiment_data_array($record);
             }
             return $data;
         }
+
+        // All active request experiments
+        if ($key == 'activerequest') {
+            $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1, 'scope' => 'request'));
+            foreach ($records as $record) {
+                $data[$record->shortname] = self::experiment_data_array($record);
+            }
+            return $data;
+        }
+        
+        // All active session experiments
+        if ($key == 'activesession') {
+            $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1, 'scope' => 'session'));
+            foreach ($records as $record) {
+                $data[$record->shortname] = self::experiment_data_array($record);
+            }
+            return $data;
+        }
+
+        // All experiments
+        if ($key == 'allexperiment') {
+            $records = $DB->get_records('tool_abconfig_experiment');
+            foreach ($records as $record) {
+                $data[$record->shortname] = self::experiment_data_array($record);
+            }
+            return $data;
+        }
+
     }
 
     public function load_many_for_cache(array $keys) {

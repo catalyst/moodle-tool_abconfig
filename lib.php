@@ -29,7 +29,6 @@ function tool_abconfig_after_config() {
 
     // Create cache
     $cache = cache::make('tool_abconfig', 'experiments');
-    echo '<pre>' . var_export($cache->get('activeexperiments'), true) . '</pre>';
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
