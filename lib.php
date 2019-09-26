@@ -39,14 +39,16 @@ function tool_abconfig_after_config() {
 
     // Check URL params, and fire any experiments in the params
     foreach ($_GET as $experiment => $condition) {
-        $excompare = $DB->sql_compare_text($experiment, strlen($experiment));
-        $exrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?", array($excompare));
 
-        if (!empty($exrecord)) {
-            $condcompare = $DB->sql_compare_text($condition, strlen($condition));
-            $condrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_condition} WHERE condset = ? and experiment = ?", array($condcompare, $exrecord->id));
-            if (!empty($condrecord)) {
-                tool_abconfig_execute_command_array($condrecord->commands, $exrecord->shortname);
+        // Get all experiments from cache
+        $experiments = $cache->get('allexperiment');
+
+        // Check if experiment exists
+        if (array_key_exists($experiment, $experiments)) {
+            // If so, check if condition exists
+            if (array_key_exists($condition, $experiments[$experiment]['conditions'])) {
+                // execute commands stored at experiment->condition->commands
+                tool_abconfig_execute_command_array($experiments[$experiment]['conditions'][$condition]['commands'], $experiments[$experiment]['shortname']);
             }
         }
     }
