@@ -22,13 +22,14 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace tool_abconfig;
 
-class experiment_cache implements cache_data_source {
+class experiment_cache implements \cache_data_source {
 
     /** @var question_finder the singleton instance of this class. */
-    protected static $experimentccache = null;
+    protected static $experimentcache = null;
 
-    public static function get_instance_for_cache(cache_definition $definition) {
+    public static function get_instance_for_cache(\cache_definition $definition) {
         if (is_null(self::$experimentcache)) {
             self::$experimentcache = new experiment_cache();
         }
@@ -41,7 +42,7 @@ class experiment_cache implements cache_data_source {
         if ($key == 'activeexperiments') {
             $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
             foreach ($records as $record) {
-                $data[$record->shortname] = experiment_data_array($record);
+                $data[$record->shortname] = self::experiment_data_array($record);
             }
             return $data;
         }
@@ -75,7 +76,7 @@ class experiment_cache implements cache_data_source {
         );
 
         // Get all the conditions for the experiment
-        $records = $DB->get_records('tool_abconfig_conditions', array('experiment' => $experimentrecord->shortname));
+        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $experimentrecord->id));
         $data = array();
         foreach ($records as $record) {
             $data[$record->condset] = self::condition_data_array($record);
@@ -99,5 +100,6 @@ class experiment_cache implements cache_data_source {
             'commands' => $conditionrecord->commands,
             'value' => $conditionrecord->value
         );
+        return $conditiondata;
     }
 }
