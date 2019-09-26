@@ -126,6 +126,7 @@ class experiment_cache implements \cache_data_source {
      */
     private function condition_data_array($conditionrecord) {
         $conditiondata = array (
+            'condset' => $conditionrecord->condset,
             'experiment' => $conditionrecord->experiment,
             'ipwhitelist' => $conditionrecord->ipwhitelist,
             'commands' => $conditionrecord->commands,

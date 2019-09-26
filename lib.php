@@ -117,6 +117,10 @@ function tool_abconfig_after_config() {
 }
 
 function tool_abconfig_after_require_login() {
+    global $CFG, $SESSION;
+
+    // Create cache
+    $cache = cache::make('tool_abconfig', 'experiments');
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
@@ -124,33 +128,26 @@ function tool_abconfig_after_require_login() {
             return null;
         }
     }
-
-    global $CFG, $DB, $SESSION;
-    $compare = $DB->sql_compare_text('session', strlen('session'));
-    try {
-        $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
-    } catch (Exception $e) {
-        // Always fail cleanly and don't block a working moodle.
-        return;
-    }
+    // Get active session records
+    $records = $cache->get('activesession');
 
     foreach ($records as $record) {
         // Make admin immune unless enabled for admin
         if (is_siteadmin()) {
-            if ($record->adminenabled == 0) {
+            if ($record['adminenabled'] == 0) {
                 continue;
             }
         }
 
         // Create experiment session var identifier
-        $unique = 'abconfig_'.$record->shortname;
+        $unique = 'abconfig_'.$record['shortname'];
         // get condition sets for experiment
-        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+        $conditionrecords = $record['conditions'];
         // Remove all conditions that contain the user ip in the whitelist
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = $conditionrecord->ipwhitelist;
+            $iplist = $conditionrecord['ipwhitelist'];
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
@@ -164,19 +161,18 @@ function tool_abconfig_after_require_login() {
             $prevtotal = 0;
             foreach ($crecords as $crecord) {
                 // If random number is within this range, set condition and break, else increment total
-                if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                    $commands = json_decode($crecord->commands);
-                    tool_abconfig_execute_command_array($crecord->commands, $record->shortname);
+                if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
+                    tool_abconfig_execute_command_array($crecord['commands'], $record['shortname']);
 
                     // Set a session var for this command, so it is not executed again this session
-                    $SESSION->{$unique} = $crecord->condset;
+                    $SESSION->{$unique} = $crecord['condset'];
 
                     // Do not execute any more conditions
                     break;
 
                 } else {
                     // Not this record, increment lower bound, and move on
-                    $prevtotal += $crecord->value;
+                    $prevtotal += $crecord['value'];
                 }
             }
 
