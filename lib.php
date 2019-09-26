@@ -267,6 +267,7 @@ function tool_abconfig_execute_js($type) {
         }
     }
 
+<<<<<<< HEAD
     global $DB, $SESSION;
     // Get all active experiments
     try {
@@ -275,13 +276,20 @@ function tool_abconfig_execute_js($type) {
         // Always fail cleanly and don't block a working moodle.
         return;
     }
+=======
+    global $SESSION;
+
+    // Get all experiments
+    $cache = cache::make('tool_abconfig', 'experiments');
+    $records = $cache->get('allexperiment');
+>>>>>>> 7937725... Refactored JS chunk to MUC
 
     foreach ($records as $record) {
         // If called from header
         if ($type == 'header') {
-            $unique = 'abconfig_js_header_'.$record->shortname;
+            $unique = 'abconfig_js_header_'.$record['shortname'];
         } else if ($type == 'footer') {
-            $unique = 'abconfig_js_footer_'.$record->shortname;
+            $unique = 'abconfig_js_footer_'.$record['shortname'];
         }
 
         if (property_exists($SESSION, $unique)) {
@@ -290,7 +298,7 @@ function tool_abconfig_execute_js($type) {
         }
 
         // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request' || $record->enabled == 0) {
+        if ($record['scope'] == 'request' || $record['enabled'] == 0) {
             unset($SESSION->$unique);
         }
     }
