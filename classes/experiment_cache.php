@@ -50,7 +50,8 @@ class experiment_cache implements \cache_data_source {
 
         // All active request experiments
         if ($key == 'activerequest') {
-            $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1, 'scope' => 'request'));
+            $sqlrequest = $DB->sql_compare_text('request');
+            $records = $DB->get_records_select('tool_abconfig_experiment', "enabled = 1 AND scope = ?", array($sqlrequest));
             foreach ($records as $record) {
                 $data[$record->shortname] = self::experiment_data_array($record);
             }
@@ -59,7 +60,8 @@ class experiment_cache implements \cache_data_source {
         
         // All active session experiments
         if ($key == 'activesession') {
-            $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1, 'scope' => 'session'));
+            $sqlsession = $DB->sql_compare_text('session');
+            $records = $DB->get_records_select('tool_abconfig_experiment', "enabled = 1 AND scope = ?", array($sqlsession));
             foreach ($records as $record) {
                 $data[$record->shortname] = self::experiment_data_array($record);
             }

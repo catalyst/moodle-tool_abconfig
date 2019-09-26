@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
-    global $CFG, $DB, $SESSION;
+    global $CFG, $SESSION;
 
     // Create cache
     $cache = cache::make('tool_abconfig', 'experiments');
@@ -56,26 +56,26 @@ function tool_abconfig_after_config() {
     $commandarray = array();
 
     // First, Build a list of all commands that need to be executed
-    // Every experiment that is per request
-    $compare = $DB->sql_compare_text('request', strlen('request'));
-    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
 
-    foreach ($records as $record) {
+    // Start with request scope
+    $requestexperiments = $cache->get('activerequest');
+
+    foreach ($requestexperiments as $record) {
 
         // Make admin immune unless enabled for admin
         if (is_siteadmin()) {
-            if ($record->adminenabled == 0) {
+            if ($record['adminenabled'] == 0) {
                 continue;
             }
         }
 
-        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+        $conditionrecords = $record['conditions'];
 
         // Remove all conditions that contain the user ip in the whitelist
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = $conditionrecord->ipwhitelist;
+            $iplist = $conditionrecord['ipwhitelist'];
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
@@ -87,32 +87,26 @@ function tool_abconfig_after_config() {
         $prevtotal = 0;
         foreach ($crecords as $crecord) {
             // If random number is within this range, set condition and break, else increment total
-            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                $commandarray[$record->shortname] = $crecord->commands;
-
+            if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
+                $commandarray[$record['shortname']] = $crecord['commands'];
                 // Do not select any more conditions
                 break;
             } else {
                 // Not this record, increment lower bound, and move on
-                $prevtotal += $crecord->value;
+                $prevtotal += $crecord['value'];
             }
         }
     }
 
-    // Now we must check for session level requests, that require the config to be the same, but applied every request
-    $sessioncompare = $DB->sql_compare_text('session', strlen('session'));
-    $sessionrecords = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($sessioncompare));
+    // Now session scope
+    $requestexperiments = $cache->get('activesession');
 
-    foreach ($sessionrecords as $record) {
+    // CORRECT, NO REGRESSIONS HERE
+    foreach ($requestexperiments as $record) {
         // Check if a session var has been set for this experiment, only care if has been set
-        $unique = 'abconfig_'.$record->shortname;
+        $unique = 'abconfig_'.$record['shortname'];
         if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
-            // If set, execute commands
-            $sqlcondition = $DB->sql_compare_text($SESSION->$unique, strlen($SESSION->$unique));
-            $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
-            $commands = json_decode($condition->commands);
-
-            $commandarray[$record->shortname] = $condition->commands;
+            $commandarray[$record['shortname']] = $record['conditions'][$SESSION->$unique]['commands'];
         }
     }
 
