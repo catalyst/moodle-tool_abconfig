@@ -176,7 +176,7 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Purge caches to avoid caching issues with changing experiments
-        purge_all_caches();
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
         // Now execute second hook, and check the plugin value
         tool_abconfig_after_config();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'no');
@@ -268,7 +268,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $DB->set_field_select('tool_abconfig_condition', 'ipwhitelist', '', 'condset = ? AND experiment = ?', array($sqlcondition, $eid));
 
         // Purge caches to avoid caching issues with changing experiments
-        purge_all_caches();
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
+
         tool_abconfig_after_config();
         $this->assertEquals($CFG->passwordpolicy, 1);
     }

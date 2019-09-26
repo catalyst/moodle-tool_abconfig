@@ -36,37 +36,15 @@ class experiment_cache implements \cache_data_source {
         return self::$experimentcache;
     }
 
+    /**
+     * Returns an array of data for given key
+     *
+     * @param string $key the key to get the
+     * @return mixed A data array of all data for key or false if key not found
+     */
     public function load_for_cache($key) {
         global $DB;
         $data = array();
-        // All active experiments
-        if ($key == 'activeexperiment') {
-            $records = $DB->get_records('tool_abconfig_experiment', array('enabled' => 1));
-            foreach ($records as $record) {
-                $data[$record->shortname] = self::experiment_data_array($record);
-            }
-            return $data;
-        }
-
-        // All active request experiments
-        if ($key == 'activerequest') {
-            $sqlrequest = $DB->sql_compare_text('request');
-            $records = $DB->get_records_select('tool_abconfig_experiment', "enabled = 1 AND scope = ?", array($sqlrequest));
-            foreach ($records as $record) {
-                $data[$record->shortname] = self::experiment_data_array($record);
-            }
-            return $data;
-        }
-        
-        // All active session experiments
-        if ($key == 'activesession') {
-            $sqlsession = $DB->sql_compare_text('session');
-            $records = $DB->get_records_select('tool_abconfig_experiment', "enabled = 1 AND scope = ?", array($sqlsession));
-            foreach ($records as $record) {
-                $data[$record->shortname] = self::experiment_data_array($record);
-            }
-            return $data;
-        }
 
         // All experiments
         if ($key == 'allexperiment') {
@@ -77,10 +55,17 @@ class experiment_cache implements \cache_data_source {
             return $data;
         }
 
+        return false;
     }
 
+    /**
+     * Returns an array of data for all given keys
+     *
+     * @param array $keys the keys of the datasets to be loaded
+     * @return mixed A data array of all datasets
+     */
     public function load_many_for_cache(array $keys) {
-        //return array of all data items
+        // return array of all data items
         $data = array();
         foreach ($keys as $key) {
             $data[$key] = self::load_for_cache($key);

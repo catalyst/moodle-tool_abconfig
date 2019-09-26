@@ -22,11 +22,13 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
 $definitions = array(
     'experiments' => array(
         'mode' => cache_store::MODE_APPLICATION,
-        'datasource' => '\tool_abconfig\experiment_cache'
+        'datasource' => '\tool_abconfig\experiment_cache',
+        'staticacceleration' => true
     )
 );
 

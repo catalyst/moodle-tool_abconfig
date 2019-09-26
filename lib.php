@@ -27,8 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 function tool_abconfig_after_config() {
     global $CFG, $SESSION;
 
-    // Create cache
-    $cache = cache::make('tool_abconfig', 'experiments');
+    // Setup experiment manager
+    $manager = new tool_abconfig_experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
@@ -39,10 +39,8 @@ function tool_abconfig_after_config() {
 
     // Check URL params, and fire any experiments in the params
     foreach ($_GET as $experiment => $condition) {
-
-        // Get all experiments from cache
-        $experiments = $cache->get('allexperiment');
-
+        // Get all experiments
+        $experiments = $manager->get_experiments();
         // Check if experiment exists
         if (array_key_exists($experiment, $experiments)) {
             // If so, check if condition exists
@@ -58,7 +56,7 @@ function tool_abconfig_after_config() {
     // First, Build a list of all commands that need to be executed
 
     // Start with request scope
-    $requestexperiments = $cache->get('activerequest');
+    $requestexperiments = $manager->get_active_request();
 
     foreach ($requestexperiments as $record) {
 
@@ -99,10 +97,9 @@ function tool_abconfig_after_config() {
     }
 
     // Now session scope
-    $requestexperiments = $cache->get('activesession');
+    $sessionexperiments = $manager->get_active_session();
 
-    // CORRECT, NO REGRESSIONS HERE
-    foreach ($requestexperiments as $record) {
+    foreach ($sessionexperiments as $record) {
         // Check if a session var has been set for this experiment, only care if has been set
         $unique = 'abconfig_'.$record['shortname'];
         if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
@@ -119,8 +116,8 @@ function tool_abconfig_after_config() {
 function tool_abconfig_after_require_login() {
     global $CFG, $SESSION;
 
-    // Create cache
-    $cache = cache::make('tool_abconfig', 'experiments');
+    // Create experiment manager
+    $manager = new tool_abconfig_experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
@@ -129,8 +126,7 @@ function tool_abconfig_after_require_login() {
         }
     }
     // Get active session records
-    $records = $cache->get('activesession');
-
+    $records = $manager->get_active_session();
     foreach ($records as $record) {
         // Make admin immune unless enabled for admin
         if (is_siteadmin()) {
@@ -280,9 +276,14 @@ function tool_abconfig_execute_js($type) {
     global $SESSION;
 
     // Get all experiments
+<<<<<<< HEAD
     $cache = cache::make('tool_abconfig', 'experiments');
     $records = $cache->get('allexperiment');
 >>>>>>> 7937725... Refactored JS chunk to MUC
+=======
+    $manager = new tool_abconfig_experiment_manager();
+    $records = $manager->get_experiments();
+>>>>>>> 952616a... Refactored caching to be centralised in experiment_manager and avoid unnecessary DB calls
 
     foreach ($records as $record) {
         // If called from header
