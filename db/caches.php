@@ -15,19 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Cache definition for experiments
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version   = 2019092600;      // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2019092600;      // Same as version.
-$plugin->requires  = 2014051217;
-$plugin->component = "tool_abconfig";
-$plugin->maturity  = MATURITY_STABLE;
+$definitions = array(
+    'experiments' => array(
+        'mode' => cache_store::MODE_APPLICATION,
+        'datasource' => '\tool_abconfig\experiment_cache',
+        'staticacceleration' => true
+    )
+);
 

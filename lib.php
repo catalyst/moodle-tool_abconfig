@@ -25,99 +25,107 @@
 defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
-    global $CFG, $DB, $SESSION;
+    try {
+        global $CFG, $SESSION;
 
-    // Check if the param to disable ABconfig is present, if so, exit
-    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
-        if (is_siteadmin()) {
-            return null;
-        }
-    }
+        // Setup experiment manager
+        $manager = new tool_abconfig_experiment_manager();
 
-    // Check URL params, and fire any experiments in the params
-    foreach ($_GET as $experiment => $condition) {
-        $excompare = $DB->sql_compare_text($experiment, strlen($experiment));
-        $exrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?", array($excompare));
-
-        if (!empty($exrecord)) {
-            $condcompare = $DB->sql_compare_text($condition, strlen($condition));
-            $condrecord = $DB->get_record_sql("SELECT * FROM {tool_abconfig_condition} WHERE condset = ? and experiment = ?", array($condcompare, $exrecord->id));
-            if (!empty($condrecord)) {
-                tool_abconfig_execute_command_array($condrecord->commands, $exrecord->shortname);
-            }
-        }
-    }
-
-    $commandarray = array();
-
-    // First, Build a list of all commands that need to be executed
-    // Every experiment that is per request
-    $compare = $DB->sql_compare_text('request', strlen('request'));
-    $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
-
-    foreach ($records as $record) {
-
-        // Make admin immune unless enabled for admin
-        if (is_siteadmin()) {
-            if ($record->adminenabled == 0) {
-                continue;
+        // Check if the param to disable ABconfig is present, if so, exit
+        if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+            if (is_siteadmin()) {
+                return null;
             }
         }
 
-        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
-
-        // Remove all conditions that contain the user ip in the whitelist
-        $crecords = array();
-
-        foreach ($conditionrecords as $conditionrecord) {
-            $iplist = $conditionrecord->ipwhitelist;
-            if (!remoteip_in_list($iplist)) {
-                array_push($crecords, $conditionrecord);
-            }
-        }
-
-        // Increment through conditions until one is selected
-        $condition = '';
-        $num = rand(1, 100);
-        $prevtotal = 0;
-        foreach ($crecords as $crecord) {
-            // If random number is within this range, set condition and break, else increment total
-            if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                $commandarray[$record->shortname] = $crecord->commands;
-
-                // Do not select any more conditions
+        // Get all experiments
+        $experiments = $manager->get_experiments();
+        // Check URL params, and fire any experiments in the params
+        foreach ($_GET as $experiment => $condition) {
+            // first, only admins can fire additional experiments
+            if (!is_siteadmin()) {
                 break;
-            } else {
-                // Not this record, increment lower bound, and move on
-                $prevtotal += $crecord->value;
+            }
+            // Check if experiment exists
+            if (array_key_exists($experiment, $experiments)) {
+                // If so, check if condition exists
+                if (array_key_exists($condition, $experiments[$experiment]['conditions'])) {
+                    // execute commands stored at experiment->condition->commands
+                    tool_abconfig_execute_command_array($experiments[$experiment]['conditions'][$condition]['commands'], $experiments[$experiment]['shortname']);
+                }
             }
         }
-    }
 
-    // Now we must check for session level requests, that require the config to be the same, but applied every request
-    $sessioncompare = $DB->sql_compare_text('session', strlen('session'));
-    $sessionrecords = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($sessioncompare));
+        $commandarray = array();
 
-    foreach ($sessionrecords as $record) {
-        // Check if a session var has been set for this experiment, only care if has been set
-        $unique = 'abconfig_'.$record->shortname;
-        if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
-            // If set, execute commands
-            $sqlcondition = $DB->sql_compare_text($SESSION->$unique, strlen($SESSION->$unique));
-            $condition = $DB->get_record_select('tool_abconfig_condition', 'experiment = ? AND condset = ?', array($record->id, $SESSION->$unique));
-            $commands = json_decode($condition->commands);
+        // First, Build a list of all commands that need to be executed
 
-            $commandarray[$record->shortname] = $condition->commands;
+        // Start with request scope
+        $requestexperiments = $manager->get_active_request();
+
+        foreach ($requestexperiments as $record) {
+
+            // Make admin immune unless enabled for admin
+            if (is_siteadmin()) {
+                if ($record['adminenabled'] == 0) {
+                    continue;
+                }
+            }
+
+            $conditionrecords = $record['conditions'];
+
+            // Remove all conditions that contain the user ip in the whitelist
+            $crecords = array();
+
+            foreach ($conditionrecords as $conditionrecord) {
+                $iplist = $conditionrecord['ipwhitelist'];
+                if (!remoteip_in_list($iplist)) {
+                    array_push($crecords, $conditionrecord);
+                }
+            }
+
+            // Increment through conditions until one is selected
+            $condition = '';
+            $num = rand(1, 100);
+            $prevtotal = 0;
+            foreach ($crecords as $crecord) {
+                // If random number is within this range, set condition and break, else increment total
+                if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
+                    $commandarray[$record['shortname']] = $crecord['commands'];
+                    // Do not select any more conditions
+                    break;
+                } else {
+                    // Not this record, increment lower bound, and move on
+                    $prevtotal += $crecord['value'];
+                }
+            }
         }
-    }
 
-    // Now, execute all commands in the arrays
-    foreach ($commandarray as $shortname => $command) {
-        tool_abconfig_execute_command_array($command, $shortname);
-    }
+        // Now session scope
+        $sessionexperiments = $manager->get_active_session();
+
+        foreach ($sessionexperiments as $record) {
+            // Check if a session var has been set for this experiment, only care if has been set
+            $unique = 'abconfig_'.$record['shortname'];
+            if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
+                $commandarray[$record['shortname']] = $record['conditions'][$SESSION->$unique]['commands'];
+            }
+        }
+
+        // Now, execute all commands in the arrays
+        foreach ($commandarray as $shortname => $command) {
+            tool_abconfig_execute_command_array($command, $shortname);
+        }
+    } catch (Exception $e) {        // @codingStandardsIgnoreStart
+        // Catch exceptions from stuff not existing during installation process, fail silently
+    }                               // @codingStandardsIgnoreEnd
 }
 
 function tool_abconfig_after_require_login() {
+    global $CFG, $SESSION;
+
+    // Create experiment manager
+    $manager = new tool_abconfig_experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
@@ -125,33 +133,25 @@ function tool_abconfig_after_require_login() {
             return null;
         }
     }
-
-    global $CFG, $DB, $SESSION;
-    $compare = $DB->sql_compare_text('session', strlen('session'));
-    try {
-        $records = $DB->get_records_sql("SELECT * FROM {tool_abconfig_experiment} WHERE scope = ? AND enabled=1", array($compare));
-    } catch (Exception $e) {
-        // Always fail cleanly and don't block a working moodle.
-        return;
-    }
-
+    // Get active session records
+    $records = $manager->get_active_session();
     foreach ($records as $record) {
         // Make admin immune unless enabled for admin
         if (is_siteadmin()) {
-            if ($record->adminenabled == 0) {
+            if ($record['adminenabled'] == 0) {
                 continue;
             }
         }
 
         // Create experiment session var identifier
-        $unique = 'abconfig_'.$record->shortname;
+        $unique = 'abconfig_'.$record['shortname'];
         // get condition sets for experiment
-        $conditionrecords = $DB->get_records('tool_abconfig_condition', array('experiment' => $record->id));
+        $conditionrecords = $record['conditions'];
         // Remove all conditions that contain the user ip in the whitelist
         $crecords = array();
 
         foreach ($conditionrecords as $conditionrecord) {
-            $iplist = $conditionrecord->ipwhitelist;
+            $iplist = $conditionrecord['ipwhitelist'];
             if (!remoteip_in_list($iplist)) {
                 array_push($crecords, $conditionrecord);
             }
@@ -165,19 +165,18 @@ function tool_abconfig_after_require_login() {
             $prevtotal = 0;
             foreach ($crecords as $crecord) {
                 // If random number is within this range, set condition and break, else increment total
-                if ($num > $prevtotal && $num <= ($prevtotal + $crecord->value)) {
-                    $commands = json_decode($crecord->commands);
-                    tool_abconfig_execute_command_array($crecord->commands, $record->shortname);
+                if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
+                    tool_abconfig_execute_command_array($crecord['commands'], $record['shortname']);
 
                     // Set a session var for this command, so it is not executed again this session
-                    $SESSION->{$unique} = $crecord->condset;
+                    $SESSION->{$unique} = $crecord['condset'];
 
                     // Do not execute any more conditions
                     break;
 
                 } else {
                     // Not this record, increment lower bound, and move on
-                    $prevtotal += $crecord->value;
+                    $prevtotal += $crecord['value'];
                 }
             }
 
@@ -272,21 +271,18 @@ function tool_abconfig_execute_js($type) {
         }
     }
 
-    global $DB, $SESSION;
-    // Get all active experiments
-    try {
-        $records = $DB->get_records('tool_abconfig_experiment');
-    } catch (Exception $e) {
-        // Always fail cleanly and don't block a working moodle.
-        return;
-    }
+    global $SESSION;
+
+    // Get all experiments
+    $manager = new tool_abconfig_experiment_manager();
+    $records = $manager->get_experiments();
 
     foreach ($records as $record) {
         // If called from header
         if ($type == 'header') {
-            $unique = 'abconfig_js_header_'.$record->shortname;
+            $unique = 'abconfig_js_header_'.$record['shortname'];
         } else if ($type == 'footer') {
-            $unique = 'abconfig_js_footer_'.$record->shortname;
+            $unique = 'abconfig_js_footer_'.$record['shortname'];
         }
 
         if (property_exists($SESSION, $unique)) {
@@ -295,7 +291,7 @@ function tool_abconfig_execute_js($type) {
         }
 
         // If experiment is request scope, unset var so it doesnt fire again
-        if ($record->scope == 'request' || $record->enabled == 0) {
+        if ($record['scope'] == 'request' || $record['enabled'] == 0) {
             unset($SESSION->$unique);
         }
     }

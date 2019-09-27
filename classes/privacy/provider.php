@@ -15,19 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Privacy Null provider
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace tool_abconfig\privacy;
 
-$plugin->version   = 2019092600;      // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2019092600;      // Same as version.
-$plugin->requires  = 2014051217;
-$plugin->component = "tool_abconfig";
-$plugin->maturity  = MATURITY_STABLE;
+class provider implements
+    // This plugin does not store any personal user data.
+    \core_privacy\local\metadata\null_provider {
+
+    /**
+     * Get the language string identifier with the component's language
+     * file to explain why this plugin stores no data.
+     *
+     * @return  string
+     */
+    public static function get_reason() : string {
+        return 'privacy:metadata';
+    }
+}
 

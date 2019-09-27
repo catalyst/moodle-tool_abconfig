@@ -36,6 +36,7 @@ class tool_abconfig_experiment_manager {
         } else {
             $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0, 'adminenabled' => 0));
         }
+        self::invalidate_experiment_cache();
     }
 
     public function experiment_exists($shortname) {
@@ -62,6 +63,7 @@ class tool_abconfig_experiment_manager {
             $DB->update_record('tool_abconfig_experiment', array('id' => $record->id, 'name' => $name,
                 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled, 'adminenabled' => $adminenabled));
         }
+        self::invalidate_experiment_cache();
     }
 
     public function delete_experiment($shortname) {
@@ -73,6 +75,7 @@ class tool_abconfig_experiment_manager {
             $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
             $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
         }
+        self::invalidate_experiment_cache();
     }
 
     // ===============================================CONDITION FUNCTIONS==================================================
@@ -92,6 +95,7 @@ class tool_abconfig_experiment_manager {
             return $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
         }
+        self::invalidate_experiment_cache();
     }
 
     public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value) {
@@ -102,6 +106,7 @@ class tool_abconfig_experiment_manager {
             return $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value));
         }
+        self::invalidate_experiment_cache();
     }
 
     public function delete_condition($eid, $condset) {
@@ -112,11 +117,62 @@ class tool_abconfig_experiment_manager {
             $sqlcondition = $DB->sql_compare_text($condset, strlen($condset));
             $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?', array($eid, $sqlcondition));
         }
+        self::invalidate_experiment_cache();
     }
 
     public function delete_all_conditions($eid) {
         global $DB;
         $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
+        self::invalidate_experiment_cache();
+    }
+
+    // ===============================================CACHING FUNCTIONS======================================
+    private function invalidate_experiment_cache() {
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
+    }
+
+    public function get_experiments() {
+        $cache = cache::make('tool_abconfig', 'experiments');
+        return $cache->get('allexperiment');
+    }
+
+    public function get_active_request() {
+        $experiments = self::get_experiments();
+
+        // Filter array for only enabled session experiments
+        return array_filter($experiments, function ($experiment) {
+            if ($experiment['enabled'] == 1 && $experiment['scope'] == 'request') {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    public function get_active_session() {
+        $experiments = self::get_experiments();
+
+        // Filter array for only enabled session experiments
+        return array_filter($experiments, function ($experiment) {
+            if ($experiment['enabled'] == 1 && $experiment['scope'] == 'session') {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    public function get_active_experiments() {
+        $experiments = self::get_experiments();
+
+        // Filter array for only enabled experiments
+        return array_filter($experiments, function ($experiment) {
+            if ($experiment['enabled'] == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 }
 
