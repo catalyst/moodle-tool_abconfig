@@ -28,16 +28,16 @@ require_once($CFG->libdir . '/adminlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
+global $DB, $PAGE, $SESSION;
+
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('editexperimentpagename', 'tool_abconfig'));
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
 
-$manager = new tool_abconfig_experiment_manager();
-
-global $DB, $PAGE, $SESSION;
-$prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
+$eid = optional_param('id', 0, PARAM_INT);
+$PAGE->set_url(new moodle_url('/admin/tool/abconfig/edit_experiment', array ('id' => $eid)));
 
 if ($node = $PAGE->settingsnav->find('root', \navigation_node::TYPE_SITE_ADMIN)) {
     $PAGE->navbar->add($node->get_content(), $node->action());
@@ -49,14 +49,13 @@ foreach (array('tools', 'abconfig', 'tool_abconfig_manageexperiments') as $label
 }
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
-$eid = optional_param('id', 0, PARAM_INT);
-
+$manager = new tool_abconfig_experiment_manager();
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-
 $data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'prevshortname' => $experiment->shortname,
     'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled);
 $customarray = array('eid' => $experiment->id);
 
+$prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {

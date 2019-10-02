@@ -90,31 +90,34 @@ if ($form->is_cancelled()) {
     }
 
     // Adding new data
-    $repeats = array_keys($fromform->repeatid);
-    foreach ($repeats as $key => $value) {
+    if (!empty($fromform->repeatid)) {
+        $repeats = array_keys($fromform->repeatid);
+        foreach ($repeats as $key => $value) {
 
-        // Protect from empty data
-        if (empty($fromform->repeatshortname[$value])) {
-            continue;
-        }
-
-        if ($fromform->repeatdelete[$value]) {
-            // If accidentally added condition set and wishes to delete
-            continue;
-        } else {
-
-            // Check if commands are present before json_encode
-            $commandstring = $fromform->repeatcommands[$value];
-            if (empty($commandstring)) {
-                $commands = $commandstring;
-            } else {
-                $commands = json_encode(explode(PHP_EOL, $commandstring));
+            // Protect from empty data
+            if (empty($fromform->repeatshortname[$value])) {
+                continue;
             }
 
-            // else add record to DB
-            $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value], $commands, $fromform->repeatvalue[$value]);
+            if ($fromform->repeatdelete[$value]) {
+                // If accidentally added condition set and wishes to delete
+                continue;
+            } else {
+
+                // Check if commands are present before json_encode
+                $commandstring = $fromform->repeatcommands[$value];
+                if (empty($commandstring)) {
+                    $commands = $commandstring;
+                } else {
+                    $commands = json_encode(explode(PHP_EOL, $commandstring));
+                }
+
+                // else add record to DB
+                $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value], $commands, $fromform->repeatvalue[$value]);
+            }
         }
     }
+    
     // Back to experiment
     redirect($prevurl);
 
