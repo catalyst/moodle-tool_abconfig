@@ -28,8 +28,6 @@ require_once($CFG->libdir . '/adminlib.php');
 
 defined('MOODLE_INTERNAL') || die();
 
-global $DB, $PAGE, $SESSION;
-
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('editexperimentpagename', 'tool_abconfig'));
 

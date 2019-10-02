@@ -34,7 +34,7 @@ class edit_conditions extends \moodleform {
         $eid = $this->_customdata['eid'];
         // Hidden element to track experiment id
         $mform->addElement('hidden', 'eid', $eid);
-        $mform->setType('eid', PARAM_ALPHANUM);
+        $mform->setType('eid', PARAM_INT);
 
         // Get Data for repeating elements
         $manager = new \tool_abconfig_experiment_manager();
