@@ -37,7 +37,8 @@ class edit_conditions extends \moodleform {
         $mform->setType('eid', PARAM_ALPHANUM);
 
         // Get Data for repeating elements
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
+        $manager = new \tool_abconfig_experiment_manager();
+        $records = $manager->get_conditions_for_experiment($eid);
         $setcount = 1;
         foreach ($records as $record) {
             // Hidden to track sets
@@ -176,7 +177,9 @@ class edit_conditions extends \moodleform {
         $eid = $data['eid'];
 
         $total = 0;
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+
+        $manager = new \tool_abconfig_experiment_manager();
+        $records = $manager->get_conditions_for_experiment($eid);
 
         // Validate edited form entries
         foreach ($records as $record) {

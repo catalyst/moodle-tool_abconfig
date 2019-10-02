@@ -126,6 +126,11 @@ class tool_abconfig_experiment_manager {
         self::invalidate_experiment_cache();
     }
 
+    public function get_conditions_for_experiment($eid) {
+        global $DB;
+        return $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
+    }
+
     // ===============================================CACHING FUNCTIONS======================================
     private function invalidate_experiment_cache() {
         \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));

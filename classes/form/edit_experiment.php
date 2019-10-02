@@ -101,7 +101,8 @@ class edit_experiment extends \moodleform {
             $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
 
         // Get experiment conditions records
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
+        $manager = new \tool_abconfig_experiment_manager();
+        $records = $manager->get_conditions_for_experiment($eid);
         foreach ($records as $record) {
             // Check for empty commands
             if (empty($record->commands)) {
