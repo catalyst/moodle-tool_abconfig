@@ -117,7 +117,7 @@ if ($form->is_cancelled()) {
             }
         }
     }
-    
+
     // Back to experiment
     redirect($prevurl);
 

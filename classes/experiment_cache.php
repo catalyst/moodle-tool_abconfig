@@ -24,6 +24,8 @@
  */
 namespace tool_abconfig;
 
+defined('MOODLE_INTERNAL') || die();
+
 class experiment_cache implements \cache_data_source {
 
     /** @var experiment_cache the singleton instance of this class. */
@@ -52,7 +54,7 @@ class experiment_cache implements \cache_data_source {
         global $DB;
         $data = array();
 
-        // All experiments
+        // All experiments.
         if ($key == 'allexperiment') {
             $records = $DB->get_records('tool_abconfig_experiment');
             foreach ($records as $record) {
@@ -90,14 +92,14 @@ class experiment_cache implements \cache_data_source {
 
         $experimentdata = (array) $experimentrecord;
 
-        // Get all the conditions for the experiment
+        // Get all the conditions for the experiment.
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $experimentrecord->id));
         $data = array();
         foreach ($records as $record) {
             $data[$record->condset] = (array) $record;
         }
 
-        // Append condition data onto the experiment array and return
+        // Append condition data onto the experiment array and return.
         $experimentdata['conditions'] = $data;
         return $experimentdata;
     }

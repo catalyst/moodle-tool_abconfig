@@ -71,19 +71,19 @@ function tool_abconfig_after_config() {
                         continue;
                     }
                 }
-    
+
                 $conditionrecords = $record['conditions'];
-    
+
                 // Remove all conditions that contain the user ip in the whitelist
                 $crecords = array();
-    
+
                 foreach ($conditionrecords as $conditionrecord) {
                     $iplist = $conditionrecord['ipwhitelist'];
                     if (!remoteip_in_list($iplist)) {
                         array_push($crecords, $conditionrecord);
                     }
                 }
-    
+
                 // Increment through conditions until one is selected
                 $condition = '';
                 $num = rand(1, 100);
@@ -145,21 +145,21 @@ function tool_abconfig_after_require_login() {
                     continue;
                 }
             }
-    
+
             // Create experiment session var identifier
             $unique = 'abconfig_'.$record['shortname'];
             // get condition sets for experiment
             $conditionrecords = $record['conditions'];
             // Remove all conditions that contain the user ip in the whitelist
             $crecords = array();
-    
+
             foreach ($conditionrecords as $conditionrecord) {
                 $iplist = $conditionrecord['ipwhitelist'];
                 if (!remoteip_in_list($iplist)) {
                     array_push($crecords, $conditionrecord);
                 }
             }
-    
+
             // If condition set hasnt been selected, select a condition set, or none
             if (!property_exists($SESSION, $unique)) {
                 // Increment through conditions until one is selected
@@ -170,24 +170,24 @@ function tool_abconfig_after_require_login() {
                     // If random number is within this range, set condition and break, else increment total
                     if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
                         tool_abconfig_execute_command_array($crecord['commands'], $record['shortname']);
-    
+
                         // Set a session var for this command, so it is not executed again this session
                         $SESSION->{$unique} = $crecord['condset'];
-    
+
                         // Do not execute any more conditions
                         break;
-    
+
                     } else {
                         // Not this record, increment lower bound, and move on
                         $prevtotal += $crecord['value'];
                     }
                 }
-    
+
                 // If session var is not set, no set selected, update var
                 if (!property_exists($SESSION, $unique)) {
                     $SESSION->$unique = '';
                 }
-    
+
                 // Now exit condition loop, this call is finished
                 break;
             }
