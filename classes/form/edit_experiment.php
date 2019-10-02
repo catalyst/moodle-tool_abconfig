@@ -47,7 +47,7 @@ class edit_experiment extends \moodleform {
 
         $mform->addElement('text', 'experimentname', get_string('name', 'tool_abconfig'), '');
         $mform->setType('experimentname', PARAM_TEXT);
-        $mform->addRule('experimentname', get_string('formexperimentnamereq'), 'required');
+        $mform->addRule('experimentname', get_string('formexperimentnamereq', 'tool_abconfig'), 'required');
 
         $mform->addElement('text', 'experimentshortname', get_string('shortname', 'tool_abconfig'), '');
         $mform->setType('experimentshortname', PARAM_ALPHANUM);
