@@ -32,11 +32,12 @@ class tool_abconfig_experiment_manager {
         global $DB;
         // Check whether experiment already exists, if not return false
         if ($this->experiment_exists($shortname)) {
-            return false;
+            $return = false;
         } else {
-            $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0, 'adminenabled' => 0));
+            $return = $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0, 'adminenabled' => 0));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     public function experiment_exists($shortname) {
@@ -54,28 +55,30 @@ class tool_abconfig_experiment_manager {
         global $DB;
         // Check whether the experiment exists to be updated
         if (!$this->experiment_exists($prevshortname)) {
-            return false;
+            $return = false;
         } else {
             // Get id of record
             $sqlexperiment = $DB->sql_compare_text($prevshortname, strlen($prevshortname));
             $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
 
-            $DB->update_record('tool_abconfig_experiment', array('id' => $record->id, 'name' => $name,
+            $return = $DB->update_record('tool_abconfig_experiment', array('id' => $record->id, 'name' => $name,
                 'shortname' => $shortname, 'scope' => $scope, 'enabled' => $enabled, 'adminenabled' => $adminenabled));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     public function delete_experiment($shortname) {
         global $DB;
         // Check whether experiment exists to be deleted
         if (!$this->experiment_exists($shortname)) {
-            return false;
+            $return = false;
         } else {
             $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-            $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+            $return = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     // ===============================================CONDITION FUNCTIONS==================================================
@@ -90,34 +93,38 @@ class tool_abconfig_experiment_manager {
     public function add_condition($eid, $condset, $iplist, $commands, $value) {
         global $DB;
         if ($this->condition_exists($eid, $condset)) {
-            return false;
+            $return = false;
         } else {
-            return $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
+            $return = $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value) {
         global $DB;
+
         if (!$this->condition_exists($eid, $prevcondset)) {
-            return false;
+            $return = false;
         } else {
-            return $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
+            $return = $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
             'commands' => $commands, 'value' => $value));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     public function delete_condition($eid, $condset) {
         global $DB;
         if (!$this->condition_exists($eid, $condset)) {
-            return false;
+            $return = false;
         } else {
             $sqlcondition = $DB->sql_compare_text($condset, strlen($condset));
-            $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?', array($eid, $sqlcondition));
+            $return = $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?', array($eid, $sqlcondition));
         }
         self::invalidate_experiment_cache();
+        return $return;
     }
 
     public function delete_all_conditions($eid) {
