@@ -34,7 +34,7 @@ class edit_conditions extends \moodleform {
         $eid = $this->_customdata['eid'];
         // Hidden element to track experiment id
         $mform->addElement('hidden', 'eid', $eid);
-        $mform->setType("eid", PARAM_INT);
+        $mform->setType('eid', PARAM_ALPHANUM);
 
         // Get Data for repeating elements
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
@@ -43,7 +43,7 @@ class edit_conditions extends \moodleform {
             // Hidden to track sets
             $id = $record->id;
             $mform->addElement('hidden', "hidden{$id}");
-            $mform->setType("hidden{$id}", PARAM_INT);
+            $mform->setType("hidden{$id}", PARAM_ALPHANUM);
 
             // Hidden to track previous condset incase of change
             $mform->addElement('hidden', "prevshortname{$id}", $record->condset);
@@ -66,7 +66,9 @@ class edit_conditions extends \moodleform {
             // Commands
             $mform->addElement('textarea', "commands{$id}", get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 6, 'cols' => 60));
             $mform->setType("commands{$id}", PARAM_TEXT);
-            $mform->setDefault("commands{$id}", implode(PHP_EOL, json_decode($record->commands)));
+            if (!empty($record->commands)) {
+                $mform->setDefault("commands{$id}", implode(PHP_EOL, json_decode($record->commands, true)));
+            }
 
             // Value
             $mform->addElement('text', "value{$id}", get_string("formexperimentvalue", "tool_abconfig"), array("size" => 20));
@@ -179,7 +181,7 @@ class edit_conditions extends \moodleform {
         // Validate edited form entries
         foreach ($records as $record) {
             // Check if record is being deleted, if so, ignore value
-            $deletedkey = "deleted{$record->id}";
+            $deletedkey = "delete{$record->id}";
             if ($data[$deletedkey]) {
                 continue;
             }
@@ -197,20 +199,22 @@ class edit_conditions extends \moodleform {
         }
 
         // Validate added fields
-        $repeats = array_keys($data['repeatid']);
-        foreach ($repeats as $key => $value) {
-            // Check if record is being deleted, if so, ignore value
-            if ($data['repeatdelete'][$value]) {
-                continue;
-            }
-            // Ensure value is numeric in correct range
-            if ($data['repeatvalue'][$value] < 0 || $data['repeatvalue'][$value] > 100 || !is_numeric($data['repeatvalue'][$value])) {
-                $errors["repeatvalue[$value]"] = get_string('formexperimentvalueerror', 'tool_abconfig');
-            }
-            // Increment total and check value
-            $total += $data['repeatvalue'][$value];
-            if ($total > 100) {
-                $errors["repeatvalue[$value]"] = get_string('formexperimentvalueexceed', 'tool_abconfig', $total);
+        if (!empty($data['repeatid'])) {
+            $repeats = array_keys($data['repeatid']);
+            foreach ($repeats as $key => $value) {
+                // Check if record is being deleted, if so, ignore value
+                if ($data['repeatdelete'][$value]) {
+                    continue;
+                }
+                // Ensure value is numeric in correct range
+                if ($data['repeatvalue'][$value] < 0 || $data['repeatvalue'][$value] > 100 || !is_numeric($data['repeatvalue'][$value])) {
+                    $errors["repeatvalue[$value]"] = get_string('formexperimentvalueerror', 'tool_abconfig');
+                }
+                // Increment total and check value
+                $total += $data['repeatvalue'][$value];
+                if ($total > 100) {
+                    $errors["repeatvalue[$value]"] = get_string('formexperimentvalueexceed', 'tool_abconfig', $total);
+                }
             }
         }
 
