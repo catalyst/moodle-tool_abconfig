@@ -29,7 +29,7 @@ require_once($CFG->libdir . '/adminlib.php');
 defined('MOODLE_INTERNAL') || die();
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title('Edit Experiment Conditions');
+$PAGE->set_title(get_string('editexperimentpagename', 'tool_abconfig'));
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
@@ -38,6 +38,16 @@ $manager = new tool_abconfig_experiment_manager();
 
 global $DB, $PAGE, $SESSION;
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
+
+if ($node = $PAGE->settingsnav->find('root', \navigation_node::TYPE_SITE_ADMIN)) {
+    $PAGE->navbar->add($node->get_content(), $node->action());
+}
+foreach (array('tools', 'abconfig', 'tool_abconfig_manageexperiments') as $label) {
+    if ($node = $PAGE->settingsnav->find($label, \navigation_node::TYPE_SETTING)) {
+        $PAGE->navbar->add($node->get_content(), $node->action());
+    }
+}
+$PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
 $eid = optional_param('id', 0, PARAM_INT);
 
