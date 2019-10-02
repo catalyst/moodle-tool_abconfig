@@ -34,6 +34,7 @@ class edit_conditions extends \moodleform {
         $eid = $this->_customdata['eid'];
         // Hidden element to track experiment id
         $mform->addElement('hidden', 'eid', $eid);
+        $mform->setType("eid", PARAM_INT);
 
         // Get Data for repeating elements
         $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
@@ -42,6 +43,7 @@ class edit_conditions extends \moodleform {
             // Hidden to track sets
             $id = $record->id;
             $mform->addElement('hidden', "hidden{$id}");
+            $mform->setType("hidden{$id}", PARAM_INT);
 
             // Hidden to track previous condset incase of change
             $mform->addElement('hidden', "prevshortname{$id}", $record->condset);
@@ -215,3 +217,4 @@ class edit_conditions extends \moodleform {
         return $errors;
     }
 }
+
