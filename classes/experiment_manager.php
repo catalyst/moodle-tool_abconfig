@@ -145,7 +145,9 @@ class tool_abconfig_experiment_manager {
 
     public function get_experiments() {
         $cache = cache::make('tool_abconfig', 'experiments');
-        return $cache->get('allexperiment');
+        $experiments = $cache->get('allexperiment');
+        // return empty array if cache->get fails
+        return ($experiments != false) ? $experiments : array();
     }
 
     public function get_active_request() {

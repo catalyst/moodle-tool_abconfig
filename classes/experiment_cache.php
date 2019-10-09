@@ -63,7 +63,7 @@ class experiment_cache implements \cache_data_source {
             return $data;
         }
 
-        return false;
+        return $data;
     }
 
     /**
