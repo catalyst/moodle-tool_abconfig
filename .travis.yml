@@ -20,6 +20,9 @@ php:
   - 7.2
   - 7.3
 
+git:
+  depth: false
+
 env:
   global:
     - DB=pgsql
@@ -38,6 +41,32 @@ matrix:
     # Test with PHP 7.1
     - php: 7.1
       env: MOODLE_BRANCH=master
+    - php: 7.3
+      env: MOODLE_BRANCH=master
+      before_install:
+        - > 
+          if [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
+            cd ../..;
+            composer selfupdate;
+            composer create-project -n --no-dev peterburnett/moodle-plugin-ci-testing ci dev-master;
+            export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH";
+          fi
+      install:
+        - >
+          if [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
+            moodle-plugin-ci install -vvv;
+            (cd moodle/admin/tool/abconfig; git checkout $TRAVIS_BRANCH;);
+            php moodle/admin/cli/install_database.php --agree-license --adminpass=null;
+          fi
+      script:
+        - >
+          if [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
+            (cd moodle/admin/tool/abconfig; git checkout $TRAVIS_COMMIT;);
+            php moodle/admin/cli/upgrade.php --non-interactive --allow-unstable;
+            moodle-plugin-ci checkdbschema;
+          fi
+
+
   exclude:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_34_STABLE
@@ -47,7 +76,7 @@ matrix:
 before_install:
   - cd ../..
   - composer selfupdate
-  - composer create-project -n --no-dev moodlerooms/moodle-plugin-ci ci ^1
+  - composer create-project -n --no-dev peterburnett/moodle-plugin-ci-testing ci ^1
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
@@ -63,4 +92,4 @@ script:
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci 
