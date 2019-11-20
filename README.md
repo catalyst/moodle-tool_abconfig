@@ -59,17 +59,63 @@ In this condition, an IP whitelist can be specified, and any users that have an 
 
 Here is where the commands for a condition set can be specified. These are applied sequentially right after loading Moodle. Each command should be on a newline. A list of valid commands is below:
 
+##### CFG
 
-|Command |Syntax |Example | Description|
-|--------|-------|--------|------------|
-|CFG|`CFG,config,value`|`CFG,passwordpolicy,1`|This command sets moodle core configurations to a specified value.|
-|forced_plugin_setting|`forced_plugin_setting,plugin,config,value`|`forced_plugin_setting,auth_manual,expiration,1`| This command sets a plugin configuration to a specified value.|
-|http_header|`http_header,header,content`|`http_header,From,example@example.org`|This command sends HTTP headers during the page load.|
-|error_log|`error_log,message`|`error_log,error message`| This command logs the given messages into the PHP error_log for the webserver.|
-|js_header|`js_header,javascript`|`js_header,console.log('example');`| This command runs small JavaScript chunks just before the page headers are sent.|
-|js_footer|`js_footer,javascript`|`js_footer,console.log('exmaple');`| This command runs small JavaScript chunks just before the page footer is sent.|
+This command sets moodle core configurations to a specified value.
 
-Note: `CFG` and `forced_plugin_setting` commands will not overwrite config set inside config.php.
+Note: `CFG` and `forced_plugin_setting` commands will not overwrite config set inside config.php by design as a security measure.
+
+```
+CFG,config,value
+CFG,passwordpolicy,1
+```
+
+##### forced_plugin_setting
+
+This command sets a plugin configuration to a specified value.
+
+```
+forced_plugin_setting,plugin,config,value
+forced_plugin_setting,auth_manual,expiration,1
+```
+
+##### http_header
+
+This command sends HTTP headers during the page load.
+
+```
+http_header,header,content
+http_header,From,example@example.org
+```
+
+##### error_log
+
+This command logs the given messages into the PHP error_log for the webserver.
+
+```
+error_log,message
+error_log,error message
+```
+
+##### js_header
+
+This command runs small JavaScript chunks just before the page headers are sent.
+
+```
+js_header,javascript
+js_header,console.log('example');
+```
+
+##### js_footer
+
+```
+js_footer,javascript
+js_footer,console.log('exmaple');
+```
+
+This command runs small JavaScript chunks just before the page footer is sent.
+
+
 
 ### Enabling Experiments and forcing conditions
 By default all experiments start disabled, so you can't accidentally apply broken behaviour to the full user group. Once conditions have specified for an experiment, they can be tested by using some URL params on any page. The params to use for any given condition are listed inside the table for the conditions. They follow the syntax `?experimentshortname=conditionset`. It is encouraged to use these params to properly test all conditions before enabling an experiment.
