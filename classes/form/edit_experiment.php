@@ -69,7 +69,7 @@ class edit_experiment extends \moodleform {
         // Experiment conditions.
         $mform->addElement('header', 'experimentconds', get_string('formexperimentconds', 'tool_abconfig'));
 
-        $mform->addElement('html', $this->generate_table($eid));
+        $mform->addElement('html', \tool_abconfig\local\table_manager::conditions_table($eid));
 
         // Setup button group.
         $buttonarray = array();
@@ -86,52 +86,5 @@ class edit_experiment extends \moodleform {
         $errors = parent::validation($data, $files);
 
         return $errors;
-    }
-
-    private function generate_table($eid) {
-        global $DB;
-
-        // Get all lang strings for table header.
-        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue',
-            'formexperimentcondsset', 'formexperimentforceurl');
-        $stringarr = get_strings($stringsreqd, 'tool_abconfig');
-
-        // Setup table.
-        $table = new \html_table();
-        $table->head = array($stringarr->formexperimentcondsset, $stringarr->formipwhitelist,
-            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
-
-        // Get experiment conditions records.
-        $manager = new \tool_abconfig_experiment_manager();
-        $records = $manager->get_conditions_for_experiment($eid);
-        foreach ($records as $record) {
-            // Check for empty commands.
-            if (empty($record->commands)) {
-                $commands = get_string('formnocommands', 'tool_abconfig');
-            } else {
-                $commands = $record->commands;
-            }
-
-            // Check for empty IPs.
-            if (empty($record->ipwhitelist)) {
-                $iplist = get_string('formnoips', 'tool_abconfig');
-            } else {
-                $iplist = $record->ipwhitelist;
-            }
-
-            // Construct URL for forcing condition.
-            $paramstring = '?';
-            // Get experiment shortname.
-            $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-            $paramstring .= $experiment->shortname . '=';
-            $paramstring .= $record->condset;
-
-            // URL for redirecting to the dashboard with conditions active.
-            $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
-
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value, \html_writer::link($url, $paramstring));
-        }
-
-        return \html_writer::table($table);
     }
 }
