@@ -73,7 +73,7 @@ class experiment_cache implements \cache_data_source {
      * @return mixed A data array of all datasets
      */
     public function load_many_for_cache(array $keys) {
-        // return array of all data items
+        // Return array of all data items.
         $data = array();
         foreach ($keys as $key) {
             $data[$key] = self::load_for_cache($key);

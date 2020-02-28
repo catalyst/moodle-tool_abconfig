@@ -29,7 +29,8 @@ require_once(dirname(__FILE__) . '/../../../config.php');
 defined('MOODLE_INTERNAL') || die();
 
 $PAGE->set_context(context_system::instance());
-$PAGE->set_title('Edit Experiment Conditions');
+$title = get_string('editexperimentconds', 'tool_abconfig');
+$PAGE->set_title($title);
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
@@ -57,12 +58,12 @@ if ($form->is_cancelled()) {
 } else if ($fromform = $form->get_data()) {
 
     $eid = $fromform->eid;
-    // Page doesnt have an experiment, do nothing
+    // Page doesnt have an experiment, do nothing.
     if (empty($eid)) {
         redirect($prevurl);
     }
 
-    // Updating old data
+    // Updating old data.
     $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
     foreach ($records as $record) {
         $prevshortname = "prevshortname{$record->id}";
@@ -72,7 +73,7 @@ if ($form->is_cancelled()) {
         $value = "value{$record->id}";
         $delete = "delete{$record->id}";
 
-        // Check if commands are present before json_encode
+        // Check if commands are present before json_encode.
         $commandstring = $fromform->$commandskey;
         if (empty($commandstring)) {
             $commands = $commandstring;
@@ -81,30 +82,31 @@ if ($form->is_cancelled()) {
         }
 
         if ($fromform->$delete) {
-            // Delete record if delete checkbox enabled
+            // Delete record if delete checkbox enabled.
             $manager->delete_condition($eid, $fromform->$shortname);
         } else {
-            // Else write data back to DB
-            $manager->update_condition($eid, $record->id, $fromform->$prevshortname, $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
+            // Else write data back to DB.
+            $manager->update_condition($eid, $record->id, $fromform->$prevshortname,
+                $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
         }
     }
 
-    // Adding new data
+    // Adding new data.
     if (!empty($fromform->repeatid)) {
         $repeats = array_keys($fromform->repeatid);
         foreach ($repeats as $key => $value) {
 
-            // Protect from empty data
+            // Protect from empty data.
             if (empty($fromform->repeatshortname[$value])) {
                 continue;
             }
 
             if ($fromform->repeatdelete[$value]) {
-                // If accidentally added condition set and wishes to delete
+                // If accidentally added condition set and wishes to delete.
                 continue;
             } else {
 
-                // Check if commands are present before json_encode
+                // Check if commands are present before json_encode.
                 $commandstring = $fromform->repeatcommands[$value];
                 if (empty($commandstring)) {
                     $commands = $commandstring;
@@ -112,18 +114,19 @@ if ($form->is_cancelled()) {
                     $commands = json_encode(explode(PHP_EOL, $commandstring));
                 }
 
-                // else add record to DB
-                $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value], $commands, $fromform->repeatvalue[$value]);
+                // Else add record to DB.
+                $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value],
+                    $commands, $fromform->repeatvalue[$value]);
             }
         }
     }
 
-    // Back to experiment
+    // Back to experiment.
     redirect($prevurl);
 
 } else {
 
-    // Build the page output
+    // Build the page output.
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
     $form->display();
