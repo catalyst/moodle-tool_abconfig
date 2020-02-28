@@ -26,46 +26,47 @@ defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
     try {
-        global $CFG, $SESSION;
+        global $SESSION;
 
-        // Setup experiment manager
+        // Setup experiment manager.
         $manager = new tool_abconfig_experiment_manager();
 
-        // Check if the param to disable ABconfig is present, if so, exit
+        // Check if the param to disable ABconfig is present, if so, exit.
         if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
             if (is_siteadmin()) {
                 return null;
             }
         }
 
-        // Get all experiments
+        // Get all experiments.
         $experiments = $manager->get_experiments();
-        // Check URL params, and fire any experiments in the params
+        // Check URL params, and fire any experiments in the params.
         foreach ($_GET as $experiment => $condition) {
-            // first, only admins can fire additional experiments
+            // First, only admins can fire additional experiments.
             if (!is_siteadmin()) {
                 break;
             }
-            // Check if experiment exists
+            // Check if experiment exists.
             if (array_key_exists($experiment, $experiments)) {
-                // If so, check if condition exists
+                // If so, check if condition exists.
                 if (array_key_exists($condition, $experiments[$experiment]['conditions'])) {
-                    // execute commands stored at experiment->condition->commands
-                    tool_abconfig_execute_command_array($experiments[$experiment]['conditions'][$condition]['commands'], $experiments[$experiment]['shortname']);
+                    // Execute commands stored at experiment->condition->commands.
+                    tool_abconfig_execute_command_array($experiments[$experiment]['conditions'][$condition]['commands'],
+                        $experiments[$experiment]['shortname']);
                 }
             }
         }
 
         $commandarray = array();
 
-        // First, Build a list of all commands that need to be executed
+        // First, Build a list of all commands that need to be executed.
 
-        // Start with request scope
+        // Start with request scope.
         $requestexperiments = $manager->get_active_request();
         if (!empty($requestexperiments)) {
             foreach ($requestexperiments as $record) {
 
-                // Make admin immune unless enabled for admin
+                // Make admin immune unless enabled for admin.
                 if (is_siteadmin()) {
                     if ($record['adminenabled'] == 0) {
                         continue;
@@ -74,7 +75,7 @@ function tool_abconfig_after_config() {
 
                 $conditionrecords = $record['conditions'];
 
-                // Remove all conditions that contain the user ip in the whitelist
+                // Remove all conditions that contain the user ip in the whitelist.
                 $crecords = array();
 
                 foreach ($conditionrecords as $conditionrecord) {
@@ -84,29 +85,29 @@ function tool_abconfig_after_config() {
                     }
                 }
 
-                // Increment through conditions until one is selected
+                // Increment through conditions until one is selected.
                 $condition = '';
                 $num = rand(1, 100);
                 $prevtotal = 0;
                 foreach ($crecords as $crecord) {
-                    // If random number is within this range, set condition and break, else increment total
+                    // If random number is within this range, set condition and break, else increment total.
                     if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
                         $commandarray[$record['shortname']] = $crecord['commands'];
-                        // Do not select any more conditions
+                        // Do not select any more conditions.
                         break;
                     } else {
-                        // Not this record, increment lower bound, and move on
+                        // Not this record, increment lower bound, and move on.
                         $prevtotal += $crecord['value'];
                     }
                 }
             }
         }
 
-        // Now session scope
+        // Now session scope.
         $sessionexperiments = $manager->get_active_session();
         if (!empty($sessionexperiments)) {
             foreach ($sessionexperiments as $record) {
-                // Check if a session var has been set for this experiment, only care if has been set
+                // Check if a session var has been set for this experiment, only care if has been set.
                 $unique = 'abconfig_'.$record['shortname'];
                 if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
                     $commandarray[$record['shortname']] = $record['conditions'][$SESSION->$unique]['commands'];
@@ -114,7 +115,7 @@ function tool_abconfig_after_config() {
             }
         }
 
-        // Now, execute all commands in the arrays
+        // Now, execute all commands in the arrays.
         foreach ($commandarray as $shortname => $command) {
             tool_abconfig_execute_command_array($command, $shortname);
         }
@@ -124,33 +125,33 @@ function tool_abconfig_after_config() {
 }
 
 function tool_abconfig_after_require_login() {
-    global $CFG, $SESSION;
+    global $SESSION;
 
-    // Create experiment manager
+    // Create experiment manager.
     $manager = new tool_abconfig_experiment_manager();
 
-    // Check if the param to disable ABconfig is present, if so, exit
+    // Check if the param to disable ABconfig is present, if so, exit.
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
         if (is_siteadmin()) {
             return null;
         }
     }
-    // Get active session records
+    // Get active session records.
     $records = $manager->get_active_session();
     if (!empty($records)) {
         foreach ($records as $record) {
-            // Make admin immune unless enabled for admin
+            // Make admin immune unless enabled for admin.
             if (is_siteadmin()) {
                 if ($record['adminenabled'] == 0) {
                     continue;
                 }
             }
 
-            // Create experiment session var identifier
+            // Create experiment session var identifier.
             $unique = 'abconfig_'.$record['shortname'];
-            // get condition sets for experiment
+            // Get condition sets for experiment.
             $conditionrecords = $record['conditions'];
-            // Remove all conditions that contain the user ip in the whitelist
+            // Remove all conditions that contain the user ip in the whitelist.
             $crecords = array();
 
             foreach ($conditionrecords as $conditionrecord) {
@@ -160,35 +161,34 @@ function tool_abconfig_after_require_login() {
                 }
             }
 
-            // If condition set hasnt been selected, select a condition set, or none
+            // If condition set hasnt been selected, select a condition set, or none.
             if (!property_exists($SESSION, $unique)) {
-                // Increment through conditions until one is selected
-                $condition = '';
+                // Increment through conditions until one is selected.
                 $num = rand(1, 100);
                 $prevtotal = 0;
                 foreach ($crecords as $crecord) {
-                    // If random number is within this range, set condition and break, else increment total
+                    // If random number is within this range, set condition and break, else increment total.
                     if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
                         tool_abconfig_execute_command_array($crecord['commands'], $record['shortname']);
 
-                        // Set a session var for this command, so it is not executed again this session
+                        // Set a session var for this command, so it is not executed again this session.
                         $SESSION->{$unique} = $crecord['condset'];
 
-                        // Do not execute any more conditions
+                        // Do not execute any more conditions.
                         break;
 
                     } else {
-                        // Not this record, increment lower bound, and move on
+                        // Not this record, increment lower bound, and move on.
                         $prevtotal += $crecord['value'];
                     }
                 }
 
-                // If session var is not set, no set selected, update var
+                // If session var is not set, no set selected, update var.
                 if (!property_exists($SESSION, $unique)) {
                     $SESSION->$unique = '';
                 }
 
-                // Now exit condition loop, this call is finished
+                // Now exit condition loop, this call is finished.
                 break;
             }
         }
@@ -206,28 +206,28 @@ function tool_abconfig_before_http_headers() {
 function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, $string = null) {
     global $CFG, $SESSION;
 
-    // execute any commands passed in
+    // Execute any commands passed in.
     $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
 
         $command = strtok($commandstring, ',');
 
-        // Check for core commands
+        // Check for core commands.
         if ($command == 'CFG') {
             $commandarray = explode(',', $commandstring, 3);
 
-            // ensure that command hasnt already been set in config.php
+            // Ensure that command hasnt already been set in config.php.
             if (!array_key_exists($commandarray[1], $CFG->config_php_settings)) {
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
             }
         }
         if ($command == 'forced_plugin_setting') {
-            // Check for plugin commands
+            // Check for plugin commands.
             $commandarray = explode(',', $commandstring, 4);
 
-            // Ensure that command hasnt already been forced in config.php
-            // If plugin settings array doesnt exist, or the actualy config key doesnt exist
+            // Ensure that command hasnt already been forced in config.php.
+            // If plugin settings array doesnt exist, or the actualy config key doesnt exist.
             if (!array_key_exists($commandarray[1], $CFG->forced_plugin_settings) ||
                 !array_key_exists($commandarray[2], $CFG->forced_plugin_settings[$commandarray[1]])) {
 
@@ -235,40 +235,40 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
             }
         }
         if ($command == 'http_header') {
-            // Check for http header commands
+            // Check for http header commands.
             $commandarray = explode(',', $commandstring, 3);
             header("$commandarray[1]: $commandarray[2]");
         }
         if ($command == 'error_log') {
-            // Check for error logs
+            // Check for error logs.
             $commandarray = explode(',', $commandstring, 2);
-            // Must ignore coding standards as typically error_log is not allowed
+            // Must ignore coding standards as typically error_log is not allowed.
             error_log($commandarray[1]); // @codingStandardsIgnoreLine
 
         }
         if ($command == 'js_header') {
-            // Check for JS header scripts
+            // Check for JS header scripts.
             $commandarray = explode(',', $commandstring, 2);
-            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
+            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas.
             $jsheaderunique = 'abconfig_js_header_'.$shortname;
 
-            // Store the unique in the session to be picked up by the header render hook
+            // Store the unique in the session to be picked up by the header render hook.
             $SESSION->$jsheaderunique = $commandarray[1];
 
         }
         if ($command == 'js_footer') {
-            // Check for JS footer scripts
+            // Check for JS footer scripts.
             $commandarray = explode(',', $commandstring, 2);
-            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas
+            // Set a unique session variable to be picked up by renderer hooks, to emit JS in the right areas.
             $jsfooterunique = 'abconfig_js_footer_'.$shortname;
-            // Store the javascript in the session unique to be picked up by the footer render hook
+            // Store the javascript in the session unique to be picked up by the footer render hook.
             $SESSION->$jsfooterunique = $commandarray[1];
         }
     }
 }
 
 function tool_abconfig_execute_js($type) {
-    // Check if the param to disable ABconfig is present, if so, exit
+    // Check if the param to disable ABconfig is present, if so, exit.
     if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
         if (is_siteadmin()) {
             return null;
@@ -277,12 +277,12 @@ function tool_abconfig_execute_js($type) {
 
     global $SESSION;
 
-    // Get all experiments
+    // Get all experiments.
     $manager = new tool_abconfig_experiment_manager();
     $records = $manager->get_experiments();
 
     foreach ($records as $record) {
-        // If called from header
+        // If called from header.
         if ($type == 'header') {
             $unique = 'abconfig_js_header_'.$record['shortname'];
         } else if ($type == 'footer') {
@@ -290,14 +290,13 @@ function tool_abconfig_execute_js($type) {
         }
 
         if (property_exists($SESSION, $unique)) {
-            // Found JS to be executed
+            // Found JS to be executed.
             echo "<script type='text/javascript'>{$SESSION->$unique}</script>";
         }
 
-        // If experiment is request scope, unset var so it doesnt fire again
+        // If experiment is request scope, unset var so it doesnt fire again.
         if ($record['scope'] == 'request' || $record['enabled'] == 0) {
             unset($SESSION->$unique);
         }
     }
 }
-

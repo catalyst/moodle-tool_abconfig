@@ -25,59 +25,59 @@
 
 $string['pluginname'] = 'A/B config';
 
-// Page Name Strings
-$string['abconfigsettings'] = 'A/B Config Settings';
-$string['manageexperimentspagename'] = 'Manage Experiments';
-$string['editexperimentpagename'] = 'Edit Experiment';
+// Page Name Strings.
+$string['abconfigsettings'] = 'A/B config settings';
+$string['manageexperimentspagename'] = 'Manage experiments';
+$string['editexperimentpagename'] = 'Edit experiment';
+$string['editexperimentconds'] = 'Edit experiment conditions';
 
-// Form Strings
-$string['formaddexperiment'] = 'Add Experiment';
-$string['formexperimentname'] = 'Experiment Name:';
-$string['formexperimentnamereq'] = 'Experiment Name Required';
-$string['formexperimentshortname'] = 'Short Experiment Name:';
-$string['formexperimentshortnamereq'] = 'Short Experiment Name Required';
+// Form Strings.
+$string['formaddexperiment'] = 'Add experiment';
+$string['formexperimentname'] = 'Experiment name:';
+$string['formexperimentnamereq'] = 'Experiment name required';
+$string['formexperimentshortname'] = 'Short experiment name:';
+$string['formexperimentshortnamereq'] = 'Short experiment name required';
 $string['formexperimentscopeselect'] = 'Scope:';
 $string['formexperimentalreadyexists'] = 'Experiment shortname already exists';
-$string['formexperimentinfo'] = 'Experiment Info';
-$string['formexperimentconds'] = 'Experiment Conditions';
-$string['formipwhitelist'] = 'IP Whitelist';
-$string['formexperimentcommands'] = 'Experiment Commands';
+$string['formexperimentinfo'] = 'Experiment info';
+$string['formexperimentconds'] = 'Experiment conditions';
+$string['formipwhitelist'] = 'IP whitelist';
+$string['formexperimentcommands'] = 'Experiment commands';
 $string['formexperimentvalue'] = ' % value of traffic targeted';
 $string['formexperimentvalueerror'] = ' % value must be a number in range 0-100';
 $string['formexperimentcondsset'] = 'Conditions set';
 $string['formexperimentvalueexceed'] = 'Total of all condition set values must be <= 100. Currently {$a}';
-$string['formexperimentenabled'] = 'Enable Experiment';
+$string['formexperimentenabled'] = 'Enable experiment';
 $string['formdeleterepeat'] = 'Delete';
-$string['formaddrepeat'] = 'Add Condition Set';
-$string['formheader'] = 'Condition Set {$a}';
-$string['formnnewconditions'] = 'New Condition Set';
-$string['formeditconditions'] = 'Edit Conditions';
-$string['formnocommands'] = 'No Commands';
+$string['formaddrepeat'] = 'Add condition set';
+$string['formheader'] = 'Condition set {$a}';
+$string['formnnewconditions'] = 'New condition set';
+$string['formeditconditions'] = 'Edit conditions';
+$string['formnocommands'] = 'No commands';
 $string['formnoips'] = 'No IPs';
-$string['formaddexperiment'] = 'Add Experiment';
-$string['formdeleteexperiment'] = 'Delete Experiment';
+$string['formaddexperiment'] = 'Add experiment';
+$string['formdeleteexperiment'] = 'Delete experiment';
 $string['formexperimentforceurl'] = 'Force URL params';
 $string['formexperimentadminenable'] = 'Enable this experiment for site admins.';
 
-// short Strings
+// Short Strings.
 $string['request'] = 'Request';
 $string['session'] = 'Session';
-$string['name'] = 'Experiment Name';
-$string['shortname'] = 'Short Experiment Name';
-$string['scope'] = 'Experiment Scope';
+$string['name'] = 'Experiment name';
+$string['shortname'] = 'Short experiment name';
+$string['scope'] = 'Experiment scope';
 $string['edit'] = 'Edit';
 $string['enabled'] = 'Enabled';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
-$string['adminenabled'] = 'Enabled for Admin';
+$string['adminenabled'] = 'Enabled for admin';
 
-// Setting Strings
-$string['settingsenablename'] = 'Enable Plugin';
+// Setting Strings.
+$string['settingsenablename'] = 'Enable plugin';
 $string['settingsenabledesc'] = 'Enable the plugin. While this is unchecked, users will not interact with the plugin at all. Experiments can still be set.';
 
-// Cache Strings
+// Cache Strings.
 $string['cachedef_experiments'] = 'Cache to store experiments and conditions in.';
 
-// Privacy Strings
+// Privacy Strings.
 $string['privacy:metadata'] = 'This plugin does not collect or store any user information.';
-

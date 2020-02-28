@@ -49,8 +49,10 @@ $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
 $manager = new tool_abconfig_experiment_manager();
 $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname, 'prevshortname' => $experiment->shortname,
-    'scope' => $experiment->scope, 'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled);
+$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
+    'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,
+    'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled);
+
 $customarray = array('eid' => $experiment->id);
 
 $prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
@@ -59,14 +61,14 @@ $form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($form->no_submit_button_pressed()) {
-    // Conditions button action
+    // Conditions button action.
     redirect(new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_conditions.php?id=$experiment->id"));
 } else if ($fromform = $form->get_data()) {
-    // If eid is empty, do nothing
-    // Form validation means data is safe to go to DB
+    // If eid is empty, do nothing.
+    // Form validation means data is safe to go to DB.
     global $DB;
 
-    // Set vars for cleaner DB queries
+    // Set vars for cleaner DB queries.
     $name = $fromform->experimentname;
     $shortname = $fromform->experimentshortname;
     $scope = $fromform->scope;
@@ -80,7 +82,7 @@ if ($form->is_cancelled()) {
     }
 
     if ($fromform->delete) {
-        // Delete experiment, and all orphaned experiment conditions
+        // Delete experiment, and all orphaned experiment conditions.
         $manager->delete_experiment($shortname);
         $manager->delete_all_conditions($eid);
     } else {
@@ -91,10 +93,9 @@ if ($form->is_cancelled()) {
 
 } else {
 
-    // Build the page output
+    // Build the page output.
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
     $form->display();
     echo $OUTPUT->footer();
 }
-

@@ -32,17 +32,17 @@ class edit_experiment extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        // Hidden form element for experiment id
+        // Hidden form element for experiment id.
         $mform->addElement('hidden', 'id', '');
         $mform->setType('id', PARAM_INT);
 
         $mform->addElement('hidden', 'prevshortname', '');
         $mform->setType('prevshortname', PARAM_ALPHANUM);
 
-        // eid to pass to table generation
+        // EID to pass to table generation.
         $eid = $this->_customdata['eid'];
 
-        // Display the basic experiment information
+        // Display the basic experiment information.
         $mform->addElement('header', 'experimentinfo', get_string('formexperimentinfo', 'tool_abconfig'));
 
         $mform->addElement('text', 'experimentname', get_string('name', 'tool_abconfig'), '');
@@ -53,25 +53,25 @@ class edit_experiment extends \moodleform {
         $mform->setType('experimentshortname', PARAM_ALPHANUM);
         $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required');
 
-        // Setup Data array for scopes
+        // Setup Data array for scopes.
         $scopes = ['request' => get_string('request', 'tool_abconfig'), 'session' => get_string('session', 'tool_abconfig')];
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
 
-        // Enabled checkbox
+        // Enabled checkbox.
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
 
-        // Admin Enabled Checkbox
+        // Admin Enabled Checkbox.
         $mform->addElement('advcheckbox', 'adminenabled', '', get_string('formexperimentadminenable', 'tool_abconfig'));
 
-        // Delete experiment checkbox
+        // Delete experiment checkbox.
         $mform->addElement('advcheckbox', 'delete', get_string('formdeleteexperiment', 'tool_abconfig'));
 
-        // Experiment conditions
+        // Experiment conditions.
         $mform->addElement('header', 'experimentconds', get_string('formexperimentconds', 'tool_abconfig'));
 
         $mform->addElement('html', $this->generate_table($eid));
 
-        // Setup button group
+        // Setup button group.
         $buttonarray = array();
         $buttonarray[] =& $mform->createElement('submit', 'savechanges', get_string('save'));
         $buttonarray[] =& $mform->createElement('submit', 'conditions', get_string('formeditconditions', 'tool_abconfig'));
@@ -91,41 +91,42 @@ class edit_experiment extends \moodleform {
     private function generate_table($eid) {
         global $DB;
 
-        // Get all lang strings for table header
-        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue', 'formexperimentcondsset', 'formexperimentforceurl');
+        // Get all lang strings for table header.
+        $stringsreqd = array('formipwhitelist', 'formexperimentcommands', 'formexperimentvalue',
+            'formexperimentcondsset', 'formexperimentforceurl');
         $stringarr = get_strings($stringsreqd, 'tool_abconfig');
 
-        // Setup table
+        // Setup table.
         $table = new \html_table();
         $table->head = array($stringarr->formexperimentcondsset, $stringarr->formipwhitelist,
             $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
 
-        // Get experiment conditions records
+        // Get experiment conditions records.
         $manager = new \tool_abconfig_experiment_manager();
         $records = $manager->get_conditions_for_experiment($eid);
         foreach ($records as $record) {
-            // Check for empty commands
+            // Check for empty commands.
             if (empty($record->commands)) {
                 $commands = get_string('formnocommands', 'tool_abconfig');
             } else {
                 $commands = $record->commands;
             }
 
-            // Check for empty IPs
+            // Check for empty IPs.
             if (empty($record->ipwhitelist)) {
                 $iplist = get_string('formnoips', 'tool_abconfig');
             } else {
                 $iplist = $record->ipwhitelist;
             }
 
-            // Construct URL for forcing condition
+            // Construct URL for forcing condition.
             $paramstring = '?';
-            // Get experiment shortname
+            // Get experiment shortname.
             $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
             $paramstring .= $experiment->shortname . '=';
             $paramstring .= $record->condset;
 
-            // URL for redirecting to the dashboard with conditions active2
+            // URL for redirecting to the dashboard with conditions active.
             $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
 
             $table->data[] = array($record->condset, $iplist, $commands, $record->value, \html_writer::link($url, $paramstring));
@@ -134,4 +135,3 @@ class edit_experiment extends \moodleform {
         return \html_writer::table($table);
     }
 }
-

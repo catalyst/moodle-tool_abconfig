@@ -38,7 +38,7 @@ $form = new \tool_abconfig\form\manage_experiments();
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
-    // Safe to insert new experiment, unique field validated in form validation
+    // Safe to insert new experiment, unique field validated in form validation.
     $name = $fromform->experimentname;
     $shortname = $fromform->experimentshortname;
     $scope = $fromform->scope;
@@ -46,7 +46,7 @@ if ($form->is_cancelled()) {
     $manager->add_experiment($name, $shortname, $scope);
 }
 
-// Build the page output
+// Build the page output.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manageexperimentspagename', 'tool_abconfig'));
 $form->display();
@@ -57,16 +57,18 @@ function generate_table() {
     global $CFG, $DB;
 
     $records = $DB->get_records('tool_abconfig_experiment');
-    // Get header strings
+    // Get header strings.
     $wantstrings = array('name', 'shortname', 'scope', 'edit', 'enabled', 'adminenabled');
     $strings = get_strings($wantstrings, 'tool_abconfig');
-    // Generate table header
+    // Generate table header.
     $table = new html_table();
-    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope, $strings->enabled, $strings->adminenabled, $strings->edit);
-    $table->colclasses = array('centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign', 'centeralign');
+    $table->head = array('ID', $strings->name, $strings->shortname, $strings->scope,
+        $strings->enabled, $strings->adminenabled, $strings->edit);
+    $table->colclasses = array('centeralign', 'centeralign', 'centeralign',
+        'centeralign', 'centeralign', 'centeralign', 'centeralign');
 
     foreach ($records as $record) {
-        // Setup edit link
+        // Setup edit link.
         $url = new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$record->id");
         if ($record->enabled == 0) {
             $enabled = get_string('no', 'tool_abconfig');
@@ -80,9 +82,9 @@ function generate_table() {
             $adminenabled = get_string('yes', 'tool_abconfig');
         }
 
-        // Add table row
-        $table->data[] = array($record->id, $record->name, $record->shortname, $record->scope, $enabled, $adminenabled, '<a href="'.$url.'">Edit</a>');
+        // Add table row.
+        $table->data[] = array($record->id, $record->name, $record->shortname,
+            $record->scope, $enabled, $adminenabled, '<a href="'.$url.'">Edit</a>');
     }
     echo html_writer::table($table);
 }
-

@@ -33,23 +33,26 @@ class manage_experiments extends \moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        // Setup Data array for scopes
+        // Setup Data array for scopes.
         $scopes = ['request' => get_string('request', 'tool_abconfig'), 'session' => get_string('session', 'tool_abconfig')];
 
-        // Add section for adding experiments
+        // Add section for adding experiments.
         $mform->addElement('header', 'addexperiment', get_string('formaddexperiment', 'tool_abconfig'));
 
-        // Name
-        $mform->addElement('text', 'experimentname', get_string('formexperimentname', 'tool_abconfig'), array('placeholder' => 'Experiment'));
+        // Name.
+        $mform->addElement('text', 'experimentname',
+            get_string('formexperimentname', 'tool_abconfig'), array('placeholder' => 'Experiment'));
         $mform->setType('experimentname', PARAM_TEXT);
         $mform->addRule('experimentname', get_string('formexperimentnamereq', 'tool_abconfig'), 'required', null, 'client');
 
-        // Short Name
-        $mform->addElement('text', 'experimentshortname', get_string('formexperimentshortname', 'tool_abconfig'), array('placeholder' => 'experiment'));
+        // Short Name.
+        $mform->addElement('text', 'experimentshortname',
+            get_string('formexperimentshortname', 'tool_abconfig'), array('placeholder' => 'experiment'));
         $mform->setType('experimentshortname', PARAM_ALPHANUM);
-        $mform->addRule('experimentshortname', get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
+        $mform->addRule('experimentshortname',
+            get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
 
-        // Select Scope
+        // Select Scope.
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
 
         $this->add_action_buttons(true, get_string('formaddexperiment', 'tool_abconfig'));
@@ -57,7 +60,6 @@ class manage_experiments extends \moodleform {
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        global $DB;
         $manager = new \tool_abconfig_experiment_manager();
 
         $shortname = $data['experimentshortname'];
@@ -68,4 +70,3 @@ class manage_experiments extends \moodleform {
         return $errors;
     }
 }
-

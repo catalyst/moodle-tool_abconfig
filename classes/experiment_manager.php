@@ -26,15 +26,16 @@
 defined('MOODLE_INTERNAL') || die();
 class tool_abconfig_experiment_manager {
 
-    // ========================================EXPERIMENT FUNCTIONS================================================================
+    // Experiment functions.
 
     public function add_experiment($name, $shortname, $scope) {
         global $DB;
-        // Check whether experiment already exists, if not return false
+        // Check whether experiment already exists, if not return false.
         if ($this->experiment_exists($shortname)) {
             $return = false;
         } else {
-            $return = $DB->insert_record('tool_abconfig_experiment', array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0, 'adminenabled' => 0));
+            $return = $DB->insert_record('tool_abconfig_experiment',
+                array('name' => $name, 'shortname' => $shortname, 'scope' => $scope, 'enabled' => 0, 'adminenabled' => 0));
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -53,11 +54,11 @@ class tool_abconfig_experiment_manager {
 
     public function update_experiment($prevshortname, $name, $shortname, $scope, $enabled, $adminenabled) {
         global $DB;
-        // Check whether the experiment exists to be updated
+        // Check whether the experiment exists to be updated.
         if (!$this->experiment_exists($prevshortname)) {
             $return = false;
         } else {
-            // Get id of record
+            // Get id of record.
             $sqlexperiment = $DB->sql_compare_text($prevshortname, strlen($prevshortname));
             $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
 
@@ -70,7 +71,7 @@ class tool_abconfig_experiment_manager {
 
     public function delete_experiment($shortname) {
         global $DB;
-        // Check whether experiment exists to be deleted
+        // Check whether experiment exists to be deleted.
         if (!$this->experiment_exists($shortname)) {
             $return = false;
         } else {
@@ -81,7 +82,7 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
-    // ===============================================CONDITION FUNCTIONS==================================================
+    // Condition functions.
 
     public function condition_exists($eid, $condset) {
         global $DB;
@@ -95,7 +96,8 @@ class tool_abconfig_experiment_manager {
         if ($this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
-            $return = $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
+            $return = $DB->insert_record('tool_abconfig_condition',
+                array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
         }
         self::invalidate_experiment_cache();
@@ -108,8 +110,9 @@ class tool_abconfig_experiment_manager {
         if (!$this->condition_exists($eid, $prevcondset)) {
             $return = false;
         } else {
-            $return = $DB->update_record('tool_abconfig_condition', array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
-            'commands' => $commands, 'value' => $value));
+            $return = $DB->update_record('tool_abconfig_condition',
+                array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
+                'commands' => $commands, 'value' => $value));
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -121,7 +124,8 @@ class tool_abconfig_experiment_manager {
             $return = false;
         } else {
             $sqlcondition = $DB->sql_compare_text($condset, strlen($condset));
-            $return = $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?', array($eid, $sqlcondition));
+            $return = $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?',
+                array($eid, $sqlcondition));
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -138,7 +142,7 @@ class tool_abconfig_experiment_manager {
         return $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
     }
 
-    // ===============================================CACHING FUNCTIONS======================================
+    // Caching functions.
     private function invalidate_experiment_cache() {
         \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
     }
@@ -146,14 +150,14 @@ class tool_abconfig_experiment_manager {
     public function get_experiments() {
         $cache = cache::make('tool_abconfig', 'experiments');
         $experiments = $cache->get('allexperiment');
-        // return empty array if cache->get fails
+        // Return empty array if cache->get fails.
         return ($experiments != false) ? $experiments : array();
     }
 
     public function get_active_request() {
         $experiments = self::get_experiments();
 
-        // Filter array for only enabled session experiments
+        // Filter array for only enabled session experiments.
         return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1 && $experiment['scope'] == 'request') {
                 return true;
@@ -166,7 +170,7 @@ class tool_abconfig_experiment_manager {
     public function get_active_session() {
         $experiments = self::get_experiments();
 
-        // Filter array for only enabled session experiments
+        // Filter array for only enabled session experiments.
         return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1 && $experiment['scope'] == 'session') {
                 return true;
@@ -179,7 +183,7 @@ class tool_abconfig_experiment_manager {
     public function get_active_experiments() {
         $experiments = self::get_experiments();
 
-        // Filter array for only enabled experiments
+        // Filter array for only enabled experiments.
         return array_filter($experiments, function ($experiment) {
             if ($experiment['enabled'] == 1) {
                 return true;
@@ -189,4 +193,3 @@ class tool_abconfig_experiment_manager {
         });
     }
 }
-
