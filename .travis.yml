@@ -7,7 +7,7 @@ notifications:
 sudo: false
 
 addons:
-  postgresql: "9.6" 
+  postgresql: "9.6"
 
 services:
   - mysql
@@ -27,24 +27,24 @@ env:
   global:
     - DB=pgsql
   matrix:
-    - MOODLE_BRANCH=MOODLE_34_STABLE
     - MOODLE_BRANCH=MOODLE_35_STABLE
     - MOODLE_BRANCH=MOODLE_36_STABLE
     - MOODLE_BRANCH=MOODLE_37_STABLE
+    - MOODLE_BRANCH=MOODLE_38_STABLE
     - MOODLE_BRANCH=master
 
 matrix:
   include:
     # Test with MySQL
     - php: 7.1
-      env: DB=mysqli MOODLE_BRANCH=master
+      env: DB=mysqli MOODLE_BRANCH=MOODLE_38_STABLE
     # Test with PHP 7.1
     - php: 7.1
-      env: MOODLE_BRANCH=master
+      env: MOODLE_BRANCH=MOODLE_38_STABLE
     - php: 7.3
       env: MOODLE_BRANCH=master
       before_install:
-        - > 
+        - >
           if [ "$TRAVIS_PULL_REQUEST" != 'false' ]; then
             cd ../..;
             composer selfupdate;
@@ -73,6 +73,7 @@ matrix:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_35_STABLE
 
+
 before_install:
   - cd ../..
   - composer selfupdate
@@ -92,4 +93,4 @@ script:
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci 
+  - moodle-plugin-ci
