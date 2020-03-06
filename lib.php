@@ -32,7 +32,7 @@ function tool_abconfig_after_config() {
         $manager = new tool_abconfig_experiment_manager();
 
         // Check if the param to disable ABconfig is present, if so, exit.
-        if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+        if (!optional_param('abconfig', true, PARAM_BOOL)) {
             if (is_siteadmin()) {
                 return null;
             }
@@ -42,6 +42,9 @@ function tool_abconfig_after_config() {
         $experiments = $manager->get_experiments();
         // Check URL params, and fire any experiments in the params.
         foreach ($_GET as $experiment => $condition) {
+            // Experiments and conditions should be cleaned as text.
+            $experiment = clean_param($experiment, PARAM_TEXT);
+            $condition  = clean_param($condition, PARAM_TEXT);
             // First, only admins can fire additional experiments.
             if (!is_siteadmin()) {
                 break;
@@ -131,7 +134,7 @@ function tool_abconfig_after_require_login() {
     $manager = new tool_abconfig_experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit.
-    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+    if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
         if (is_siteadmin()) {
             return null;
         }
@@ -269,7 +272,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 
 function tool_abconfig_execute_js($type) {
     // Check if the param to disable ABconfig is present, if so, exit.
-    if (array_key_exists('abconfig', $_GET) && $_GET['abconfig'] == 'off') {
+    if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
         if (is_siteadmin()) {
             return null;
         }
