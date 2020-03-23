@@ -28,8 +28,6 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $manager = new tool_abconfig_experiment_manager();
 
-defined('MOODLE_INTERNAL') || die();
-
 admin_externalpage_setup('tool_abconfig_manageexperiments');
 
 $prevurl = ($CFG->wwwroot.'/admin/category.php?category=abconfig');
