@@ -30,6 +30,7 @@ class tool_abconfig_experiment_manager {
 
     public function add_experiment($name, $shortname, $scope) {
         global $DB;
+
         // Check whether experiment already exists, if not return false.
         if ($this->experiment_exists($shortname)) {
             $return = false;
@@ -71,6 +72,7 @@ class tool_abconfig_experiment_manager {
 
     public function delete_experiment($shortname) {
         global $DB;
+
         // Check whether experiment exists to be deleted.
         if (!$this->experiment_exists($shortname)) {
             $return = false;
@@ -99,6 +101,8 @@ class tool_abconfig_experiment_manager {
             $return = $DB->insert_record('tool_abconfig_condition',
                 array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
+
+            $this->log_commands($commands, $value);
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -113,6 +117,8 @@ class tool_abconfig_experiment_manager {
             $return = $DB->update_record('tool_abconfig_condition',
                 array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
+
+            $this->log_commands($commands, $value);
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -191,5 +197,34 @@ class tool_abconfig_experiment_manager {
                 return false;
             }
         });
+    }
+
+    private function log_commands($commands, $value) {
+        // Unpack commands, and log if they are CFG or plugin config.
+        $commands = json_decode($commands);
+        if (empty($commands)) {
+            return;
+        }
+        foreach ($commands as $commandstring) {
+            $command = explode(',', $commandstring);
+            switch ($command[0]) {
+                case 'CFG':
+                    $plugin = 'core-experiment:'.$value;
+                    $name = $command[1];
+                    $setting = $command[2];
+                    add_to_config_log($name, '', $setting, $plugin);
+                    break;
+
+                case 'forced_plugin_setting':
+                    $plugin = $command[1].'-experiment:'.$value;
+                    $name = $command[2];
+                    $setting = $command[3];
+                    add_to_config_log($name, '', $setting, $plugin);
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 }
