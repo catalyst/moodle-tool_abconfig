@@ -41,22 +41,22 @@ function tool_abconfig_after_config() {
         // Get all experiments.
         $experiments = $manager->get_experiments();
         // Check URL params, and fire any experiments in the params.
-        foreach ($_GET as $experiment => $condition) {
-            // Experiments and conditions should be cleaned as text.
-            $experiment = clean_param($experiment, PARAM_TEXT);
-            $condition  = clean_param($condition, PARAM_TEXT);
-            // First, only admins can fire additional experiments.
+        foreach ($experiments as $experiment => $contents) {
+            $conditionparam = optional_param($experiment, null, PARAM_TEXT);
+
+            // Only admins can fire additional experiments.
             if (!is_siteadmin()) {
                 break;
             }
-            // Check if experiment exists.
-            if (array_key_exists($experiment, $experiments)) {
-                // If so, check if condition exists.
-                if (array_key_exists($condition, $experiments[$experiment]['conditions'])) {
-                    // Execute commands stored at experiment->condition->commands.
-                    tool_abconfig_execute_command_array($experiments[$experiment]['conditions'][$condition]['commands'],
-                        $experiments[$experiment]['shortname']);
-                }
+
+            if (empty($conditionparam)) {
+                continue;
+            }
+
+            // Ensure condition set exists before executing.
+            if (array_key_exists($conditionparam, $contents['conditions'])) {
+                tool_abconfig_execute_command_array($contents['conditions'][$conditionparam]['commands'],
+                    $contents['shortname']);
             }
         }
 
