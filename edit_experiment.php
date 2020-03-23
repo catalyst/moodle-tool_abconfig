@@ -26,8 +26,6 @@
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-defined('MOODLE_INTERNAL') || die();
-
 $PAGE->set_context(context_system::instance());
 $PAGE->set_title(get_string('editexperimentpagename', 'tool_abconfig'));
 
@@ -64,9 +62,7 @@ if ($form->is_cancelled()) {
     // Conditions button action.
     redirect(new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_conditions.php?id=$experiment->id"));
 } else if ($fromform = $form->get_data()) {
-    // If eid is empty, do nothing.
     // Form validation means data is safe to go to DB.
-    global $DB;
 
     // Set vars for cleaner DB queries.
     $name = $fromform->experimentname;
@@ -77,6 +73,7 @@ if ($form->is_cancelled()) {
     $prevshortname = $fromform->prevshortname;
     $adminenabled = $fromform->adminenabled;
 
+    // If eid is empty, do nothing.
     if ($eid == 0) {
         redirect($prevurl);
     }

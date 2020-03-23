@@ -26,16 +26,12 @@
 
 require_once(dirname(__FILE__) . '/../../../config.php');
 
-defined('MOODLE_INTERNAL') || die();
-
 $PAGE->set_context(context_system::instance());
 $title = get_string('editexperimentconds', 'tool_abconfig');
 $PAGE->set_title($title);
 
 require_login();
 require_capability('moodle/site:config', context_system::instance());
-
-global $DB, $PAGE, $SESSION;
 
 $eid = optional_param('id', null, PARAM_INT);
 
