@@ -62,7 +62,7 @@ if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($form->no_submit_button_pressed()) {
     // Conditions button action.
-    redirect(new moodle_url($CFG->wwwroot."/admin/tool/abconfig/edit_conditions.php?id=$experiment->id"));
+    redirect(new moodle_url('/admin/tool/abconfig/edit_conditions.php', array('id' => $experiment->id)));
 } else if ($fromform = $form->get_data()) {
     // If eid is empty, do nothing.
     // Form validation means data is safe to go to DB.
