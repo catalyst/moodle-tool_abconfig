@@ -15,8 +15,9 @@ A way to A/B test config, or slowly turn on config for certain audiences or % of
 
 Branches
 --------
-
-* For all supported Moodle versions use the master branch.
+| Moodle version    | Branch           | PHP  |
+|-------------------|------------------|------|
+| Moodle 3.8+       | MOODLE_38_STABLE | 7.1+ |
 
 Installation
 ------------
