@@ -1,8 +1,6 @@
 # A Moodle A/B testing admin tool
 
-<a href="https://travis-ci.org/catalyst/moodle-tool_abconfig">
-<img src="https://travis-ci.org/catalyst/moodle-tool_abconfig.svg?branch=master">
-</a>
+![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/catalyst/moodle-tool_abconfig/ci/MOODLE_38_STABLE)
 
 A way to A/B test config, or slowly turn on config for certain audiences or % of traffic
 
@@ -15,8 +13,10 @@ A way to A/B test config, or slowly turn on config for certain audiences or % of
 
 Branches
 --------
-
-* For all supported Moodle versions use the master branch.
+| Moodle version    | Branch           | PHP  | Backport  |
+|-------------------|------------------|------|-----------|
+| Moodle 3.8+       | MOODLE_38_STABLE | 7.1+ |           |
+| Moodle 3.4 - 3.7  | MOODLE_38_STABLE | 7.1+ | MDL-66340 |
 
 Installation
 ------------
