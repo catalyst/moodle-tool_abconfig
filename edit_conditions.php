@@ -69,21 +69,13 @@ if ($form->is_cancelled()) {
         $value = "value{$record->id}";
         $delete = "delete{$record->id}";
 
-        // Check if commands are present before json_encode.
-        $commandstring = $fromform->$commandskey;
-        if (empty($commandstring)) {
-            $commands = $commandstring;
-        } else {
-            $commands = json_encode(explode(PHP_EOL, $commandstring));
-        }
-
         if ($fromform->$delete) {
             // Delete record if delete checkbox enabled.
             $manager->delete_condition($eid, $fromform->$shortname);
         } else {
             // Else write data back to DB.
             $manager->update_condition($eid, $record->id, $fromform->$prevshortname,
-                $fromform->$shortname, $fromform->$iplist, $commands, $fromform->$value);
+                $fromform->$shortname, $fromform->$iplist, $fromform->$commandskey, $fromform->$value);
         }
     }
 
@@ -101,18 +93,8 @@ if ($form->is_cancelled()) {
                 // If accidentally added condition set and wishes to delete.
                 continue;
             } else {
-
-                // Check if commands are present before json_encode.
-                $commandstring = $fromform->repeatcommands[$value];
-                if (empty($commandstring)) {
-                    $commands = $commandstring;
-                } else {
-                    $commands = json_encode(explode(PHP_EOL, $commandstring));
-                }
-
-                // Else add record to DB.
                 $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value],
-                    $commands, $fromform->repeatvalue[$value]);
+                    $fromform->repeatcommands[$value], $fromform->repeatvalue[$value]);
             }
         }
     }

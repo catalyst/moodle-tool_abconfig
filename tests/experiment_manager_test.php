@@ -170,7 +170,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid));
         $this->assertEquals($record->condset, 'condset2');
         $this->assertEquals($record->ipwhitelist, '123.123.123.123');
-        $this->assertEquals($record->commands, 'command');
+        $this->assertEquals($record->commands, '["command"]');
         $this->assertEquals($record->value, 51);
     }
 
@@ -217,4 +217,37 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals(count($records), 0);
     }
 
+    /**
+     * Data provider for test_trim_condition_commands
+     *
+     * @return array
+     */
+    public function trim_condition_commands_provider() {
+        return [
+            ['CFG,passwordpolicy,1', '["CFG,passwordpolicy,1"]'],
+            ['forced_plugin_setting,auth_manual,expiration,yes', '["forced_plugin_setting,auth_manual,expiration,yes"]'],
+            ["CFG,debug,32767\n\rCFG,debugdisplay,1", '["CFG,debug,32767","CFG,debugdisplay,1"]'],
+            ["  CFG,debug,32767\n\rCFG,debugdisplay,1\r", '["CFG,debug,32767","CFG,debugdisplay,1"]'],
+            ["\nCFG,debug,32767\nCFG,debugdisplay,1\n", '["","CFG,debug,32767","CFG,debugdisplay,1",""]'],
+            ["  CFG,debug,32767\nCFG,debugdisplay,1\t", '["CFG,debug,32767","CFG,debugdisplay,1"]'],
+        ];
+    }
+
+    /**
+     * Test that condition commands get properly trimmed and converted into a JSON string on save.
+     *
+     * @dataProvider trim_condition_commands_provider
+     * @param string $actual Actual string that needs to be stored in DB
+     * @param string $expected Stored string
+     */
+    public function test_trim_condition_commands(string $actual, string $expected) {
+        global $DB;
+        $this->resetAfterTest();
+        $manager = new tool_abconfig_experiment_manager();
+        $experiment = $manager->add_experiment('name', 'shortname', 'request');
+        $condition = $manager->add_condition($experiment, 'condset1', '', $actual, 50);
+
+        $stored = $DB->get_field('tool_abconfig_condition', 'commands', array('id' => $condition));
+        $this->assertEquals($expected, $stored);
+    }
 }
