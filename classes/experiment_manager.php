@@ -98,6 +98,7 @@ class tool_abconfig_experiment_manager {
         if ($this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
+            $commands = $this->json_commands($commands);
             $return = $DB->insert_record('tool_abconfig_condition',
                 array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
@@ -114,6 +115,7 @@ class tool_abconfig_experiment_manager {
         if (!$this->condition_exists($eid, $prevcondset)) {
             $return = false;
         } else {
+            $commands = $this->json_commands($commands);
             $return = $DB->update_record('tool_abconfig_condition',
                 array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
                 'commands' => $commands, 'value' => $value));
@@ -226,5 +228,20 @@ class tool_abconfig_experiment_manager {
                     break;
             }
         }
+    }
+
+    /**
+     * Trims and formats commands string into a JSON string.
+     *
+     * @param string $commands Original string to be converted into JSON string.
+     * @return string JSON formatted string with commands.
+     */
+    private function json_commands($commands) {
+        if (!empty($commands)) {
+            $cmdarray = explode(PHP_EOL, $commands);
+            $cmdarraytrimmed = array_map('trim', $cmdarray);
+            $commands = json_encode($cmdarraytrimmed);
+        }
+        return $commands;
     }
 }

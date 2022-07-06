@@ -56,10 +56,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => 'CFG,passwordpolicy,1', 'condset' => 'set1', 'value' => 100));
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -83,10 +81,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -118,10 +114,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -155,16 +149,11 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
 
-        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
 
-        $commandstringcore = 'CFG,passwordpolicy,1';
-        $commandscore = json_encode(explode(PHP_EOL, $commandstringcore));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => $commandscore, 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set2', 'value' => 0));
 
         // Now execute first hook, and check the plugin value.
         tool_abconfig_after_config();
@@ -232,10 +221,14 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
 
-        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes'.PHP_EOL.'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $record = array(
+            'experiment' => $eid,
+            'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes","CFG,passwordpolicy,1"]',
+            'condset' => 'set1',
+            'value' => 100,
+        );
+        $DB->insert_record('tool_abconfig_condition', $record);
 
         // Now execute first hook, and check the plugin value.
         tool_abconfig_after_config();
@@ -270,10 +263,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
 
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
-            'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
 
         // Now execute first hook, and check core value hasnt changed.
         tool_abconfig_after_config();
@@ -323,10 +314,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => 'CFG,passwordpolicy,1', 'condset' => 'set1', 'value' => 100));
 
         // Call the hook.
         tool_abconfig_after_require_login();
@@ -350,15 +339,11 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
 
-        $commandstring2 = 'CFG,passwordpolicy,0';
-        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,0"]', 'condset' => 'set2', 'value' => 0));
 
         // Call the hook and verify result.
         tool_abconfig_after_require_login();
@@ -400,14 +385,11 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'forced_plugin_setting,auth_manual,expiration,yes';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
 
-        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0));
 
         // Call the hook and verify result.
         tool_abconfig_after_require_login();
@@ -453,15 +435,17 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1'.PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+        $record = array(
+            'experiment' => $eid,
+            'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1","forced_plugin_setting,auth_manual,expiration,yes"]',
+            'condset' => 'set1',
+            'value' => 100,
+        );
+        $DB->insert_record('tool_abconfig_condition', $record);
 
-        $commandstring2 = 'forced_plugin_setting,auth_manual,expiration,yes';
-        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0));
 
         // Execute the hook and test that the session config applied.
         tool_abconfig_after_require_login();
@@ -498,14 +482,11 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands, 'condset' => 0, 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 0, 'value' => 100));
 
-        $commands2 = json_encode(explode(PHP_EOL, $commandstring));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1', 'commands' => $commands2, 'condset' => 1, 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 1, 'value' => 0));
 
         // Execute the hook, test only one condition set executed.
         tool_abconfig_after_require_login();
@@ -539,10 +520,8 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Setup a valid experiment, and some conditions.
         $eid = $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $commandstring = 'CFG,passwordpolicy,1';
-        $commands = json_encode(explode(PHP_EOL, $commandstring));
         $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
-            'commands' => $commands, 'condset' => 'set1', 'value' => 100));
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
 
         // Execute the hook and check that nothing was changed.
         tool_abconfig_after_require_login();
