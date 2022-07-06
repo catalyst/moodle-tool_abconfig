@@ -122,7 +122,7 @@ class table_manager {
             }
 
             // Check for empty users.
-            if (empty($record->users)) {
+            if (empty(json_decode($record->users))) {
                 $users = get_string('formallusers', 'tool_abconfig');
             } else {
                 $users = $record->users;

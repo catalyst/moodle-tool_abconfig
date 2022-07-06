@@ -99,7 +99,7 @@ class tool_abconfig_experiment_manager {
             $return = false;
         } else {
             $commands = $this->json_string($commands);
-            $users = $this->json_string($users);
+            $users = json_encode($users);
             $record = (object) [
                 'experiment' => $eid,
                 'condset' => $condset,
@@ -123,7 +123,7 @@ class tool_abconfig_experiment_manager {
             $return = false;
         } else {
             $commands = $this->json_string($commands);
-            $users = $this->json_string($users);
+            $users = json_encode($users);
             $record = (object) [
                 'id' => $id,
                 'experiment' => $eid,

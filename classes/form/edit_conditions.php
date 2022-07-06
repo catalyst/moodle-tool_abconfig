@@ -35,6 +35,23 @@ class edit_conditions extends \moodleform {
         $mform->addElement('hidden', 'eid', $eid);
         $mform->setType('eid', PARAM_INT);
 
+        // Options for Users dropdown menu.
+        $useroptions = [
+            'ajax' => 'core_search/form-search-user-selector',
+            'multiple' => true,
+            'noselectionstring' => get_string('formallusers', 'tool_abconfig'),
+            'valuehtmlcallback' => function($value) {
+                global $DB, $OUTPUT;
+                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
+                if (!$user || !user_can_view_profile($user)) {
+                    return false;
+                }
+                $details = user_get_user_details($user);
+                return $OUTPUT->render_from_template(
+                    'core_search/form-user-selector-suggestion', $details);
+            }
+        ];
+
         // Get Data for repeating elements.
         $manager = new \tool_abconfig_experiment_manager();
         $records = $manager->get_conditions_for_experiment($eid);
@@ -66,13 +83,12 @@ class edit_conditions extends \moodleform {
             $mform->setType("iplist{$id}", PARAM_TEXT);
             $mform->setDefault("iplist{$id}", $record->ipwhitelist);
 
-            // Usernames or id numbers.
-            $mform->addElement('textarea', "users{$id}",
-                get_string('formexperimentusers', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
+            // Users.
+            $mform->addElement('autocomplete', "users{$id}",
+                get_string('formexperimentusers', 'tool_abconfig'), [], $useroptions);
             $mform->setType("users{$id}", PARAM_TEXT);
-            $mform->addHelpButton("users{$id}", 'formexperimentusers', 'tool_abconfig');
             if (!empty($record->users)) {
-                $mform->setDefault("users{$id}", implode(PHP_EOL, json_decode($record->users, true)));
+                $mform->setDefault("users{$id}", json_decode($record->users));
             }
 
             // Commands.
@@ -163,16 +179,11 @@ class edit_conditions extends \moodleform {
         );
 
         $repeatarray[] = $mform->createElement(
-            "textarea",
-            "repeatusers",
-            get_string("formexperimentusers_help", "tool_abconfig"),
-            array(
-                "placeholder" => 'admin'
-                    .PHP_EOL.'user1'
-                    .PHP_EOL.'2',
-                "rows" => 3,
-                "cols" => 60
-            )
+            'autocomplete',
+            'repeatusers',
+            get_string('formexperimentusers', 'tool_abconfig'),
+            [],
+            $useroptions
         );
 
         $repeatarray[] = $mform->createElement(
@@ -196,6 +207,7 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatiplist"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatusers"]["type"] = PARAM_TEXT;
 
         $this->repeat_elements($repeatarray, $count, $repeatoptions, 'repeats',
             'add_condition', 1, get_string('formaddrepeat', 'tool_abconfig'), false);
