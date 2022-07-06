@@ -66,6 +66,15 @@ class edit_conditions extends \moodleform {
             $mform->setType("iplist{$id}", PARAM_TEXT);
             $mform->setDefault("iplist{$id}", $record->ipwhitelist);
 
+            // Usernames or id numbers.
+            $mform->addElement('textarea', "users{$id}",
+                get_string('formexperimentusers', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
+            $mform->setType("users{$id}", PARAM_TEXT);
+            $mform->addHelpButton("users{$id}", 'formexperimentusers', 'tool_abconfig');
+            if (!empty($record->users)) {
+                $mform->setDefault("users{$id}", implode(PHP_EOL, json_decode($record->users, true)));
+            }
+
             // Commands.
             $mform->addElement('textarea', "commands{$id}",
                 get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 6, 'cols' => 60));
@@ -150,6 +159,19 @@ class edit_conditions extends \moodleform {
             array(
                 "size" => 20,
                 "placeholder" => '50'
+            )
+        );
+
+        $repeatarray[] = $mform->createElement(
+            "textarea",
+            "repeatusers",
+            get_string("formexperimentusers_help", "tool_abconfig"),
+            array(
+                "placeholder" => 'admin'
+                    .PHP_EOL.'user1'
+                    .PHP_EOL.'2',
+                "rows" => 3,
+                "cols" => 60
             )
         );
 

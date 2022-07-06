@@ -93,15 +93,22 @@ class tool_abconfig_experiment_manager {
         return $DB->record_exists_sql($sql, array($eid, $condsetsql));
     }
 
-    public function add_condition($eid, $condset, $iplist, $commands, $value) {
+    public function add_condition($eid, $condset, $iplist, $commands, $value, $users) {
         global $DB;
         if ($this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
-            $commands = $this->json_commands($commands);
-            $return = $DB->insert_record('tool_abconfig_condition',
-                array('experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
-                'commands' => $commands, 'value' => $value));
+            $commands = $this->json_string($commands);
+            $users = $this->json_string($users);
+            $record = (object) [
+                'experiment' => $eid,
+                'condset' => $condset,
+                'ipwhitelist' => $iplist,
+                'commands' => $commands,
+                'value' => $value,
+                'users' => $users,
+            ];
+            $return = $DB->insert_record('tool_abconfig_condition', $record);
 
             $this->log_commands($commands, $value);
         }
@@ -109,16 +116,24 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
-    public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value) {
+    public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value, $users) {
         global $DB;
 
         if (!$this->condition_exists($eid, $prevcondset)) {
             $return = false;
         } else {
-            $commands = $this->json_commands($commands);
-            $return = $DB->update_record('tool_abconfig_condition',
-                array('id' => $id, 'experiment' => $eid, 'condset' => $condset, 'ipwhitelist' => $iplist,
-                'commands' => $commands, 'value' => $value));
+            $commands = $this->json_string($commands);
+            $users = $this->json_string($users);
+            $record = (object) [
+                'id' => $id,
+                'experiment' => $eid,
+                'condset' => $condset,
+                'ipwhitelist' => $iplist,
+                'commands' => $commands,
+                'value' => $value,
+                'users' => $users,
+            ];
+            $return = $DB->update_record('tool_abconfig_condition', $record);
 
             $this->log_commands($commands, $value);
         }
@@ -231,17 +246,17 @@ class tool_abconfig_experiment_manager {
     }
 
     /**
-     * Trims and formats commands string into a JSON string.
+     * Trims and formats string into a JSON string.
      *
-     * @param string $commands Original string to be converted into JSON string.
-     * @return string JSON formatted string with commands.
+     * @param string $strings Original string to be converted into JSON string.
+     * @return string JSON formatted string.
      */
-    private function json_commands($commands) {
-        if (!empty($commands)) {
-            $cmdarray = explode(PHP_EOL, $commands);
-            $cmdarraytrimmed = array_map('trim', $cmdarray);
-            $commands = json_encode($cmdarraytrimmed);
+    private function json_string($strings) {
+        if (!empty($strings)) {
+            $array = explode(PHP_EOL, $strings);
+            $arraytrimmed = array_map('trim', $array);
+            $strings = json_encode($arraytrimmed);
         }
-        return $commands;
+        return $strings;
     }
 }

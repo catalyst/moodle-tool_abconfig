@@ -25,6 +25,7 @@
         <FIELD NAME="ipwhitelist" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of safe IP addresses to be ignored when callbacks for experiments fire"/>
         <FIELD NAME="commands" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of commands to be run per condition"/>
         <FIELD NAME="value" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" COMMENT="The % amount of traffic on which the experiment will be executed"/>
+        <FIELD NAME="users" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="List of usernames or id numbers on which the experiment will be executed"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

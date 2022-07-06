@@ -67,6 +67,7 @@ if ($form->is_cancelled()) {
         $iplist = "iplist{$record->id}";
         $commandskey = "commands{$record->id}";
         $value = "value{$record->id}";
+        $users = "users{$record->id}";
         $delete = "delete{$record->id}";
 
         if ($fromform->$delete) {
@@ -75,7 +76,7 @@ if ($form->is_cancelled()) {
         } else {
             // Else write data back to DB.
             $manager->update_condition($eid, $record->id, $fromform->$prevshortname,
-                $fromform->$shortname, $fromform->$iplist, $fromform->$commandskey, $fromform->$value);
+                $fromform->$shortname, $fromform->$iplist, $fromform->$commandskey, $fromform->$value, $fromform->$users);
         }
     }
 
@@ -94,7 +95,7 @@ if ($form->is_cancelled()) {
                 continue;
             } else {
                 $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value],
-                    $fromform->repeatcommands[$value], $fromform->repeatvalue[$value]);
+                    $fromform->repeatcommands[$value], $fromform->repeatvalue[$value], $fromform->repeatusers[$value]);
             }
         }
     }
