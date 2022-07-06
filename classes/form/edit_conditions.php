@@ -40,16 +40,7 @@ class edit_conditions extends \moodleform {
             'ajax' => 'core_search/form-search-user-selector',
             'multiple' => true,
             'noselectionstring' => get_string('formallusers', 'tool_abconfig'),
-            'valuehtmlcallback' => function($value) {
-                global $DB, $OUTPUT;
-                $user = $DB->get_record('user', ['id' => (int)$value], '*', IGNORE_MISSING);
-                if (!$user || !user_can_view_profile($user)) {
-                    return false;
-                }
-                $details = user_get_user_details($user);
-                return $OUTPUT->render_from_template(
-                    'core_search/form-user-selector-suggestion', $details);
-            }
+            'valuehtmlcallback' => ['tool_abconfig\form\edit_conditions', 'user_selector'],
         ];
 
         // Get Data for repeating elements.
@@ -267,5 +258,21 @@ class edit_conditions extends \moodleform {
         }
 
         return $errors;
+    }
+
+    /**
+     * Static method to return selector HTML for the user.
+     *
+     * @param int $userid User id to be rendered
+     * @return string
+     */
+    public static function user_selector(int $userid) {
+        global $DB, $OUTPUT;
+        $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+        if (!$user || !user_can_view_profile($user)) {
+            return false;
+        }
+        $details = user_get_user_details($user);
+        return $OUTPUT->render_from_template('core_search/form-user-selector-suggestion', $details);
     }
 }
