@@ -35,6 +35,14 @@ class edit_conditions extends \moodleform {
         $mform->addElement('hidden', 'eid', $eid);
         $mform->setType('eid', PARAM_INT);
 
+        // Options for Users dropdown menu.
+        $useroptions = [
+            'ajax' => 'core_search/form-search-user-selector',
+            'multiple' => true,
+            'noselectionstring' => get_string('formallusers', 'tool_abconfig'),
+            'valuehtmlcallback' => ['tool_abconfig\form\edit_conditions', 'user_selector'],
+        ];
+
         // Get Data for repeating elements.
         $manager = new \tool_abconfig_experiment_manager();
         $records = $manager->get_conditions_for_experiment($eid);
@@ -65,6 +73,14 @@ class edit_conditions extends \moodleform {
                 get_string('formipwhitelist', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
             $mform->setType("iplist{$id}", PARAM_TEXT);
             $mform->setDefault("iplist{$id}", $record->ipwhitelist);
+
+            // Users.
+            $mform->addElement('autocomplete', "users{$id}",
+                get_string('formexperimentusers', 'tool_abconfig'), [], $useroptions);
+            $mform->setType("users{$id}", PARAM_TEXT);
+            if (!empty($record->users)) {
+                $mform->setDefault("users{$id}", json_decode($record->users));
+            }
 
             // Commands.
             $mform->addElement('textarea', "commands{$id}",
@@ -154,6 +170,14 @@ class edit_conditions extends \moodleform {
         );
 
         $repeatarray[] = $mform->createElement(
+            'autocomplete',
+            'repeatusers',
+            get_string('formexperimentusers', 'tool_abconfig'),
+            [],
+            $useroptions
+        );
+
+        $repeatarray[] = $mform->createElement(
             "advcheckbox",
             "repeatdelete",
             get_string("formdeleterepeat", "tool_abconfig"),
@@ -174,6 +198,7 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatiplist"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatusers"]["type"] = PARAM_TEXT;
 
         $this->repeat_elements($repeatarray, $count, $repeatoptions, 'repeats',
             'add_condition', 1, get_string('formaddrepeat', 'tool_abconfig'), false);
@@ -233,5 +258,21 @@ class edit_conditions extends \moodleform {
         }
 
         return $errors;
+    }
+
+    /**
+     * Static method to return selector HTML for the user.
+     *
+     * @param int $userid User id to be rendered
+     * @return string
+     */
+    public static function user_selector(int $userid) {
+        global $DB, $OUTPUT;
+        $user = $DB->get_record('user', ['id' => $userid], '*', IGNORE_MISSING);
+        if (!$user || !user_can_view_profile($user)) {
+            return false;
+        }
+        $details = user_get_user_details($user);
+        return $OUTPUT->render_from_template('core_search/form-user-selector-suggestion', $details);
     }
 }

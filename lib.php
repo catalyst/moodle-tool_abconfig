@@ -128,7 +128,7 @@ function tool_abconfig_after_config() {
 }
 
 function tool_abconfig_after_require_login() {
-    global $SESSION;
+    global $SESSION, $USER;
 
     // Create experiment manager.
     $manager = new tool_abconfig_experiment_manager();
@@ -159,8 +159,11 @@ function tool_abconfig_after_require_login() {
 
             foreach ($conditionrecords as $conditionrecord) {
                 $iplist = $conditionrecord['ipwhitelist'];
-                if (!remoteip_in_list($iplist)) {
-                    array_push($crecords, $conditionrecord);
+                $users = json_decode($conditionrecord['users']);
+                if (empty($users) || in_array($USER->id, $users)) {
+                    if (!remoteip_in_list($iplist)) {
+                        array_push($crecords, $conditionrecord);
+                    }
                 }
             }
 

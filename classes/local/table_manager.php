@@ -81,14 +81,26 @@ class table_manager {
         global $DB;
 
         // Get all lang strings for table header.
-        $stringsreqd = array('formipwhitelist', 'formexperimentcommands',
-            'formexperimentvalue', 'formexperimentcondsset', 'formexperimentforceurl');
+        $stringsreqd = array(
+            'formipwhitelist',
+            'formexperimentcommands',
+            'formexperimentvalue',
+            'formexperimentcondsset',
+            'formexperimentusers',
+            'formexperimentforceurl',
+        );
         $stringarr = get_strings($stringsreqd, 'tool_abconfig');
 
         // Setup table.
         $table = new \html_table();
-        $table->head = array($stringarr->formexperimentcondsset, $stringarr->formipwhitelist,
-            $stringarr->formexperimentcommands, $stringarr->formexperimentvalue, $stringarr->formexperimentforceurl);
+        $table->head = array(
+            $stringarr->formexperimentcondsset,
+            $stringarr->formipwhitelist,
+            $stringarr->formexperimentcommands,
+            $stringarr->formexperimentvalue,
+            $stringarr->formexperimentusers,
+            $stringarr->formexperimentforceurl,
+        );
         $table->attributes['class'] = 'generaltable table table-bordered';
 
         // Get experiment conditions records.
@@ -109,6 +121,13 @@ class table_manager {
                 $iplist = $record->ipwhitelist;
             }
 
+            // Check for empty users.
+            if (empty(json_decode($record->users))) {
+                $users = get_string('formallusers', 'tool_abconfig');
+            } else {
+                $users = $record->users;
+            }
+
             // Construct URL for forcing condition.
             $paramstring = '?';
             // Get experiment shortname.
@@ -119,7 +138,7 @@ class table_manager {
             // URL for redirecting to the dashboard with conditions active.
             $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
 
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value, \html_writer::link($url, $paramstring));
+            $table->data[] = array($record->condset, $iplist, $commands, $record->value, $users, \html_writer::link($url, $paramstring));
         }
 
         return \html_writer::table($table);

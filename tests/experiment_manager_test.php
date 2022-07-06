@@ -140,7 +140,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
             array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
 
         // Add condition for experiment.
-        $manager->add_condition($eid, 'condset1', '', '', 50);
+        $manager->add_condition($eid, 'condset1', '', '', 50, '');
 
         $records = $DB->get_records('tool_abconfig_condition',
             array('experiment' => $eid));
@@ -165,7 +165,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
             array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
 
         // Update condition.
-        $manager->update_condition($eid, $id, 'condset1', 'condset2', '123.123.123.123', 'command', 51);
+        $manager->update_condition($eid, $id, 'condset1', 'condset2', '123.123.123.123', 'command', 51, '');
 
         $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid));
         $this->assertEquals($record->condset, 'condset2');
@@ -245,7 +245,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->resetAfterTest();
         $manager = new tool_abconfig_experiment_manager();
         $experiment = $manager->add_experiment('name', 'shortname', 'request');
-        $condition = $manager->add_condition($experiment, 'condset1', '', $actual, 50);
+        $condition = $manager->add_condition($experiment, 'condset1', '', $actual, 50, '');
 
         $stored = $DB->get_field('tool_abconfig_condition', 'commands', array('id' => $condition));
         $this->assertEquals($expected, $stored);
