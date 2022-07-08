@@ -46,7 +46,6 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     public function test_request_admin_immunity() {
         $this->resetAfterTest(true);
         global $DB, $CFG;
-        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
         $this->setAdminUser();
 
@@ -286,7 +285,6 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     public function test_session_no_execute() {
         $this->resetAfterTest(true);
         global $CFG;
-        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
         // Setup a new user.
         $user = $this->getDataGenerator()->create_user();
@@ -304,7 +302,6 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     public function test_session_admin_immunity () {
         $this->resetAfterTest(true);
         global $DB, $CFG;
-        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
         $this->setAdminUser();
 
@@ -508,7 +505,6 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     public function test_session_ip_whitelist() {
         $this->resetAfterTest(true);
         global $DB, $CFG;
-        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
 
         // Setup a new user.
         $user = $this->getDataGenerator()->create_user();
@@ -533,9 +529,9 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     }
 
     /**
-     * Test that the experiment is executed on a given user based on their id.
+     * Test that the session experiment is executed on a given user based on their id.
      */
-    public function test_condition_users_user_does_match_by_id() {
+    public function test_condition_users_user_does_match_by_id_session() {
         global $CFG;
         $this->resetAfterTest();
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -561,9 +557,37 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
     }
 
     /**
-     * Test that the experiment is not executed on a user.
+     * Test that the request experiment is executed on a given user based on their id.
      */
-    public function test_condition_users_user_does_not_match_by_id() {
+    public function test_condition_users_user_does_match_by_id_request() {
+        global $CFG;
+        $this->resetAfterTest();
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
+
+        // Set up 2 users.
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $this->setUser($user1);
+
+        // Set config control to be modified by the experiment.
+        set_config('passwordpolicy', 0);
+
+        // Set up a valid experiment and a condition for User 1.
+        $manager = new tool_abconfig_experiment_manager();
+        $experiment = $manager->add_experiment('Experiment', 'experiment', 'request');
+        $manager->update_experiment('experiment', 'Experiment', 'experiment', 'request', 1, 1);
+        $manager->add_condition($experiment, 'Users', '', 'CFG,passwordpolicy,1', 100, [$user1->id, $user2->id]);
+
+        // Execute the hook and confirm that the experiment was executed for User 1.
+        $this->assertEquals($CFG->passwordpolicy, 0);
+        tool_abconfig_after_config();
+        $this->assertEquals($CFG->passwordpolicy, 1);
+    }
+
+    /**
+     * Test that the session experiment is not executed on a user.
+     */
+    public function test_condition_users_user_does_not_match_by_id_session() {
         global $CFG;
         $this->resetAfterTest();
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -586,6 +610,35 @@ class tool_abconfig_lib_testcase extends advanced_testcase {
         // Execute the hook and confirm that the experiment was not executed for User 2.
         $this->assertEquals($CFG->passwordpolicy, 0);
         tool_abconfig_after_require_login();
+        $this->assertEquals($CFG->passwordpolicy, 0);
+    }
+
+    /**
+     * Test that the request experiment is not executed on a user.
+     */
+    public function test_condition_users_user_does_not_match_by_id_request() {
+        global $CFG;
+        $this->resetAfterTest();
+        $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
+
+        // Set up 3 users.
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+        $this->setUser($user2);
+
+        // Set config control to be modified by the experiment.
+        set_config('passwordpolicy', 0);
+
+        // Set up a valid experiment and a condition for User 1.
+        $manager = new tool_abconfig_experiment_manager();
+        $experiment = $manager->add_experiment('Experiment', 'experiment', 'request');
+        $manager->update_experiment('experiment', 'Experiment', 'experiment', 'request', 1, 1);
+        $manager->add_condition($experiment, 'Users', '', 'CFG,passwordpolicy,1', 100, [$user1->id, $user3->id]);
+
+        // Execute the hook and confirm that the experiment was not executed for User 2.
+        $this->assertEquals($CFG->passwordpolicy, 0);
+        tool_abconfig_after_config();
         $this->assertEquals($CFG->passwordpolicy, 0);
     }
 }

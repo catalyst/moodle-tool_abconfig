@@ -82,8 +82,7 @@ function tool_abconfig_after_config() {
                 $crecords = array();
 
                 foreach ($conditionrecords as $conditionrecord) {
-                    $iplist = $conditionrecord['ipwhitelist'];
-                    if (!remoteip_in_list($iplist)) {
+                    if ($manager->is_condition_met($conditionrecord)) {
                         array_push($crecords, $conditionrecord);
                     }
                 }
@@ -158,12 +157,8 @@ function tool_abconfig_after_require_login() {
             $crecords = array();
 
             foreach ($conditionrecords as $conditionrecord) {
-                $iplist = $conditionrecord['ipwhitelist'];
-                $users = json_decode($conditionrecord['users']);
-                if (empty($users) || in_array($USER->id, $users)) {
-                    if (!remoteip_in_list($iplist)) {
-                        array_push($crecords, $conditionrecord);
-                    }
+                if ($manager->is_condition_met($conditionrecord)) {
+                    array_push($crecords, $conditionrecord);
                 }
             }
 

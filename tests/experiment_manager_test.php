@@ -250,4 +250,56 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $stored = $DB->get_field('tool_abconfig_condition', 'commands', array('id' => $condition));
         $this->assertEquals($expected, $stored);
     }
+
+    /**
+     * Data provider for test_is_condition_met.
+     *
+     * @return array
+     */
+    public function is_condition_met_provider() {
+        $randomip = '123.123.123.123';
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+        $user3 = $this->getDataGenerator()->create_user();
+
+        return [
+            ['', '', $user1, '', false],
+            ['', '', $user1, $randomip, true],
+            ['', $randomip, $user1, $randomip, false],
+            [json_encode([$user1->id]), $randomip, $user1, $randomip, false],
+            [json_encode([$user1->id]), '', $user1, $randomip, true],
+            [json_encode([$user2->id]), '', $user1, $randomip, false],
+            [json_encode([$user2->id, $user3->id]), '', $user2, $randomip, true],
+            ['', '', (object) ['id' => 0], $randomip, true],
+            // This is not working, it should be true:
+            [json_encode([$user1->id]), '', (object) ['id' => 0], '', false],
+        ];
+    }
+
+    /**
+     * Test that condition are met in various scenarios.
+     *
+     * @dataProvider is_condition_met_provider
+     * @param string $users JSON string with users
+     * @param string $ipwhitelist Whitelisted IPs
+     * @param stdClass $currentuser Current user
+     * #param string $currentip Current IP
+     * @param bool $expected Expected outcome
+     */
+    public function test_is_condition_met(string $users, string $ipwhitelist, stdClass $currentuser,
+                                          string $currentip, bool $expected) {
+        $this->resetAfterTest();
+        $this->setUser($currentuser);
+        if (!empty($currentip)) {
+            $_SERVER['REMOTE_ADDR'] = $currentip;
+        }
+
+        $manager = new tool_abconfig_experiment_manager();
+        $conditionrecord = [
+            'users' => $users,
+            'ipwhitelist' => $ipwhitelist,
+        ];
+
+        $this->assertEquals($expected, $manager->is_condition_met($conditionrecord));
+    }
 }

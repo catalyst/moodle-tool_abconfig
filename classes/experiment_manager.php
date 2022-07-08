@@ -259,4 +259,32 @@ class tool_abconfig_experiment_manager {
         }
         return $strings;
     }
+
+    /**
+     * Either condition is met or not based on current user and their IP.
+     *
+     * @param array $conditionrecord Condition record
+     * @return bool
+     */
+    public function is_condition_met(array $conditionrecord) {
+        global $USER;
+
+        $users = json_decode($conditionrecord['users']);
+        $blacklist = $conditionrecord['ipwhitelist'];
+
+        if (empty($users) || in_array($USER->id, $users)) {
+            $blacklisted = remoteip_in_list($blacklist);
+
+            // We can't check IP via CLI so CLI should just work if other conditions are met. However, calls
+            // from unit tests should be treated as web calls to make it possible to test various web scenarios.
+            $cli = defined('CLI_SCRIPT') && CLI_SCRIPT;
+            $phpunit = defined('PHPUNIT_TEST') && PHPUNIT_TEST;
+
+            if (!$blacklisted || ($cli && !$phpunit)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
