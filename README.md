@@ -110,7 +110,7 @@ js_header,console.log('example');
 
 ```
 js_footer,javascript
-js_footer,console.log('exmaple');
+js_footer,console.log('example');
 ```
 
 This command runs small JavaScript chunks just before the page footer is sent.
