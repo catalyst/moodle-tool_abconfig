@@ -122,6 +122,12 @@ By default all experiments start disabled, so you can't accidentally apply broke
 
 Once an experiment is enabled, it can also be enabled for admin accounts as well, which are ignored by the plugin by default. This option should be used with care, as bad configuration may result in all administrator accounts being locked out from the moodle instance, in extreme cases. In the event that something goes wrong when applying experiments to admins as well, the URL parameter `?abconfig=off` can be used to ignore the plugin entirely for that page, which can be used to regain access.
 
+You can also force conditions in the same var by setting an environment variable. If the experiment was called 'setconfig' and the conditionset was called 'passwordpolicy' then this would force it on in the cli:
+
+```sh
+ABCONFIG_SETCONFIG=passwordpolicy php admin/cli/cfg.php --name=themelist
+```
+
 Example use cases
 -----------------
 
