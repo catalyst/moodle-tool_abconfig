@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 
 function tool_abconfig_after_config() {
     try {
-        global $SESSION;
+        global $SESSION, $USER;
 
         // Setup experiment manager.
         $manager = new tool_abconfig_experiment_manager();
@@ -90,8 +90,11 @@ function tool_abconfig_after_config() {
 
                 foreach ($conditionrecords as $conditionrecord) {
                     $iplist = $conditionrecord['ipwhitelist'];
-                    if (!remoteip_in_list($iplist)) {
-                        array_push($crecords, $conditionrecord);
+                    $users = json_decode($conditionrecord['users']);
+                    if (empty($users) || in_array($USER->id, $users)) {
+                        if (!remoteip_in_list($iplist)) {
+                            array_push($crecords, $conditionrecord);
+                        }
                     }
                 }
 
