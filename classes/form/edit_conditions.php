@@ -250,6 +250,10 @@ class edit_conditions extends \moodleform {
                     $errors["repeatvalue[$value]"] = get_string('formexperimentvalueerror', 'tool_abconfig');
                 }
                 // Increment total and check value.
+                // If an empty string is returned, set value to 0.
+                if ($data['repeatvalue'][$value] == '') {
+                    $data['repeatvalue'][$value] = 0;
+                }
                 $total += $data['repeatvalue'][$value];
                 if ($total > 100) {
                     $errors["repeatvalue[$value]"] = get_string('formexperimentvalueexceed', 'tool_abconfig', $total);
