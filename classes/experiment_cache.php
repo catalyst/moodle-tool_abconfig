@@ -26,6 +26,14 @@ namespace tool_abconfig;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Data source class for experiments cache
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class experiment_cache implements \cache_data_source {
 
     /** @var experiment_cache the singleton instance of this class. */
@@ -34,7 +42,7 @@ class experiment_cache implements \cache_data_source {
     /**
      * Returns the instance of cache definition
      *
-     * @param string $definition the definition of the cache
+     * @param \cache_definition $definition the definition of the cache
      * @return mixed The singleton instance of the cache data source
      */
     public static function get_instance_for_cache(\cache_definition $definition) {

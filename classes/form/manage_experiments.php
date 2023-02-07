@@ -28,8 +28,20 @@ namespace tool_abconfig\form;
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Form class for managing experiments
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class manage_experiments extends \moodleform {
 
+    /**
+     * Form definition
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
 
@@ -58,6 +70,12 @@ class manage_experiments extends \moodleform {
         $this->add_action_buttons(true, get_string('formaddexperiment', 'tool_abconfig'));
     }
 
+    /**
+     * Form validation
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $manager = new \tool_abconfig_experiment_manager();

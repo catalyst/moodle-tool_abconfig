@@ -24,10 +24,26 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Local Library class
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class tool_abconfig_experiment_manager {
 
     // Experiment functions.
 
+    /**
+     * Add an experiment
+     * @param string $name
+     * @param string $shortname
+     * @param string $scope
+     * @return bool|int
+     */
     public function add_experiment($name, $shortname, $scope) {
         global $DB;
 
@@ -42,6 +58,11 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
+    /**
+     * Check if an experiment exists
+     * @param string $shortname
+     * @return bool
+     */
     public function experiment_exists($shortname) {
         global $DB;
         $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
@@ -53,6 +74,16 @@ class tool_abconfig_experiment_manager {
         }
     }
 
+    /**
+     * Update an experiment
+     * @param string $prevshortname
+     * @param string $name
+     * @param string $shortname
+     * @param string $scope
+     * @param int $enabled
+     * @param int $adminenabled
+     * @return bool
+     */
     public function update_experiment($prevshortname, $name, $shortname, $scope, $enabled, $adminenabled) {
         global $DB;
         // Check whether the experiment exists to be updated.
@@ -70,6 +101,11 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
+    /**
+     * Delete an experiment
+     * @param string $shortname
+     * @return bool
+     */
     public function delete_experiment($shortname) {
         global $DB;
 
@@ -86,6 +122,12 @@ class tool_abconfig_experiment_manager {
 
     // Condition functions.
 
+    /**
+     * Check condition exists
+     * @param int $eid
+     * @param string $condset
+     * @return bool
+     */
     public function condition_exists($eid, $condset) {
         global $DB;
         $condsetsql = $DB->sql_compare_text($condset, strlen($condset));
@@ -93,6 +135,16 @@ class tool_abconfig_experiment_manager {
         return $DB->record_exists_sql($sql, array($eid, $condsetsql));
     }
 
+    /**
+     * Add a condition
+     * @param int $eid
+     * @param string $condset
+     * @param string $iplist
+     * @param string $commands
+     * @param int $value
+     * @param array $users
+     * @return bool|int
+     */
     public function add_condition($eid, $condset, $iplist, $commands, $value, $users) {
         global $DB;
         if ($this->condition_exists($eid, $condset)) {
@@ -116,6 +168,18 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
+    /**
+     * Update a condition
+     * @param int $eid
+     * @param int $id
+     * @param string $prevcondset
+     * @param string $condset
+     * @param string $iplist
+     * @param string $commands
+     * @param int $value
+     * @param array $users
+     * @return bool
+     */
     public function update_condition($eid, $id, $prevcondset, $condset, $iplist, $commands, $value, $users) {
         global $DB;
 
@@ -141,6 +205,12 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
+    /**
+     * Delete a condition
+     * @param int $eid
+     * @param string $condset
+     * @return bool
+     */
     public function delete_condition($eid, $condset) {
         global $DB;
         if (!$this->condition_exists($eid, $condset)) {
@@ -154,22 +224,41 @@ class tool_abconfig_experiment_manager {
         return $return;
     }
 
+    /**
+     * Delete all conditions
+     * @param int $eid
+     * @return void
+     */
     public function delete_all_conditions($eid) {
         global $DB;
         $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
         self::invalidate_experiment_cache();
     }
 
+    /**
+     * Get experiment conditions
+     * @param int $eid
+     * @return array
+     */
     public function get_conditions_for_experiment($eid) {
         global $DB;
         return $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
     }
 
     // Caching functions.
+
+    /**
+     * Invalidate the experiment cache
+     * @return void
+     */
     private function invalidate_experiment_cache() {
         \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
     }
 
+    /**
+     * Get experiments
+     * @return mixed
+     */
     public function get_experiments() {
         $cache = cache::make('tool_abconfig', 'experiments');
         $experiments = $cache->get('allexperiment');
@@ -177,6 +266,10 @@ class tool_abconfig_experiment_manager {
         return ($experiments != false) ? $experiments : array();
     }
 
+    /**
+     * Get active requests
+     * @return mixed
+     */
     public function get_active_request() {
         $experiments = self::get_experiments();
 
@@ -190,6 +283,10 @@ class tool_abconfig_experiment_manager {
         });
     }
 
+    /**
+     * Get the active session
+     * @return mixed
+     */
     public function get_active_session() {
         $experiments = self::get_experiments();
 
@@ -203,6 +300,10 @@ class tool_abconfig_experiment_manager {
         });
     }
 
+    /**
+     * Get active experiments
+     * @return mixed
+     */
     public function get_active_experiments() {
         $experiments = self::get_experiments();
 
@@ -216,6 +317,12 @@ class tool_abconfig_experiment_manager {
         });
     }
 
+    /**
+     * Log commands
+     * @param string $commands
+     * @param int $value
+     * @return void
+     */
     private function log_commands($commands, $value) {
         // Unpack commands, and log if they are CFG or plugin config.
         $commands = json_decode($commands);

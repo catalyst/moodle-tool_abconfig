@@ -27,7 +27,19 @@ namespace tool_abconfig\form;
 defined('MOODLE_INTERNAL') || die();
 require_once("$CFG->libdir/formslib.php");
 
+/**
+ * Form class for editing experiments
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class edit_conditions extends \moodleform {
+    /**
+     * Form definition
+     * @return void
+     */
     public function definition() {
         $mform = $this->_form;
         $eid = $this->_customdata['eid'];
@@ -206,6 +218,12 @@ class edit_conditions extends \moodleform {
         $this->add_action_buttons();
     }
 
+    /**
+     * Form validation
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $eid = $data['eid'];

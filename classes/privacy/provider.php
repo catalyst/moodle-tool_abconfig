@@ -27,6 +27,14 @@ namespace tool_abconfig\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Privacy Null provider class
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements
     // This plugin does not store any personal user data.
     \core_privacy\local\metadata\null_provider {
