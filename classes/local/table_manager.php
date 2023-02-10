@@ -27,6 +27,14 @@ namespace tool_abconfig\local;
 
 defined('MOODLE_INTERNAL') || die;
 
+/**
+ * Table management and generation class.
+ *
+ * @package   tool_abconfig
+ * @author    Peter Burnett <peterburnett@catalyst-au.net>
+ * @copyright Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class table_manager {
     /**
      * Function to generate the HTML for the experiments table.

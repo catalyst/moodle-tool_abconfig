@@ -24,6 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+/**
+ * After config
+ * @return void|null
+ */
 function tool_abconfig_after_config() {
     try {
         global $SESSION, $USER;
@@ -137,6 +141,11 @@ function tool_abconfig_after_config() {
     }                               // @codingStandardsIgnoreEnd
 }
 
+/**
+ * After require login
+ * @return void|null
+ * @throws coding_exception
+ */
 function tool_abconfig_after_require_login() {
     global $SESSION, $USER;
 
@@ -211,15 +220,31 @@ function tool_abconfig_after_require_login() {
     }
 }
 
+/**
+ * Before footer
+ * @return void
+ */
 function tool_abconfig_before_footer() {
     tool_abconfig_execute_js('footer');
 }
 
+/**
+ * Before http headers
+ * @return void
+ */
 function tool_abconfig_before_http_headers() {
     tool_abconfig_execute_js('header');
 }
 
-function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, $string = null) {
+/**
+ * Execute command array
+ * @param string $commandsencoded
+ * @param string $shortname
+ * @param bool $js
+ * @param string $string
+ * @return void
+ */
+function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, string $string = null) {
     global $CFG, $SESSION;
 
     // Execute any commands passed in.
@@ -283,7 +308,12 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
     }
 }
 
-function tool_abconfig_execute_js($type) {
+/**
+ * Execute JS
+ * @param string $type
+ * @return void|null
+ */
+function tool_abconfig_execute_js(string $type) {
     // Check if the param to disable ABconfig is present, if so, exit.
     if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
         if (is_siteadmin()) {
