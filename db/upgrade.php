@@ -44,4 +44,6 @@ function xmldb_tool_abconfig_upgrade($oldversion) {
         // Savepoint reached.
         upgrade_plugin_savepoint(true, 2022070600, 'tool', 'abconfig');
     }
+
+    return true;
 }
