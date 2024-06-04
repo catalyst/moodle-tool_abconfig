@@ -14,20 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_abconfig;
+
 /**
- * Version information.
+ * Hook callbacks for tool_abconfig.
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
- * @copyright Catalyst IT
+ * @author    Benjamin Walker (benjaminwalker@catalyst-au.net)
+ * @copyright 2024 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class hook_callbacks {
 
-defined('MOODLE_INTERNAL') || die();
+    /**
+     * Runs before HTTP headers.
+     *
+     * @param \core\hook\output\before_http_headers $hook
+     */
+    public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
+        tool_abconfig_execute_js('header');
+    }
 
-$plugin->version   = 2024060400;      // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2024060400;      // Same as version.
-$plugin->requires  = 2014051217;
-$plugin->supported = [38, 404];       // Available as of Moodle 3.8.0 or later.
-$plugin->component = "tool_abconfig";
-$plugin->maturity  = MATURITY_STABLE;
+    /**
+     * Runs before HTTP footers.
+     *
+     * @param \core\hook\output\before_footer_html_generation $hook
+     */
+    public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
+        tool_abconfig_execute_js('footer');
+    }
+}
