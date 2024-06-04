@@ -15,19 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information.
+ * Hook callbacks for tool_abconfig
  *
  * @package   tool_abconfig
- * @author    Brendan Heywood <brendan@catalyst-au.net>
- * @copyright Catalyst IT
+ * @author    Benjamin Walker (benjaminwalker@catalyst-au.net)
+ * @copyright 2024 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024060400;      // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2024060400;      // Same as version.
-$plugin->requires  = 2014051217;
-$plugin->supported = [38, 404];       // Available as of Moodle 3.8.0 or later.
-$plugin->component = "tool_abconfig";
-$plugin->maturity  = MATURITY_STABLE;
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_http_headers::class,
+        'callback' => '\tool_abconfig\hook_callbacks::before_http_headers',
+        'priority' => 0,
+    ],
+    [
+        'hook' => \core\hook\output\before_footer_html_generation::class,
+        'callback' => '\tool_abconfig\hook_callbacks::before_footer_html_generation',
+        'priority' => 0,
+    ],
+];

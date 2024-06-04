@@ -222,6 +222,10 @@ function tool_abconfig_after_require_login() {
 
 /**
  * Before footer
+ *
+ * This is a legacy callback that is used for compatibility with older Moodle versions.
+ * Moodle 4.4+ will use tool_abconfig\hook_callbacks::before_footer_html_generation instead.
+ *
  * @return void
  */
 function tool_abconfig_before_footer() {
@@ -230,6 +234,10 @@ function tool_abconfig_before_footer() {
 
 /**
  * Before http headers
+ *
+ * This is a legacy callback that is used for compatibility with older Moodle versions.
+ * Moodle 4.4+ will use tool_abconfig\hook_callbacks::before_http_headers instead.
+ *
  * @return void
  */
 function tool_abconfig_before_http_headers() {
