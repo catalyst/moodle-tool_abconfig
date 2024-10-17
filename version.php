@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024060400;      // The current plugin version (Date: YYYYMMDDXX).
-$plugin->release   = 2024060400;      // Same as version.
+$plugin->version   = 2024060401;      // The current plugin version (Date: YYYYMMDDXX).
+$plugin->release   = 2024060401;      // Same as version.
 $plugin->requires  = 2014051217;
-$plugin->supported = [38, 404];       // Available as of Moodle 3.8.0 or later.
+$plugin->supported = [38, 405];       // Available as of Moodle 3.8.0 or later.
 $plugin->component = "tool_abconfig";
 $plugin->maturity  = MATURITY_STABLE;
