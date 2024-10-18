@@ -32,6 +32,11 @@ class hook_callbacks {
      * @param \core\hook\output\before_http_headers $hook
      */
     public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
+        if (!get_config('tool_abconfig', 'version')) {
+            // Do nothing if plugin install not completed.
+            return;
+        }
+
         tool_abconfig_execute_js('header');
     }
 
@@ -41,6 +46,11 @@ class hook_callbacks {
      * @param \core\hook\output\before_footer_html_generation $hook
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
+        if (!get_config('tool_abconfig', 'version')) {
+            // Do nothing if plugin install not completed.
+            return;
+        }
+
         tool_abconfig_execute_js('footer');
     }
 }
