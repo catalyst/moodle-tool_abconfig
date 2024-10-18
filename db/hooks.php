@@ -36,4 +36,9 @@ $callbacks = [
         'callback' => '\tool_abconfig\hook_callbacks::before_footer_html_generation',
         'priority' => 0,
     ],
+    [
+        'hook' => \core\hook\after_config::class,
+        'callback' => '\tool_abconfig\hook_callbacks::after_config',
+        'priority' => 0,
+    ],
 ];

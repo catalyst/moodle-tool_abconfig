@@ -26,6 +26,10 @@ defined('MOODLE_INTERNAL') || die;
 
 /**
  * After config
+ *
+ * This is a legacy callback that is used for compatibility with older Moodle versions.
+ * Moodle 4.4+ will use tool_abconfig\hook_callbacks::after_config instead.
+ *
  * @return void|null
  */
 function tool_abconfig_after_config() {
