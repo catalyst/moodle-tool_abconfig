@@ -32,8 +32,9 @@ class hook_callbacks {
      * @param \core\hook\output\before_http_headers $hook
      */
     public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
-        if (!get_config('tool_abconfig', 'version')) {
-            // Do nothing if plugin install not completed.
+        global $CFG;
+
+        if (during_initial_install() || isset($CFG->upgraderunning)) {
             return;
         }
 
@@ -46,8 +47,9 @@ class hook_callbacks {
      * @param \core\hook\output\before_footer_html_generation $hook
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
-        if (!get_config('tool_abconfig', 'version')) {
-            // Do nothing if plugin install not completed.
+        global $CFG;
+
+        if (during_initial_install() || isset($CFG->upgraderunning)) {
             return;
         }
 
@@ -61,8 +63,9 @@ class hook_callbacks {
      * @return void|null
      */
     public static function after_config(\core\hook\after_config $hook) {
-        if (during_initial_install() || !get_config('tool_abconfig', 'version')) {
-            // Do nothing if plugin install not completed.
+        global $CFG;
+
+        if (during_initial_install() || isset($CFG->upgraderunning)) {
             return;
         }
 
