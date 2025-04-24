@@ -132,6 +132,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Manually set config back to false, then call hook again, and test.
         // Simulates next page load.
+        unset($CFG->forced_plugin_settings['auth_manual']['expiration']);
         set_config('expiration', 'no', 'auth_manual');
         tool_abconfig_after_config();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
