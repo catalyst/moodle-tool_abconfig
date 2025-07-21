@@ -65,7 +65,7 @@ class hook_callbacks {
     public static function after_config(\core\hook\after_config $hook) {
         global $CFG;
 
-        if (during_initial_install() || isset($CFG->upgraderunning)) {
+        if (during_initial_install() || isset($CFG->upgraderunning) || !get_config('tool_abconfig', 'version')) {
             return;
         }
 
