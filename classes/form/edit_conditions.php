@@ -49,7 +49,7 @@ class edit_conditions extends \moodleform {
 
         // Options for Users dropdown menu.
         $useroptions = [
-            'ajax' => 'core_search/form-search-user-selector',
+            'ajax' => 'core_user/form_user_selector',
             'multiple' => true,
             'noselectionstring' => get_string('formallusers', 'tool_abconfig'),
             'valuehtmlcallback' => ['tool_abconfig\form\edit_conditions', 'user_selector'],
@@ -301,7 +301,24 @@ class edit_conditions extends \moodleform {
         if (!$user || !user_can_view_profile($user)) {
             return false;
         }
+
+        if (class_exists('\core_user\fields')) {
+            $extrafields = \core_user\fields::for_identity(\context_system::instance(), false)->get_required_fields();
+        } else {
+            $extrafields = get_extra_user_fields(\context_system::instance());
+        }
+
+        $identity = [];
+        foreach ($extrafields as $field) {
+            if ($user->$field) {
+                $identity[] = $user->$field;
+            }
+        }
+
         $details = user_get_user_details($user);
-        return $OUTPUT->render_from_template('core_search/form-user-selector-suggestion', $details);
+        $details['identity'] = implode(', ', $identity);
+        $details['hasidentity'] = (bool) $identity;
+
+        return $OUTPUT->render_from_template('tool_abconfig/form-user-selector-suggestion', $details);
     }
 }
