@@ -169,13 +169,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 0);
 
         // Update value fields so that core hook executes.
-        $sqlcondition1 = $DB->sql_compare_text('set1', strlen('set1'));
+        $where = $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset') . ' AND experiment = :experiment';
         $DB->set_field_select('tool_abconfig_condition',
-            'value', 0, 'condset = ? AND experiment = ?', array($sqlcondition1, $eid));
+            'value', 0, $where, ['condset' => 'set1', 'experiment' => $eid]);
 
-        $sqlcondition2 = $DB->sql_compare_text('set2', strlen('set2'));
         $DB->set_field_select('tool_abconfig_condition',
-            'value', 100, 'condset = ? AND experiment = ?', array($sqlcondition2, $eid));
+            'value', 100, $where, ['condset' => 'set2', 'experiment' => $eid]);
 
         // Reset configs.
         // Unset forced_plugin_settings so it can be forced again by the plugin.
@@ -280,9 +279,9 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 0);
 
         // Now update condition field to remove ip whitelist, and check that value is updated.
-        $sqlcondition = $DB->sql_compare_text('set1', strlen('set1'));
+        $where = $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset') . ' AND experiment = :experiment';
         $DB->set_field_select('tool_abconfig_condition',
-            'ipwhitelist', '', 'condset = ? AND experiment = ?', array($sqlcondition, $eid));
+            'ipwhitelist', '', $where, ['condset' => 'set1', 'experiment' => $eid]);
 
         // Purge caches to avoid caching issues with changing experiments.
         \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));

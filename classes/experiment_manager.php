@@ -84,13 +84,9 @@ class tool_abconfig_experiment_manager {
      */
     public function experiment_exists($shortname) {
         global $DB;
-        $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
-        if (empty($record)) {
-            return false;
-        } else {
-            return true;
-        }
+        $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $record = $DB->get_record_sql($sql, ['shortname' => $shortname]);
+        return !empty($record);
     }
 
     /**
@@ -111,8 +107,8 @@ class tool_abconfig_experiment_manager {
             $return = false;
         } else {
             // Get id of record.
-            $sqlexperiment = $DB->sql_compare_text($prevshortname, strlen($prevshortname));
-            $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+            $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+            $record = $DB->get_record_sql($sql, ['shortname' => $prevshortname]);
             $return = $DB->update_record('tool_abconfig_experiment', (object) [
                 'id' => $record->id,
                 'name' => $name,
@@ -139,8 +135,8 @@ class tool_abconfig_experiment_manager {
         if (!$this->experiment_exists($shortname)) {
             $return = false;
         } else {
-            $sqlexperiment = $DB->sql_compare_text($shortname, strlen($shortname));
-            $return = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+            $sql = 'DELETE FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+            $return = $DB->execute($sql, ['shortname' => $shortname]);
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -156,9 +152,11 @@ class tool_abconfig_experiment_manager {
      */
     public function condition_exists($eid, $condset) {
         global $DB;
-        $condsetsql = $DB->sql_compare_text($condset, strlen($condset));
-        $sql = 'SELECT * FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?';
-        return $DB->record_exists_sql($sql, array($eid, $condsetsql));
+        $sql = 'SELECT * FROM {tool_abconfig_condition} WHERE experiment = :experiment AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
+        return $DB->record_exists_sql($sql, [
+            'experiment' => $eid,
+            'condset' => $condset,
+        ]);
     }
 
     /**
@@ -242,9 +240,11 @@ class tool_abconfig_experiment_manager {
         if (!$this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
-            $sqlcondition = $DB->sql_compare_text($condset, strlen($condset));
-            $return = $DB->execute('DELETE FROM {tool_abconfig_condition} WHERE experiment = ? AND condset = ?',
-                array($eid, $sqlcondition));
+            $sql = 'DELETE FROM {tool_abconfig_condition} WHERE experiment = :experiment AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
+            $return = $DB->execute($sql, [
+                'experiment' => $eid,
+                'condset' => $condset
+            ]);
         }
         self::invalidate_experiment_cache();
         return $return;

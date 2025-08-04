@@ -42,8 +42,8 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $manager->add_experiment('name', 'shortname', 'request');
 
         // Get record and verify fields.
-        $sqlexperiment = $DB->sql_compare_text('shortname', strlen('shortname'));
-        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+        $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $record = $DB->get_record_sql($sql, ['shortname' => 'shortname']);
 
         $this->assertEquals($record->name, 'name');
         $this->assertEquals($record->shortname, 'shortname');
@@ -66,8 +66,9 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertTrue($manager->experiment_exists('shortname'));
 
         // Now delete this record, and add a new one.
-        $sqlcompare = $DB->sql_compare_text('shortname', strlen('shortname'));
-        $record = $DB->execute('DELETE FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlcompare));
+        $sql = 'DELETE FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $DB->execute($sql, ['shortname' => 'shortname']);
+
         $DB->insert_record('tool_abconfig_experiment',
             array('name' => 'name2', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0));
 
@@ -88,8 +89,8 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1, 1, 33);
 
         // Get record and verify fields.
-        $sqlexperiment = $DB->sql_compare_text('shortname2', strlen('shortname2'));
-        $record = $DB->get_record_sql('SELECT * FROM {tool_abconfig_experiment} WHERE shortname = ?', array($sqlexperiment));
+        $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $record = $DB->get_record_sql($sql, ['shortname' => 'shortname2']);
 
         $this->assertEquals($record->name, 'name2');
         $this->assertEquals($record->shortname, 'shortname2');
