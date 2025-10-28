@@ -16,6 +16,8 @@
 
 namespace tool_abconfig;
 
+require_once(__DIR__ . '/../lib.php');
+
 /**
  * Hook callbacks for tool_abconfig.
  *
@@ -38,7 +40,7 @@ class hook_callbacks {
             return;
         }
 
-        tool_abconfig_execute_js('header');
+        \tool_abconfig_execute_js('header');
     }
 
     /**
@@ -53,7 +55,7 @@ class hook_callbacks {
             return;
         }
 
-        tool_abconfig_execute_js('footer');
+        \tool_abconfig_execute_js('footer');
     }
 
     /**
@@ -69,6 +71,6 @@ class hook_callbacks {
             return;
         }
 
-        tool_abconfig_after_config();
+        \tool_abconfig_after_config();
     }
 }
