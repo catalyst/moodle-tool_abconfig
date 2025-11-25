@@ -46,7 +46,6 @@ function xmldb_tool_abconfig_upgrade($oldversion) {
     }
 
     if ($oldversion < 2025011300) {
-
         // Define field numoffset to be added to tool_abconfig_experiment.
         $table = new xmldb_table('tool_abconfig_experiment');
         $field = new xmldb_field('numoffset', XMLDB_TYPE_INTEGER, '5', null, null, null, null, 'adminenabled');

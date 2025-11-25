@@ -30,7 +30,7 @@ $manager = new tool_abconfig_experiment_manager();
 
 admin_externalpage_setup('tool_abconfig_manageexperiments');
 
-$prevurl = ($CFG->wwwroot.'/admin/category.php?category=abconfig');
+$prevurl = ($CFG->wwwroot . '/admin/category.php?category=abconfig');
 
 $form = new \tool_abconfig\form\manage_experiments();
 if ($form->is_cancelled()) {

@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__.'/../lib.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Testing class for hooks in lib.php
@@ -31,9 +31,8 @@ require_once(__DIR__.'/../lib.php');
  * @copyright  2019 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
-
-    public function test_add_experiment() {
+final class experiment_manager_test extends advanced_testcase {
+    public function test_add_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
@@ -50,7 +49,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals($record->scope, 'request');
     }
 
-    public function test_experiment_exists() {
+    public function test_experiment_exists(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
@@ -59,8 +58,10 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertFalse($manager->experiment_exists('shortname'));
 
         // Manually add experiment.
-        $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
 
         // Verify that experiment is found.
         $this->assertTrue($manager->experiment_exists('shortname'));
@@ -69,21 +70,25 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $sql = 'DELETE FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
         $DB->execute($sql, ['shortname' => 'shortname']);
 
-        $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name2', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name2', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0]
+        );
 
         // Verify the first record still isnt found.
         $this->assertFalse($manager->experiment_exists('shortname'));
     }
 
-    public function test_update_experiment() {
+    public function test_update_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment.
-        $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
 
         // Update all the values of the experiment.
         $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1, 1, 33);
@@ -100,16 +105,20 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals($record->numoffset, 33);
     }
 
-    public function test_delete_experiment() {
+    public function test_delete_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment.
-        $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
-        $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0));
+        $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
+        $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname2', 'scope' => 'request', 'enabled' => 0]
+        );
 
         $manager->delete_experiment('shortname');
 
@@ -119,40 +128,48 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals('shortname2', reset($records)->shortname);
     }
 
-    public function test_condition_exists() {
+    public function test_condition_exists(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
 
         // Check returns false for unfound condition set.
         $this->assertFalse($manager->condition_exists($eid, 'condset1'));
 
         // Manually add condition set.
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
 
         // Verify now found.
         $this->assertTrue($manager->condition_exists($eid, 'condset1'));
     }
 
-    public function test_add_condition() {
+    public function test_add_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
 
         // Add condition for experiment.
         $manager->add_condition($eid, 'condset1', '', '', 50, '');
 
-        $records = $DB->get_records('tool_abconfig_condition',
-            array('experiment' => $eid));
+        $records = $DB->get_records(
+            'tool_abconfig_condition',
+            ['experiment' => $eid]
+        );
 
         // Verify fields of inserted record.
         $this->assertEquals(count($records), 1);
@@ -162,66 +179,82 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
         $this->assertEquals(reset($records)->value, 50);
     }
 
-    public function test_update_condition() {
+    public function test_update_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment and condition.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
-        $id = $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
+        $id = $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
 
         // Update condition.
         $manager->update_condition($eid, $id, 'condset1', 'condset2', '123.123.123.123', 'command', 51, '');
 
-        $record = $DB->get_record('tool_abconfig_condition', array('experiment' => $eid));
+        $record = $DB->get_record('tool_abconfig_condition', ['experiment' => $eid]);
         $this->assertEquals($record->condset, 'condset2');
         $this->assertEquals($record->ipwhitelist, '123.123.123.123');
         $this->assertEquals($record->commands, '["command"]');
         $this->assertEquals($record->value, 51);
     }
 
-    public function test_delete_condition() {
+    public function test_delete_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment and condition.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
+        $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
+        $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
 
         $manager->delete_condition($eid, 'condset1');
 
         // Check that only 1 was deleted, and that the remaining condition is not the deleted one.
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+        $records = $DB->get_records('tool_abconfig_condition', ['experiment' => $eid]);
 
         $this->assertEquals(count($records), 1);
         $this->assertEquals(reset($records)->condset, 'condset2');
     }
 
-    public function test_delete_all_conditions() {
+    public function test_delete_all_conditions(): void {
         $this->resetAfterTest(true);
         global $DB;
         $manager = new tool_abconfig_experiment_manager();
 
         // Manually add experiment and condition.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
-        $DB->insert_record('tool_abconfig_condition',
-            array('experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'name', 'shortname' => 'shortname', 'scope' => 'request', 'enabled' => 0]
+        );
+        $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset1', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
+        $DB->insert_record(
+            'tool_abconfig_condition',
+            ['experiment' => $eid, 'condset' => 'condset2', 'ipwhitelist' => '', 'commands' => '', 'value' => 50]
+        );
 
         $manager->delete_all_conditions($eid);
 
         // Check that only 1 was deleted, and that the remaining condition is not the deleted one.
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid));
+        $records = $DB->get_records('tool_abconfig_condition', ['experiment' => $eid]);
 
         $this->assertEquals(count($records), 0);
     }
@@ -231,7 +264,7 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
      *
      * @return array
      */
-    public function trim_condition_commands_provider() {
+    public function trim_condition_commands_provider(): array {
         return [
             ['CFG,passwordpolicy,1', '["CFG,passwordpolicy,1"]'],
             ['forced_plugin_setting,auth_manual,expiration,yes', '["forced_plugin_setting,auth_manual,expiration,yes"]'],
@@ -249,14 +282,14 @@ class tool_abconfig_experiment_manager_testcase extends advanced_testcase {
      * @param string $actual Actual string that needs to be stored in DB
      * @param string $expected Stored string
      */
-    public function test_trim_condition_commands(string $actual, string $expected) {
+    public function test_trim_condition_commands(string $actual, string $expected): void {
         global $DB;
         $this->resetAfterTest();
         $manager = new tool_abconfig_experiment_manager();
         $experiment = $manager->add_experiment('name', 'shortname', 'request');
         $condition = $manager->add_condition($experiment, 'condset1', '', $actual, 50, '');
 
-        $stored = $DB->get_field('tool_abconfig_condition', 'commands', array('id' => $condition));
+        $stored = $DB->get_field('tool_abconfig_condition', 'commands', ['id' => $condition]);
         $this->assertEquals($expected, $stored);
     }
 }

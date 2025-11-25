@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
-require_once(__DIR__.'/../lib.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Testing class for hooks in lib.php
@@ -31,9 +31,8 @@ require_once(__DIR__.'/../lib.php');
  * @copyright  2019 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_abconfig_lib_test extends advanced_testcase {
-
-    public function test_request_no_experiment() {
+final class lib_test extends advanced_testcase {
+    public function test_request_no_experiment(): void {
         $this->resetAfterTest(true);
         global $CFG;
 
@@ -50,7 +49,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertSame($preconfig, $CFG);
     }
 
-    public function test_request_admin_immunity() {
+    public function test_request_admin_immunity(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -61,10 +60,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -73,7 +74,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 0);
     }
 
-    public function test_request_core_experiment() {
+    public function test_request_core_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -86,10 +87,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -106,7 +109,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_request_plugin_experiment() {
+    public function test_request_plugin_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -119,10 +122,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('expiration', 'no', 'auth_manual');
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100]);
 
         // Call the hook.
         tool_abconfig_after_config();
@@ -138,7 +143,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
     }
 
-    public function test_request_multi_condition() {
+    public function test_request_multi_condition(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -154,14 +159,16 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100]);
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set2', 'value' => 0]);
 
         // Now execute first hook, and check the plugin value.
         tool_abconfig_after_config();
@@ -170,11 +177,21 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Update value fields so that core hook executes.
         $where = $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset') . ' AND experiment = :experiment';
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 0, $where, ['condset' => 'set1', 'experiment' => $eid]);
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            0,
+            $where,
+            ['condset' => 'set1', 'experiment' => $eid]
+        );
 
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 100, $where, ['condset' => 'set2', 'experiment' => $eid]);
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            100,
+            $where,
+            ['condset' => 'set2', 'experiment' => $eid]
+        );
 
         // Reset configs.
         // Unset forced_plugin_settings so it can be forced again by the plugin.
@@ -184,7 +201,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Purge caches to avoid caching issues with changing experiments.
-        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', [], ['allexperiment']);
         // Now execute second hook, and check the plugin value.
         tool_abconfig_after_config();
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'no');
@@ -198,19 +215,29 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Update value fields so either one may fire equally.
         $sqlcondition3 = $DB->sql_compare_text('set1', strlen('set1'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 50, 'condset = ? AND experiment = ?', array($sqlcondition3, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            50,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition3, $eid]
+        );
 
         $sqlcondition4 = $DB->sql_compare_text('set2', strlen('set2'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 50, 'condset = ? AND experiment = ?', array($sqlcondition4, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            50,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition4, $eid]
+        );
 
         // Now execute second hook, and check the plugin value.
         tool_abconfig_after_config();
         $this->assertTrue((get_config('auth_manual', 'expiration') == 'yes') xor ($CFG->passwordpolicy == 1));
     }
 
-    public function test_request_multi_command() {
+    public function test_request_multi_command(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -225,16 +252,18 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
 
-        $record = array(
+        $record = [
             'experiment' => $eid,
             'ipwhitelist' => '0.0.0.1',
             'commands' => '["forced_plugin_setting,auth_manual,expiration,yes","CFG,passwordpolicy,1"]',
             'condset' => 'set1',
             'value' => 100,
-        );
+        ];
         $DB->insert_record('tool_abconfig_condition', $record);
 
         // Now execute first hook, and check the plugin value.
@@ -254,7 +283,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_request_ip_whitelist() {
+    public function test_request_ip_whitelist(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -267,11 +296,13 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and multi conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'request', 'enabled' => 1]
+        );
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
         // Now execute first hook, and check core value hasnt changed.
         tool_abconfig_after_config();
@@ -280,17 +311,22 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Now update condition field to remove ip whitelist, and check that value is updated.
         $where = $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset') . ' AND experiment = :experiment';
-        $DB->set_field_select('tool_abconfig_condition',
-            'ipwhitelist', '', $where, ['condset' => 'set1', 'experiment' => $eid]);
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'ipwhitelist',
+            '',
+            $where,
+            ['condset' => 'set1', 'experiment' => $eid]
+        );
 
         // Purge caches to avoid caching issues with changing experiments.
-        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', [], ['allexperiment']);
 
         tool_abconfig_after_config();
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_session_no_execute() {
+    public function test_session_no_execute(): void {
         $this->resetAfterTest(true);
         global $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -308,7 +344,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertSame($preconfig, $CFG);
     }
 
-    public function test_session_admin_immunity () {
+    public function test_session_admin_immunity(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -319,10 +355,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
         // Call the hook.
         tool_abconfig_after_require_login();
@@ -331,7 +369,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 0);
     }
 
-    public function test_session_core_experiment() {
+    public function test_session_core_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -344,13 +382,15 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,0"]', 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,0"]', 'condset' => 'set2', 'value' => 0]);
 
         // Call the hook and verify result.
         tool_abconfig_after_require_login();
@@ -358,12 +398,22 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Now update the values to force the opposite control, and ensure actual config doesnt change.
         $sqlcondition1 = $DB->sql_compare_text('set1', strlen('set1'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 0, 'condset = ? AND experiment = ?', array($sqlcondition1, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            0,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition1, $eid]
+        );
 
         $sqlcondition2 = $DB->sql_compare_text('set2', strlen('set2'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 100, 'condset = ? AND experiment = ?', array($sqlcondition2, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            100,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition2, $eid]
+        );
 
         // Call the hook and test for no change.
         tool_abconfig_after_require_login();
@@ -377,7 +427,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_session_plugin_experiment() {
+    public function test_session_plugin_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -390,13 +440,15 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('expiration', 'no', 'auth_manual');
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set1', 'value' => 100]);
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0]);
 
         // Call the hook and verify result.
         tool_abconfig_after_require_login();
@@ -404,12 +456,22 @@ class tool_abconfig_lib_test extends advanced_testcase {
 
         // Change experiment conditions so the other set always fires.
         $sqlcondition1 = $DB->sql_compare_text('set1', strlen('set1'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 0, 'condset = ? AND experiment = ?', array($sqlcondition1, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            0,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition1, $eid]
+        );
 
         $sqlcondition2 = $DB->sql_compare_text('set2', strlen('set2'));
-        $DB->set_field_select('tool_abconfig_condition',
-            'value', 100, 'condset = ? AND experiment = ?', array($sqlcondition2, $eid));
+        $DB->set_field_select(
+            'tool_abconfig_condition',
+            'value',
+            100,
+            'condset = ? AND experiment = ?',
+            [$sqlcondition2, $eid]
+        );
 
         // Now execute hook again and check that it remains the same as first call.
         tool_abconfig_after_require_login();
@@ -424,7 +486,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals(get_config('auth_manual', 'expiration'), 'yes');
     }
 
-    public function test_session_multi_command() {
+    public function test_session_multi_command(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -440,19 +502,21 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('expiration', 'no', 'auth_manual');
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $record = array(
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $record = [
             'experiment' => $eid,
             'ipwhitelist' => '0.0.0.1',
             'commands' => '["CFG,passwordpolicy,1","forced_plugin_setting,auth_manual,expiration,yes"]',
             'condset' => 'set1',
             'value' => 100,
-        );
+        ];
         $DB->insert_record('tool_abconfig_condition', $record);
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["forced_plugin_setting,auth_manual,expiration,yes"]', 'condset' => 'set2', 'value' => 0]);
 
         // Execute the hook and test that the session config applied.
         tool_abconfig_after_require_login();
@@ -471,7 +535,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_session_multi_condition() {
+    public function test_session_multi_condition(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -487,13 +551,15 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('expiration', 'no', 'auth_manual');
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 0, 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 0, 'value' => 100]);
 
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 1, 'value' => 0));
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '0.0.0.1',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 1, 'value' => 0]);
 
         // Execute the hook, test only one condition set executed.
         tool_abconfig_after_require_login();
@@ -512,7 +578,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
         $this->assertEquals($CFG->passwordpolicy, 1);
     }
 
-    public function test_session_ip_whitelist() {
+    public function test_session_ip_whitelist(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -525,10 +591,12 @@ class tool_abconfig_lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Setup a valid experiment, and some conditions.
-        $eid = $DB->insert_record('tool_abconfig_experiment',
-            array('name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1));
-        $DB->insert_record('tool_abconfig_condition', array('experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
-            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100));
+        $eid = $DB->insert_record(
+            'tool_abconfig_experiment',
+            ['name' => 'Experiment', 'shortname' => 'experiment', 'scope' => 'session', 'enabled' => 1]
+        );
+        $DB->insert_record('tool_abconfig_condition', ['experiment' => $eid, 'ipwhitelist' => '123.123.123.123',
+            'commands' => '["CFG,passwordpolicy,1"]', 'condset' => 'set1', 'value' => 100]);
 
         // Execute the hook and check that nothing was changed.
         tool_abconfig_after_require_login();
@@ -542,7 +610,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test no execute for device experiments.
      */
-    public function test_device_no_execute() {
+    public function test_device_no_execute(): void {
         $this->resetAfterTest(true);
         global $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -564,7 +632,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test changing config for device experiments.
      */
-    public function test_device_core_experiment() {
+    public function test_device_core_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -617,7 +685,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test changing plugin config for device experiments.
      */
-    public function test_device_plugin_experiment() {
+    public function test_device_plugin_experiment(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -671,7 +739,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test multiple commands for device experiments.
      */
-    public function test_device_multi_command() {
+    public function test_device_multi_command(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -732,7 +800,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test multiple conditions for device experiments.
      */
-    public function test_device_multi_condition() {
+    public function test_device_multi_condition(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -793,7 +861,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test ip allow list for device experiments.
      */
-    public function test_device_ip_whitelist() {
+    public function test_device_ip_whitelist(): void {
         $this->resetAfterTest(true);
         global $DB, $CFG;
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -835,7 +903,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test that the experiment is executed on a given user based on their id.
      */
-    public function test_condition_users_user_does_match_by_id() {
+    public function test_condition_users_user_does_match_by_id(): void {
         global $CFG;
         $this->resetAfterTest();
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';
@@ -863,7 +931,7 @@ class tool_abconfig_lib_test extends advanced_testcase {
     /**
      * Test that the experiment is not executed on a user.
      */
-    public function test_condition_users_user_does_not_match_by_id() {
+    public function test_condition_users_user_does_not_match_by_id(): void {
         global $CFG;
         $this->resetAfterTest();
         $_SERVER['REMOTE_ADDR'] = '123.123.123.123';

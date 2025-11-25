@@ -37,7 +37,6 @@ function tool_abconfig_after_config() {
     global $SESSION, $USER, $CFG;
 
     try {
-
         // Setup experiment manager.
         $manager = new tool_abconfig_experiment_manager();
 
@@ -51,12 +50,10 @@ function tool_abconfig_after_config() {
         // Get all after congig experiments and check params.
         $experiments = $manager->get_after_config_experiments();
         foreach ($experiments as $experiment => $contents) {
-
             if (defined('CLI_SCRIPT') && CLI_SCRIPT) {
                 // Check ENV vars set on the cli.
                 $condition = getenv('ABCONFIG_' . strtoupper($experiment));
             } else {
-
                 // Check URL params, and fire any experiments in the params.
                 $condition = optional_param($experiment, null, PARAM_TEXT);
 
@@ -72,12 +69,14 @@ function tool_abconfig_after_config() {
 
             // Ensure condition set exists before executing.
             if (array_key_exists($condition, $contents['conditions'])) {
-                tool_abconfig_execute_command_array($contents['conditions'][$condition]['commands'],
-                    $contents['shortname']);
+                tool_abconfig_execute_command_array(
+                    $contents['conditions'][$condition]['commands'],
+                    $contents['shortname']
+                );
             }
         }
 
-        $commandarray = array();
+        $commandarray = [];
 
         // First, Build a list of all commands that need to be executed.
 
@@ -85,7 +84,6 @@ function tool_abconfig_after_config() {
         $requestexperiments = $manager->get_active_request();
         if (!empty($requestexperiments)) {
             foreach ($requestexperiments as $record) {
-
                 // Make admin immune unless enabled for admin.
                 if (is_siteadmin()) {
                     if ($record['adminenabled'] == 0) {
@@ -96,7 +94,7 @@ function tool_abconfig_after_config() {
                 $conditionrecords = $record['conditions'];
 
                 // Remove all conditions that contain the user ip in the whitelist.
-                $crecords = array();
+                $crecords = [];
 
                 foreach ($conditionrecords as $conditionrecord) {
                     $iplist = $conditionrecord['ipwhitelist'];
@@ -131,7 +129,7 @@ function tool_abconfig_after_config() {
         if (!empty($sessionexperiments)) {
             foreach ($sessionexperiments as $record) {
                 // Check if a session var has been set for this experiment, only care if has been set.
-                $unique = 'abconfig_'.$record['shortname'];
+                $unique = 'abconfig_' . $record['shortname'];
                 if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
                     $commandarray[$record['shortname']] = $record['conditions'][$SESSION->$unique]['commands'];
                 }
@@ -176,7 +174,6 @@ function tool_abconfig_before_session_start() {
         // Get all before session experiments and check params.
         $experiments = $manager->get_before_session_experiments();
         foreach ($experiments as $experiment => $contents) {
-
             // Check URL params, and fire any experiments in the params.
             $condition = optional_param($experiment, null, PARAM_TEXT);
             if (empty($condition)) {
@@ -185,8 +182,10 @@ function tool_abconfig_before_session_start() {
 
             // Ensure condition set exists before executing.
             if (array_key_exists($condition, $contents['conditions'])) {
-                tool_abconfig_execute_command_array($contents['conditions'][$condition]['commands'],
-                    $contents['shortname']);
+                tool_abconfig_execute_command_array(
+                    $contents['conditions'][$condition]['commands'],
+                    $contents['shortname']
+                );
             }
         }
 
@@ -200,7 +199,6 @@ function tool_abconfig_before_session_start() {
             $hash = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
             $basenum = hexdec(substr($hash, 0, 8)) % 100;
             foreach ($deviceexperiments as $record) {
-
                 // Admins are not immune from device experiments by default.
                 $conditionrecords = $record['conditions'];
 
@@ -270,11 +268,11 @@ function tool_abconfig_after_require_login() {
             }
 
             // Create experiment session var identifier.
-            $unique = 'abconfig_'.$record['shortname'];
+            $unique = 'abconfig_' . $record['shortname'];
             // Get condition sets for experiment.
             $conditionrecords = $record['conditions'];
             // Remove all conditions that contain the user ip in the whitelist.
-            $crecords = array();
+            $crecords = [];
 
             foreach ($conditionrecords as $conditionrecord) {
                 $iplist = $conditionrecord['ipwhitelist'];
@@ -301,7 +299,6 @@ function tool_abconfig_after_require_login() {
 
                         // Do not execute any more conditions.
                         break;
-
                     } else {
                         // Not this record, increment lower bound, and move on.
                         $prevtotal += $crecord['value'];
@@ -359,7 +356,6 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
     $manager = new tool_abconfig_experiment_manager();
     $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
-
         $command = strtok($commandstring, ',');
 
         // Check for core commands.
@@ -385,10 +381,11 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 
             // Ensure that command hasnt already been forced in config.php or that overriding is allowed.
             // If plugin settings array doesnt exist, or the actual config key doesnt exist.
-            if (!array_key_exists($commandarray[1], $CFG->forced_plugin_settings) ||
+            if (
+                !array_key_exists($commandarray[1], $CFG->forced_plugin_settings) ||
                     !array_key_exists($commandarray[2], $CFG->forced_plugin_settings[$commandarray[1]]) ||
-                    array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])) {
-
+                    array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])
+            ) {
                 $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
@@ -407,23 +404,21 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
             $commandarray = explode(',', $commandstring, 2);
             // Must ignore coding standards as typically error_log is not allowed.
             error_log($commandarray[1]); // @codingStandardsIgnoreLine
-
         }
         if ($command == 'js_header') {
             // Check for JS header scripts.
             $commandarray = explode(',', $commandstring, 2);
             // Set a unique manager variable to be picked up by renderer hooks, to emit JS in the right areas.
-            $jsheaderunique = 'abconfig_js_header_'.$shortname;
+            $jsheaderunique = 'abconfig_js_header_' . $shortname;
 
             // Store the unique in the manager to be picked up by the header render hook.
             $manager->set_render_js($jsheaderunique, $commandarray[1]);
-
         }
         if ($command == 'js_footer') {
             // Check for JS footer scripts.
             $commandarray = explode(',', $commandstring, 2);
             // Set a unique manager variable to be picked up by renderer hooks, to emit JS in the right areas.
-            $jsfooterunique = 'abconfig_js_footer_'.$shortname;
+            $jsfooterunique = 'abconfig_js_footer_' . $shortname;
             // Store the javascript in the manager unique to be picked up by the footer render hook.
             $manager->set_render_js($jsfooterunique, $commandarray[1]);
         }
@@ -451,9 +446,9 @@ function tool_abconfig_execute_js(string $type) {
     foreach ($records as $record) {
         // If called from header.
         if ($type == 'header') {
-            $unique = 'abconfig_js_header_'.$record['shortname'];
+            $unique = 'abconfig_js_header_' . $record['shortname'];
         } else if ($type == 'footer') {
-            $unique = 'abconfig_js_footer_'.$record['shortname'];
+            $unique = 'abconfig_js_footer_' . $record['shortname'];
         }
 
         if (array_key_exists($unique, $renderjs)) {

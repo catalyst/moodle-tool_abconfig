@@ -72,26 +72,42 @@ class edit_conditions extends \moodleform {
             $mform->setType("prevshortname{$id}", PARAM_ALPHANUM);
 
             // Section Header.
-            $mform->addElement('header', "header{$id}",
-                get_string('formheader', 'tool_abconfig', $setcount));
+            $mform->addElement(
+                'header',
+                "header{$id}",
+                get_string('formheader', 'tool_abconfig', $setcount)
+            );
             $mform->setExpanded("header{$id}");
 
             // Shortname.
-            $mform->addElement('text', "shortname{$id}",
-                get_string('formexperimentcondsset', 'tool_abconfig'), array("size" => 20));
+            $mform->addElement(
+                'text',
+                "shortname{$id}",
+                get_string('formexperimentcondsset', 'tool_abconfig'),
+                ["size" => 20]
+            );
             $mform->setType("shortname{$id}", PARAM_ALPHANUM);
             $mform->setDefault("shortname{$id}", $record->condset);
             $mform->addRule("shortname{$id}", get_string('formexperimentnamereq', 'tool_abconfig'), 'required');
 
             // IP Whitelist.
-            $mform->addElement('textarea', "iplist{$id}",
-                get_string('formipwhitelist', 'tool_abconfig'), array('rows' => 3, 'cols' => 60));
+            $mform->addElement(
+                'textarea',
+                "iplist{$id}",
+                get_string('formipwhitelist', 'tool_abconfig'),
+                ['rows' => 3, 'cols' => 60]
+            );
             $mform->setType("iplist{$id}", PARAM_TEXT);
             $mform->setDefault("iplist{$id}", $record->ipwhitelist);
 
             // Users.
-            $mform->addElement('autocomplete', "users{$id}",
-                get_string('formexperimentusers', 'tool_abconfig'), [], $useroptions);
+            $mform->addElement(
+                'autocomplete',
+                "users{$id}",
+                get_string('formexperimentusers', 'tool_abconfig'),
+                [],
+                $useroptions
+            );
             $mform->setType("users{$id}", PARAM_TEXT);
             if (!empty($record->users)) {
                 $mform->setDefault("users{$id}", json_decode($record->users));
@@ -102,22 +118,36 @@ class edit_conditions extends \moodleform {
             }
 
             // Commands.
-            $mform->addElement('textarea', "commands{$id}",
-                get_string('formexperimentcommands', 'tool_abconfig'), array('rows' => 6, 'cols' => 60));
+            $mform->addElement(
+                'textarea',
+                "commands{$id}",
+                get_string('formexperimentcommands', 'tool_abconfig'),
+                ['rows' => 6, 'cols' => 60]
+            );
             $mform->setType("commands{$id}", PARAM_TEXT);
             if (!empty($record->commands)) {
                 $mform->setDefault("commands{$id}", implode(PHP_EOL, json_decode($record->commands, true)));
             }
 
             // Value.
-            $mform->addElement('text', "value{$id}",
-                get_string("formexperimentvalue", "tool_abconfig"), array("size" => 20));
+            $mform->addElement(
+                'text',
+                "value{$id}",
+                get_string("formexperimentvalue", "tool_abconfig"),
+                ["size" => 20]
+            );
             $mform->setType("value{$id}", PARAM_TEXT);
             $mform->setDefault("value{$id}", $record->value);
 
             // Delete.
-            $mform->addElement('advcheckbox', "delete{$id}",
-                get_string("formdeleterepeat", "tool_abconfig"), '', array(), array(0, 1));
+            $mform->addElement(
+                'advcheckbox',
+                "delete{$id}",
+                get_string("formdeleterepeat", "tool_abconfig"),
+                '',
+                [],
+                [0, 1]
+            );
             $mform->setDefault("delete{$id}", 0);
 
             $setcount++;
@@ -131,7 +161,7 @@ class edit_conditions extends \moodleform {
         }
 
         // Setup repeating elements array.
-        $repeatarray = array();
+        $repeatarray = [];
 
         $repeatarray[] = $mform->createElement(
             "hidden",
@@ -148,44 +178,44 @@ class edit_conditions extends \moodleform {
             "text",
             "repeatshortname",
             get_string("formexperimentcondsset", "tool_abconfig"),
-            array("size" => 20)
+            ["size" => 20]
         );
 
         $repeatarray[] = $mform->createElement(
             "textarea",
             "repeatiplist",
             get_string("formipwhitelist", "tool_abconfig"),
-            array(
+            [
                 "placeholder" => '127.0.0.1',
                 "rows" => 3,
-                "cols" => 60
-            )
+                "cols" => 60,
+            ]
         );
 
         $repeatarray[] = $mform->createElement(
             "textarea",
             "repeatcommands",
             get_string("formexperimentcommands", "tool_abconfig"),
-            array(
+            [
                 "placeholder" => 'CFG,passwordpolicy,true'
-                .PHP_EOL.'forced_plugin_setting,auth_manual,expiration,yes'
-                .PHP_EOL.'http_header,From,example@example.org'
-                .PHP_EOL.'error_log,example error message'
-                .PHP_EOL."js_header,console.log('example');"
-                .PHP_EOL."js_footer,console.log('example');",
+                . PHP_EOL . 'forced_plugin_setting,auth_manual,expiration,yes'
+                . PHP_EOL . 'http_header,From,example@example.org'
+                . PHP_EOL . 'error_log,example error message'
+                . PHP_EOL . "js_header,console.log('example');"
+                . PHP_EOL . "js_footer,console.log('example');",
                 "rows" => 6,
-                "cols" => 60
-            )
+                "cols" => 60,
+            ]
         );
 
         $repeatarray[] = $mform->createElement(
             "text",
             "repeatvalue",
             get_string("formexperimentvalue", "tool_abconfig"),
-            array(
+            [
                 "size" => 20,
-                "placeholder" => '50'
-            )
+                "placeholder" => '50',
+            ]
         );
 
         $repeatarray[] = $mform->createElement(
@@ -201,13 +231,13 @@ class edit_conditions extends \moodleform {
             "repeatdelete",
             get_string("formdeleterepeat", "tool_abconfig"),
             '',
-            array(),
-            array(0, 1)
+            [],
+            [0, 1]
         );
 
         $repeatarray[] = $mform->addElement("html", "<hr>");
 
-        $repeatoptions = array();
+        $repeatoptions = [];
         $repeatoptions["repeatid"]["default"] = "{no}";
         $repeatoptions["repeatid"]["type"] = PARAM_INT;
 
@@ -219,8 +249,16 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatusers"]["type"] = PARAM_TEXT;
 
-        $this->repeat_elements($repeatarray, $count, $repeatoptions, 'repeats',
-            'add_condition', 1, get_string('formaddrepeat', 'tool_abconfig'), false);
+        $this->repeat_elements(
+            $repeatarray,
+            $count,
+            $repeatoptions,
+            'repeats',
+            'add_condition',
+            1,
+            get_string('formaddrepeat', 'tool_abconfig'),
+            false
+        );
 
         $this->add_action_buttons();
     }
@@ -269,9 +307,10 @@ class edit_conditions extends \moodleform {
                     continue;
                 }
                 // Ensure value is numeric in correct range.
-                if ($data['repeatvalue'][$value] < 0 || $data['repeatvalue'][$value] > 100
-                    || !is_numeric($data['repeatvalue'][$value])) {
-
+                if (
+                    $data['repeatvalue'][$value] < 0 || $data['repeatvalue'][$value] > 100
+                    || !is_numeric($data['repeatvalue'][$value])
+                ) {
                     $errors["repeatvalue[$value]"] = get_string('formexperimentvalueerror', 'tool_abconfig');
                 }
                 // Increment total and check value.

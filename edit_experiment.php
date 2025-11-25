@@ -33,12 +33,12 @@ require_login();
 require_capability('moodle/site:config', context_system::instance());
 
 $eid = optional_param('id', 0, PARAM_INT);
-$PAGE->set_url(new moodle_url('/admin/tool/abconfig/edit_experiment', array ('id' => $eid)));
+$PAGE->set_url(new moodle_url('/admin/tool/abconfig/edit_experiment', ['id' => $eid]));
 
 if ($node = $PAGE->settingsnav->find('root', \navigation_node::TYPE_SITE_ADMIN)) {
     $PAGE->navbar->add($node->get_content(), $node->action());
 }
-foreach (array('tools', 'abconfig', 'tool_abconfig_manageexperiments') as $label) {
+foreach (['tools', 'abconfig', 'tool_abconfig_manageexperiments'] as $label) {
     if ($node = $PAGE->settingsnav->find($label, \navigation_node::TYPE_SETTING)) {
         $PAGE->navbar->add($node->get_content(), $node->action());
     }
@@ -46,22 +46,22 @@ foreach (array('tools', 'abconfig', 'tool_abconfig_manageexperiments') as $label
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
 $manager = new tool_abconfig_experiment_manager();
-$experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
-$data = array('experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
+$experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
+$data = ['experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
     'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,
     'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled,
-    'numoffset' => $experiment->numoffset ?? rand(0, 99));
+    'numoffset' => $experiment->numoffset ?? rand(0, 99)];
 
-$customarray = array('eid' => $experiment->id);
+$customarray = ['eid' => $experiment->id];
 
-$prevurl = ($CFG->wwwroot.'/admin/tool/abconfig/manage_experiments.php');
+$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/manage_experiments.php');
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($form->no_submit_button_pressed()) {
     // Conditions button action.
-    redirect(new moodle_url('/admin/tool/abconfig/edit_conditions.php', array('id' => $experiment->id)));
+    redirect(new moodle_url('/admin/tool/abconfig/edit_conditions.php', ['id' => $experiment->id]));
 } else if ($fromform = $form->get_data()) {
     // Form validation means data is safe to go to DB.
 
@@ -89,9 +89,7 @@ if ($form->is_cancelled()) {
     }
 
     redirect($prevurl);
-
 } else {
-
     // Build the page output.
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));

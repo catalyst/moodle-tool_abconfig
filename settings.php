@@ -28,12 +28,13 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 
 if ($hassiteconfig) {
-
     // Create category for settings and external pages.
     $ADMIN->add('tools', new admin_category('abconfig', get_string('pluginname', 'tool_abconfig')));
 
     // Add external page for managing experiments.
-    $ADMIN->add('abconfig', new admin_externalpage('tool_abconfig_manageexperiments',
-    get_string('manageexperimentspagename', 'tool_abconfig'),
-    new moodle_url('/admin/tool/abconfig/manage_experiments.php')));
+    $ADMIN->add('abconfig', new admin_externalpage(
+        'tool_abconfig_manageexperiments',
+        get_string('manageexperimentspagename', 'tool_abconfig'),
+        new moodle_url('/admin/tool/abconfig/manage_experiments.php')
+    ));
 }
