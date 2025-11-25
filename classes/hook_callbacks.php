@@ -69,6 +69,11 @@ class hook_callbacks {
             return;
         }
 
+        // Handles edge case during upgrade & install where this callback doesn't have the lib loaded.
+        if (!function_exists('tool_abconfig_after_config')) {
+            require_once($CFG->dirroot . '/admin/tool/abconfig/lib.php');
+        }
+
         tool_abconfig_after_config();
     }
 }
