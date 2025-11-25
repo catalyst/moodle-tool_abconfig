@@ -46,19 +46,19 @@ class table_manager {
 
         $records = $DB->get_records('tool_abconfig_experiment');
         // Get header strings.
-        $wantstrings = array('name', 'shortname', 'scope', 'edit', 'enabled', 'adminenabled');
+        $wantstrings = ['name', 'shortname', 'scope', 'edit', 'enabled', 'adminenabled'];
         $strings = get_strings($wantstrings, 'tool_abconfig');
         // Generate table header.
         $table = new \html_table();
-        $table->head = array(get_string('idnumber'), $strings->name, $strings->shortname,
-            $strings->scope, $strings->enabled, $strings->adminenabled, $strings->edit);
+        $table->head = [get_string('idnumber'), $strings->name, $strings->shortname,
+            $strings->scope, $strings->enabled, $strings->adminenabled, $strings->edit];
         $table->attributes['class'] = 'generaltable table table-bordered';
-        $table->colclasses = array('centeralign', 'centeralign', 'centeralign',
-            'centeralign', 'centeralign', 'centeralign', 'centeralign');
+        $table->colclasses = ['centeralign', 'centeralign', 'centeralign',
+            'centeralign', 'centeralign', 'centeralign', 'centeralign'];
 
         foreach ($records as $record) {
             // Setup edit link.
-            $url = new \moodle_url('/admin/tool/abconfig/edit_experiment.php', array('id' => $record->id));
+            $url = new \moodle_url('/admin/tool/abconfig/edit_experiment.php', ['id' => $record->id]);
             if ($record->enabled == 0) {
                 $enabled = get_string('no');
             } else {
@@ -72,8 +72,8 @@ class table_manager {
             }
 
             // Add table row.
-            $table->data[] = array($record->id, $record->name, $record->shortname,
-                $record->scope, $enabled, $adminenabled, \html_writer::link($url, get_string('edit')));
+            $table->data[] = [$record->id, $record->name, $record->shortname,
+                $record->scope, $enabled, $adminenabled, \html_writer::link($url, get_string('edit'))];
         }
         return \html_writer::table($table);
     }
@@ -89,26 +89,26 @@ class table_manager {
         global $DB;
 
         // Get all lang strings for table header.
-        $stringsreqd = array(
+        $stringsreqd = [
             'formipwhitelist',
             'formexperimentcommands',
             'formexperimentvalue',
             'formexperimentcondsset',
             'formexperimentusers',
             'formexperimentforceurl',
-        );
+        ];
         $stringarr = get_strings($stringsreqd, 'tool_abconfig');
 
         // Setup table.
         $table = new \html_table();
-        $table->head = array(
+        $table->head = [
             $stringarr->formexperimentcondsset,
             $stringarr->formipwhitelist,
             $stringarr->formexperimentcommands,
             $stringarr->formexperimentvalue,
             $stringarr->formexperimentusers,
             $stringarr->formexperimentforceurl,
-        );
+        ];
         $table->attributes['class'] = 'generaltable table table-bordered';
 
         // Get experiment conditions records.
@@ -139,14 +139,14 @@ class table_manager {
             // Construct URL for forcing condition.
             $paramstring = '?';
             // Get experiment shortname.
-            $experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
+            $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
             $paramstring .= $experiment->shortname . '=';
             $paramstring .= $record->condset;
 
             // URL for redirecting to the dashboard with conditions active.
-            $url = new \moodle_url('/my/', array($experiment->shortname => $record->condset));
+            $url = new \moodle_url('/my/', [$experiment->shortname => $record->condset]);
 
-            $table->data[] = array($record->condset, $iplist, $commands, $record->value, $users, \html_writer::link($url, $paramstring));
+            $table->data[] = [$record->condset, $iplist, $commands, $record->value, $users, \html_writer::link($url, $paramstring)];
         }
 
         return \html_writer::table($table);

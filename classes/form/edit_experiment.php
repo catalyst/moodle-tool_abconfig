@@ -36,7 +36,6 @@ require_once("$CFG->libdir/formslib.php");
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class edit_experiment extends \moodleform {
-
     /**
      * Form definition
      * @return void
@@ -96,14 +95,14 @@ class edit_experiment extends \moodleform {
         $mform->addElement('html', \tool_abconfig\local\table_manager::conditions_table($eid));
 
         // Setup button group.
-        $buttonarray = array();
+        $buttonarray = [];
         $buttonarray[] =& $mform->createElement('submit', 'savechanges', get_string('save'));
         $buttonarray[] =& $mform->createElement('submit', 'conditions', get_string('formeditconditions', 'tool_abconfig'));
         $mform->registerNoSubmitButton('conditions');
         $mform->closeHeaderBefore('conditions');
         $buttonarray[] =& $mform->createElement('cancel', 'cancel', get_string('cancel'));
 
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
     }
 
     /**

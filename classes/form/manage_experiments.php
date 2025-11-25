@@ -37,7 +37,6 @@ require_once("$CFG->libdir/formslib.php");
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manage_experiments extends \moodleform {
-
     /**
      * Form definition
      * @return void
@@ -56,17 +55,30 @@ class manage_experiments extends \moodleform {
         $mform->addElement('header', 'addexperiment', get_string('formaddexperiment', 'tool_abconfig'));
 
         // Name.
-        $mform->addElement('text', 'experimentname',
-            get_string('formexperimentname', 'tool_abconfig'), array('placeholder' => 'Experiment'));
+        $mform->addElement(
+            'text',
+            'experimentname',
+            get_string('formexperimentname', 'tool_abconfig'),
+            ['placeholder' => 'Experiment']
+        );
         $mform->setType('experimentname', PARAM_TEXT);
         $mform->addRule('experimentname', get_string('formexperimentnamereq', 'tool_abconfig'), 'required', null, 'client');
 
         // Short Name.
-        $mform->addElement('text', 'experimentshortname',
-            get_string('formexperimentshortname', 'tool_abconfig'), array('placeholder' => 'experiment'));
+        $mform->addElement(
+            'text',
+            'experimentshortname',
+            get_string('formexperimentshortname', 'tool_abconfig'),
+            ['placeholder' => 'experiment']
+        );
         $mform->setType('experimentshortname', PARAM_ALPHANUM);
-        $mform->addRule('experimentshortname',
-            get_string('formexperimentshortnamereq', 'tool_abconfig'), 'required', null, 'client');
+        $mform->addRule(
+            'experimentshortname',
+            get_string('formexperimentshortnamereq', 'tool_abconfig'),
+            'required',
+            null,
+            'client'
+        );
 
         // Select Scope.
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);

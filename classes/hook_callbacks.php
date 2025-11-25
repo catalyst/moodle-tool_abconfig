@@ -25,7 +25,6 @@ namespace tool_abconfig;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
-
     /**
      * Runs before HTTP headers.
      *
@@ -67,6 +66,11 @@ class hook_callbacks {
 
         if (during_initial_install() || isset($CFG->upgraderunning) || !get_config('tool_abconfig', 'version')) {
             return;
+        }
+
+        // Handles edge case during upgrade & install where this callback doesn't have the lib loaded.
+        if (!function_exists('tool_abconfig_after_config')) {
+            require_once($CFG->dirroot . '/admin/tool/abconfig/lib.php');
         }
 
         tool_abconfig_after_config();

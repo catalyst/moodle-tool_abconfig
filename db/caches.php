@@ -24,11 +24,10 @@
  */
 defined('MOODLE_INTERNAL') || die;
 
-$definitions = array(
-    'experiments' => array(
+$definitions = [
+    'experiments' => [
         'mode' => cache_store::MODE_APPLICATION,
         'datasource' => '\tool_abconfig\experiment_cache',
-        'staticacceleration' => true
-    )
-);
-
+        'staticacceleration' => true,
+    ],
+];

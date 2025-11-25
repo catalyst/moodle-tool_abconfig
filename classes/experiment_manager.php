@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tool_abconfig_experiment_manager {
-
     // Experiment functions.
 
     /** @var array Experiment js that needs to be rendered. */
@@ -243,7 +242,7 @@ class tool_abconfig_experiment_manager {
             $sql = 'DELETE FROM {tool_abconfig_condition} WHERE experiment = :experiment AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
             $return = $DB->execute($sql, [
                 'experiment' => $eid,
-                'condset' => $condset
+                'condset' => $condset,
             ]);
         }
         self::invalidate_experiment_cache();
@@ -257,7 +256,7 @@ class tool_abconfig_experiment_manager {
      */
     public function delete_all_conditions($eid) {
         global $DB;
-        $DB->delete_records('tool_abconfig_condition', array('experiment' => $eid));
+        $DB->delete_records('tool_abconfig_condition', ['experiment' => $eid]);
         self::invalidate_experiment_cache();
     }
 
@@ -268,7 +267,7 @@ class tool_abconfig_experiment_manager {
      */
     public function get_conditions_for_experiment($eid) {
         global $DB;
-        return $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'condset ASC');
+        return $DB->get_records('tool_abconfig_condition', ['experiment' => $eid], 'condset ASC');
     }
 
     // Caching functions.
@@ -278,7 +277,7 @@ class tool_abconfig_experiment_manager {
      * @return void
      */
     private function invalidate_experiment_cache() {
-        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', array(), array('allexperiment'));
+        \cache_helper::invalidate_by_definition('tool_abconfig', 'experiments', [], ['allexperiment']);
     }
 
     /**
@@ -289,7 +288,7 @@ class tool_abconfig_experiment_manager {
         $cache = cache::make('tool_abconfig', 'experiments');
         $experiments = $cache->get('allexperiment');
         // Return empty array if cache->get fails.
-        return ($experiments != false) ? $experiments : array();
+        return ($experiments != false) ? $experiments : [];
     }
 
     /**
@@ -440,14 +439,14 @@ class tool_abconfig_experiment_manager {
             $command = explode(',', $commandstring);
             switch ($command[0]) {
                 case 'CFG':
-                    $plugin = 'core-experiment:'.$value;
+                    $plugin = 'core-experiment:' . $value;
                     $name = $command[1];
                     $setting = $command[2];
                     add_to_config_log($name, '', $setting, $plugin);
                     break;
 
                 case 'forced_plugin_setting':
-                    $plugin = $command[1].'-experiment:'.$value;
+                    $plugin = $command[1] . '-experiment:' . $value;
                     $name = $command[2];
                     $setting = $command[3];
                     add_to_config_log($name, '', $setting, $plugin);

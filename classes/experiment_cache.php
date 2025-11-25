@@ -35,7 +35,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class experiment_cache implements \cache_data_source {
-
     /** @var experiment_cache the singleton instance of this class. */
     protected static $experimentcache = null;
 
@@ -60,7 +59,7 @@ class experiment_cache implements \cache_data_source {
      */
     public function load_for_cache($key) {
         global $DB;
-        $data = array();
+        $data = [];
 
         // All experiments.
         if ($key == 'allexperiment') {
@@ -82,7 +81,7 @@ class experiment_cache implements \cache_data_source {
      */
     public function load_many_for_cache(array $keys) {
         // Return array of all data items.
-        $data = array();
+        $data = [];
         foreach ($keys as $key) {
             $data[$key] = self::load_for_cache($key);
         }
@@ -101,8 +100,8 @@ class experiment_cache implements \cache_data_source {
         $experimentdata = (array) $experimentrecord;
 
         // Get all the conditions for the experiment.
-        $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $experimentrecord->id));
-        $data = array();
+        $records = $DB->get_records('tool_abconfig_condition', ['experiment' => $experimentrecord->id]);
+        $data = [];
         foreach ($records as $record) {
             $data[$record->condset] = (array) $record;
         }

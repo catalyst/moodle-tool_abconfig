@@ -41,18 +41,17 @@ $PAGE->set_url($url);
 
 $manager = new tool_abconfig_experiment_manager();
 
-$prevurl = ($CFG->wwwroot."/admin/tool/abconfig/edit_experiment.php?id=$eid");
+$prevurl = ($CFG->wwwroot . "/admin/tool/abconfig/edit_experiment.php?id=$eid");
 
-$customdata = array('eid' => $eid);
+$customdata = ['eid' => $eid];
 
-$experiment = $DB->get_record('tool_abconfig_experiment', array('id' => $eid));
+$experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
 
 $form = new \tool_abconfig\form\edit_conditions($url, $customdata);
 
 if ($form->is_cancelled()) {
     redirect($prevurl);
 } else if ($fromform = $form->get_data()) {
-
     $eid = $fromform->eid;
     // Page doesnt have an experiment, do nothing.
     if (empty($eid)) {
@@ -60,7 +59,7 @@ if ($form->is_cancelled()) {
     }
 
     // Updating old data.
-    $records = $DB->get_records('tool_abconfig_condition', array('experiment' => $eid), 'id ASC');
+    $records = $DB->get_records('tool_abconfig_condition', ['experiment' => $eid], 'id ASC');
     foreach ($records as $record) {
         $prevshortname = "prevshortname{$record->id}";
         $shortname = "shortname{$record->id}";
@@ -75,8 +74,16 @@ if ($form->is_cancelled()) {
             $manager->delete_condition($eid, $fromform->$shortname);
         } else {
             // Else write data back to DB.
-            $manager->update_condition($eid, $record->id, $fromform->$prevshortname,
-                $fromform->$shortname, $fromform->$iplist, $fromform->$commandskey, $fromform->$value, $fromform->$users);
+            $manager->update_condition(
+                $eid,
+                $record->id,
+                $fromform->$prevshortname,
+                $fromform->$shortname,
+                $fromform->$iplist,
+                $fromform->$commandskey,
+                $fromform->$value,
+                $fromform->$users
+            );
         }
     }
 
@@ -84,7 +91,6 @@ if ($form->is_cancelled()) {
     if (!empty($fromform->repeatid)) {
         $repeats = array_keys($fromform->repeatid);
         foreach ($repeats as $key => $value) {
-
             // Protect from empty data.
             if (empty($fromform->repeatshortname[$value])) {
                 continue;
@@ -94,17 +100,21 @@ if ($form->is_cancelled()) {
                 // If accidentally added condition set and wishes to delete.
                 continue;
             } else {
-                $manager->add_condition($eid, $fromform->repeatshortname[$value], $fromform->repeatiplist[$value],
-                    $fromform->repeatcommands[$value], $fromform->repeatvalue[$value], $fromform->repeatusers[$value]);
+                $manager->add_condition(
+                    $eid,
+                    $fromform->repeatshortname[$value],
+                    $fromform->repeatiplist[$value],
+                    $fromform->repeatcommands[$value],
+                    $fromform->repeatvalue[$value],
+                    $fromform->repeatusers[$value]
+                );
             }
         }
     }
 
     // Back to experiment.
     redirect($prevurl);
-
 } else {
-
     // Build the page output.
     echo $OUTPUT->header();
     echo $OUTPUT->heading(get_string('editexperimentpagename', 'tool_abconfig'));
