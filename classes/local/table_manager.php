@@ -50,8 +50,15 @@ class table_manager {
         $strings = get_strings($wantstrings, 'tool_abconfig');
         // Generate table header.
         $table = new \html_table();
-        $table->head = [get_string('idnumber'), $strings->name, $strings->shortname,
-            $strings->scope, $strings->enabled, $strings->adminenabled, $strings->edit];
+        $table->head = [
+            get_string('idnumber'),
+            $strings->enabled,
+            $strings->name,
+            $strings->shortname,
+            $strings->scope,
+            $strings->adminenabled,
+            $strings->edit,
+        ];
         $table->attributes['class'] = 'generaltable table table-bordered';
         $table->colclasses = ['centeralign', 'centeralign', 'centeralign',
             'centeralign', 'centeralign', 'centeralign', 'centeralign'];
@@ -60,9 +67,15 @@ class table_manager {
             // Setup edit link.
             $url = new \moodle_url('/admin/tool/abconfig/edit_experiment.php', ['id' => $record->id]);
             if ($record->enabled == 0) {
-                $enabled = get_string('no');
+                $enabled = \html_writer::span(
+                    get_string('no'),
+                    'badge bg-warning'
+                );
             } else {
-                $enabled = get_string('yes');
+                $enabled = \html_writer::span(
+                    get_string('yes'),
+                    'badge bg-success'
+                );
             }
 
             if ($record->adminenabled == 0) {
@@ -72,8 +85,15 @@ class table_manager {
             }
 
             // Add table row.
-            $table->data[] = [$record->id, $record->name, $record->shortname,
-                $record->scope, $enabled, $adminenabled, \html_writer::link($url, get_string('edit'))];
+            $table->data[] = [
+                $record->id,
+                $enabled,
+                \html_writer::link($url, $record->name),
+                \html_writer::tag('code', $record->shortname),
+                $record->scope,
+                $adminenabled,
+                \html_writer::link($url, get_string('edit')),
+            ];
         }
         return \html_writer::table($table);
     }
