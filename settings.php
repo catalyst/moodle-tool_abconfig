@@ -35,6 +35,6 @@ if ($hassiteconfig) {
     $ADMIN->add('abconfig', new admin_externalpage(
         'tool_abconfig_manageexperiments',
         get_string('manageexperimentspagename', 'tool_abconfig'),
-        new moodle_url('/admin/tool/abconfig/manage_experiments.php')
+        new moodle_url('/admin/tool/abconfig/index.php')
     ));
 }

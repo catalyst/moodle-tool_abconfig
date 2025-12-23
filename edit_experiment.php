@@ -54,7 +54,7 @@ $data = ['experimentname' => $experiment->name, 'experimentshortname' => $experi
 
 $customarray = ['eid' => $experiment->id];
 
-$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/manage_experiments.php');
+$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/index.php');
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
