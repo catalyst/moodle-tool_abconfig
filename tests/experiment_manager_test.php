@@ -41,7 +41,9 @@ final class experiment_manager_test extends advanced_testcase {
         $manager->add_experiment('name', 'shortname', 'request');
 
         // Get record and verify fields.
-        $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $sql = 'SELECT *
+                  FROM {tool_abconfig_experiment}
+                 WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
         $record = $DB->get_record_sql($sql, ['shortname' => 'shortname']);
 
         $this->assertEquals($record->name, 'name');
@@ -67,7 +69,8 @@ final class experiment_manager_test extends advanced_testcase {
         $this->assertTrue($manager->experiment_exists('shortname'));
 
         // Now delete this record, and add a new one.
-        $sql = 'DELETE FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $sql = 'DELETE FROM {tool_abconfig_experiment}
+                 WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
         $DB->execute($sql, ['shortname' => 'shortname']);
 
         $DB->insert_record(
@@ -94,7 +97,9 @@ final class experiment_manager_test extends advanced_testcase {
         $manager->update_experiment('shortname', 'name2', 'shortname2', 'session', 1, 1, 33);
 
         // Get record and verify fields.
-        $sql = 'SELECT * FROM {tool_abconfig_experiment} WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+        $sql = 'SELECT *
+                  FROM {tool_abconfig_experiment}
+                 WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
         $record = $DB->get_record_sql($sql, ['shortname' => 'shortname2']);
 
         $this->assertEquals($record->name, 'name2');

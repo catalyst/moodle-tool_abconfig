@@ -25,8 +25,6 @@
 
 namespace tool_abconfig\local;
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * Table management and generation class.
  *

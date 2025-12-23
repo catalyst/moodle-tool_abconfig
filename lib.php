@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 /**
  * After config, handles param, request and session experiments.
  *
@@ -462,7 +460,10 @@ function tool_abconfig_execute_js(string $type) {
                 $manager->remove_render_js($unique);
             }
         }
+
+    // phpcs:ignore Generic.CodeAnalysis.EmptyStatement
     } catch (Exception $e) {
+        // // phpcs:ignore
         // Do nothing for edge cases like install and upgrade.
     }
 }

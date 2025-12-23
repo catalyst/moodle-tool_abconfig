@@ -24,8 +24,6 @@
  */
 namespace tool_abconfig;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Data source class for experiments cache
  *

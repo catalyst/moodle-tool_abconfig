@@ -25,8 +25,6 @@
 
 namespace tool_abconfig\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy Null provider class
  *
