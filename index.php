@@ -47,6 +47,6 @@ if ($form->is_cancelled()) {
 // Build the page output.
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('manageexperimentspagename', 'tool_abconfig'));
-$form->display();
 echo \tool_abconfig\local\table_manager::experiment_table();
+$form->display();
 echo $OUTPUT->footer();
