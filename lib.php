@@ -438,27 +438,31 @@ function tool_abconfig_execute_js(string $type) {
         }
     }
 
-    // Get all experiments.
-    $manager = new tool_abconfig_experiment_manager();
-    $records = $manager->get_experiments();
-    $renderjs = $manager->get_render_js();
+    try {
+        // Get all experiments.
+        $manager = new tool_abconfig_experiment_manager();
+        $records = $manager->get_experiments();
+        $renderjs = $manager->get_render_js();
 
-    foreach ($records as $record) {
-        // If called from header.
-        if ($type == 'header') {
-            $unique = 'abconfig_js_header_' . $record['shortname'];
-        } else if ($type == 'footer') {
-            $unique = 'abconfig_js_footer_' . $record['shortname'];
-        }
+        foreach ($records as $record) {
+            // If called from header.
+            if ($type == 'header') {
+                $unique = 'abconfig_js_header_' . $record['shortname'];
+            } else if ($type == 'footer') {
+                $unique = 'abconfig_js_footer_' . $record['shortname'];
+            }
 
-        if (array_key_exists($unique, $renderjs)) {
-            // Found JS to be executed.
-            echo "<script type='text/javascript'>{$renderjs[$unique]}</script>";
-        }
+            if (array_key_exists($unique, $renderjs)) {
+                // Found JS to be executed.
+                echo "<script type='text/javascript'>{$renderjs[$unique]}</script>";
+            }
 
-        // If experiment is request scope, unset var so it doesnt fire again.
-        if ($record['scope'] == 'request' || $record['enabled'] == 0) {
-            $manager->remove_render_js($unique);
+            // If experiment is request scope, unset var so it doesnt fire again.
+            if ($record['scope'] == 'request' || $record['enabled'] == 0) {
+                $manager->remove_render_js($unique);
+            }
         }
+    } catch (Exception $e) {
+        // Do nothing for edge cases like install and upgrade.
     }
 }
