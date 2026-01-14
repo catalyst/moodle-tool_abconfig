@@ -347,7 +347,7 @@ function tool_abconfig_before_http_headers() {
  * @param string $string
  * @return void
  */
-function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, string $string = null) {
+function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, ?string $string = null) {
     global $CFG;
 
     // Execute any commands passed in.
