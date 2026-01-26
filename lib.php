@@ -344,7 +344,7 @@ function tool_abconfig_before_http_headers() {
  * @param string $commandsencoded
  * @param string $shortname
  * @param bool $js
- * @param string $string
+ * @param string|null $string
  * @return void
  */
 function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, ?string $string = null) {

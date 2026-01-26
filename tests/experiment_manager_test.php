@@ -21,6 +21,9 @@
  * @copyright  2019 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use PHPUnit\Framework\Attributes\DataProvider;
+
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/../lib.php');
 
@@ -269,7 +272,7 @@ final class experiment_manager_test extends advanced_testcase {
      *
      * @return array
      */
-    public function trim_condition_commands_provider(): array {
+    public static function trim_condition_commands_provider(): array {
         return [
             ['CFG,passwordpolicy,1', '["CFG,passwordpolicy,1"]'],
             ['forced_plugin_setting,auth_manual,expiration,yes', '["forced_plugin_setting,auth_manual,expiration,yes"]'],
@@ -283,10 +286,10 @@ final class experiment_manager_test extends advanced_testcase {
     /**
      * Test that condition commands get properly trimmed and converted into a JSON string on save.
      *
-     * @dataProvider trim_condition_commands_provider
      * @param string $actual Actual string that needs to be stored in DB
      * @param string $expected Stored string
      */
+    #[DataProvider('trim_condition_commands_provider')]
     public function test_trim_condition_commands(string $actual, string $expected): void {
         global $DB;
         $this->resetAfterTest();
