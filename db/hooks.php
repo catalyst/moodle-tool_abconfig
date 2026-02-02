@@ -41,4 +41,9 @@ $callbacks = [
         'callback' => '\tool_abconfig\hook_callbacks::after_config',
         'priority' => 0,
     ],
+    [
+        'hook' => \core\hook\admin_setting_forced_message::class,
+        'callback' => '\tool_abconfig\hook_callbacks::admin_setting_forced_message',
+        'priority' => 0,
+    ],
 ];

@@ -344,7 +344,7 @@ function tool_abconfig_before_http_headers() {
  * @param string $commandsencoded
  * @param string $shortname
  * @param bool $js
- * @param string $string
+ * @param string|null $string
  * @return void
  */
 function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, ?string $string = null) {
@@ -353,6 +353,8 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
     // Execute any commands passed in.
     $manager = new tool_abconfig_experiment_manager();
     $commands = json_decode($commandsencoded);
+    $experimenturl = new moodle_url('/admin/tool/abconfig/edit_experiment.php', ['shortname' => $shortname]);
+    $link = \html_writer::link($experimenturl, $shortname);
     foreach ($commands as $commandstring) {
         $command = strtok($commandstring, ',');
 
@@ -367,6 +369,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
             if ($allow || !array_key_exists($commandarray[1], $CFG->config_php_settings)) {
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                $CFG->tool_abconfig_message[$commandarray[1]] = get_string('settingcustommessage', 'tool_abconfig', $link);
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
@@ -385,6 +388,8 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
                     array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])
             ) {
                 $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+                $CFG->tool_abconfig_message[$commandarray[1]][$commandarray[2]] =
+                get_string('settingcustommessage', 'tool_abconfig', $link);
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
