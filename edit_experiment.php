@@ -33,9 +33,7 @@ require_login();
 require_capability('moodle/site:config', context_system::instance());
 
 $eid = optional_param('id', 0, PARAM_INT);
-$eshortname = optional_param('shortname', '', PARAM_TEXT);
-$params = $eid ? ['id' => $eid] : ['shortname' => $eshortname];
-$PAGE->set_url(new \moodle_url('/admin/tool/abconfig/edit_experiment', $params));
+$PAGE->set_url(new moodle_url('/admin/tool/abconfig/edit_experiment', ['id' => $eid]));
 
 if ($node = $PAGE->settingsnav->find('root', \navigation_node::TYPE_SITE_ADMIN)) {
     $PAGE->navbar->add($node->get_content(), $node->action());
@@ -48,17 +46,7 @@ foreach (['tools', 'abconfig', 'tool_abconfig_manageexperiments'] as $label) {
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
 $manager = new tool_abconfig_experiment_manager();
-if ($eid) {
-    $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
-} else if (!empty($eshortname)) {
-    $sql = "SELECT *
-              FROM {tool_abconfig_experiment}
-             WHERE " . $DB->sql_compare_text('shortname') . " = :eshortname";
-    $experiment = $DB->get_record_sql($sql, ['eshortname' => $eshortname]);
-    $eid = $experiment->id;
-} else {
-    redirect($prevurl);
-}
+$experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
 $data = ['experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
     'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,
     'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled,
