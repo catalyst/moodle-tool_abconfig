@@ -27,6 +27,7 @@ require_once(__DIR__ . '/../lib.php');
 /**
  * Testing class for hooks in lib.php
  *
+ * @covers \tool_abconfig\classes\experiment_manager
  * @package    tool_abconfig
  * @copyright  2019 Peter Burnett <peterburnett@catalyst-au.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -269,7 +270,7 @@ final class experiment_manager_test extends advanced_testcase {
      *
      * @return array
      */
-    public function trim_condition_commands_provider(): array {
+    public static function trim_condition_commands_provider(): array {
         return [
             ['CFG,passwordpolicy,1', '["CFG,passwordpolicy,1"]'],
             ['forced_plugin_setting,auth_manual,expiration,yes', '["forced_plugin_setting,auth_manual,expiration,yes"]'],
