@@ -80,7 +80,6 @@ $string['adminenabled'] = 'Enabled for admin';
 // Setting Strings.
 $string['settingsenablename'] = 'Enable plugin';
 $string['settingsenabledesc'] = 'Enable the plugin. While this is unchecked, users will not interact with the plugin at all. Experiments can still be set.';
-$string['settingcustommessage'] = 'Set by abconfig: {$a}';
 
 // Cache Strings.
 $string['cachedef_experiments'] = 'Cache to store experiments and conditions in.';
