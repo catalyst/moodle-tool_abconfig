@@ -28,7 +28,7 @@ require_once($CFG->libdir . '/adminlib.php');
 
 $manager = new tool_abconfig_experiment_manager();
 
-admin_externalpage_setup('tool_abconfig_manageexperiments');
+\core\setting\page\externalpage::setup(null, 'tool_abconfig_manageexperiments');
 
 $prevurl = ($CFG->wwwroot . '/admin/category.php?category=abconfig');
 

@@ -19,6 +19,7 @@ Branches
 |-------------------|------------------|------|-----------|
 | Moodle 3.8 - 4.5+ | MOODLE_38_STABLE | 7.1+ |           |
 | Moodle 3.4 - 3.7  | MOODLE_38_STABLE | 7.1+ | MDL-66340 |
+| Totara 20+        | TOTARA_20        | 8.2+ |           |
 
 Installation
 ------------
