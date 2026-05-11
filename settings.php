@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\setting\part\category;
+
 defined('MOODLE_INTERNAL') || die;
 
 
@@ -29,10 +31,10 @@ global $CFG;
 
 if ($hassiteconfig) {
     // Create category for settings and external pages.
-    $ADMIN->add('tools', new admin_category('abconfig', get_string('pluginname', 'tool_abconfig')));
+    $ADMIN->add('tools', new category('abconfig', get_string('pluginname', 'tool_abconfig')));
 
     // Add external page for managing experiments.
-    $ADMIN->add('abconfig', new admin_externalpage(
+    $ADMIN->add('abconfig', new core\setting\page\externalpage(
         'tool_abconfig_manageexperiments',
         get_string('manageexperimentspagename', 'tool_abconfig'),
         new moodle_url('/admin/tool/abconfig/index.php')
