@@ -79,10 +79,10 @@ class hook_callbacks {
     /**
      * Provides a custom locked setting message for admin settings locked by experiments.
      *
-     * @param \core\hook\admin_setting_forced_message $hook
+     * @param \core\hook\admin_setting_notification $hook
      * @return void
      */
-    public static function admin_setting_forced_message(\core\hook\admin_setting_forced_message $hook) {
+    public static function admin_setting_notification(\core\hook\admin_setting_notification $hook) {
         global $CFG;
 
         $name = $hook->setting->name;
@@ -96,12 +96,12 @@ class hook_callbacks {
                 is_array($CFG->tool_abconfig_message[$plugin]) &&
                 array_key_exists($name, $CFG->tool_abconfig_message[$plugin])
             ) {
-                $hook->set_message($CFG->tool_abconfig_message[$plugin][$name]);
+                $hook->add_notification($CFG->tool_abconfig_message[$plugin][$name], \core\output\notification::NOTIFY_INFO);
             }
         } else {
             // Check if there is a message set for this core setting.
             if (isset($CFG->tool_abconfig_message[$name])) {
-                $hook->set_message($CFG->tool_abconfig_message[$name]);
+                $hook->add_notification($CFG->tool_abconfig_message[$name], \core\output\notification::NOTIFY_INFO);
             }
         }
     }
