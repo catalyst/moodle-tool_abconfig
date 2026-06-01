@@ -43,7 +43,7 @@ $callbacks = [
     ],
     [
         'hook' => \core\hook\admin_setting_notification::class,
-        'callback' => '\tool_abconfig\hook_callbacks::admin_setting_forced_message',
+        'callback' => '\tool_abconfig\hook_callbacks::admin_setting_notification',
         'priority' => 0,
     ],
 ];
