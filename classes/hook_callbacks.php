@@ -75,4 +75,34 @@ class hook_callbacks {
 
         tool_abconfig_after_config();
     }
+
+    /**
+     * Provides a custom locked setting message for admin settings locked by experiments.
+     *
+     * @param \core\hook\admin_setting_notification $hook
+     * @return void
+     */
+    public static function admin_setting_notification(\core\hook\admin_setting_notification $hook) {
+        global $CFG;
+
+        $name = $hook->setting->name;
+        $plugin = $hook->setting->plugin;
+
+        // Checking if the setting is for a plugin.
+        if (!empty($plugin)) {
+            // Check if there is a message set for this plugin setting.
+            if (
+                isset($CFG->tool_abconfig_message[$plugin]) &&
+                is_array($CFG->tool_abconfig_message[$plugin]) &&
+                array_key_exists($name, $CFG->tool_abconfig_message[$plugin])
+            ) {
+                $hook->add_notification($CFG->tool_abconfig_message[$plugin][$name], \core\output\notification::NOTIFY_INFO);
+            }
+        } else {
+            // Check if there is a message set for this core setting.
+            if (isset($CFG->tool_abconfig_message[$name])) {
+                $hook->add_notification($CFG->tool_abconfig_message[$name], \core\output\notification::NOTIFY_INFO);
+            }
+        }
+    }
 }
