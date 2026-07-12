@@ -38,7 +38,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_add_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Add an experiment.
         $manager->add_experiment('name', 'shortname', 'request');
@@ -57,7 +57,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_experiment_exists(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Test response for non existent experiment.
         $this->assertFalse($manager->experiment_exists('shortname'));
@@ -88,7 +88,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_update_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment.
         $DB->insert_record(
@@ -116,7 +116,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_delete_experiment(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment.
         $DB->insert_record(
@@ -139,7 +139,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_condition_exists(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment.
         $eid = $DB->insert_record(
@@ -163,7 +163,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_add_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment.
         $eid = $DB->insert_record(
@@ -190,7 +190,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_update_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment and condition.
         $eid = $DB->insert_record(
@@ -215,7 +215,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_delete_condition(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment and condition.
         $eid = $DB->insert_record(
@@ -243,7 +243,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_delete_all_conditions(): void {
         $this->resetAfterTest(true);
         global $DB;
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Manually add experiment and condition.
         $eid = $DB->insert_record(
@@ -293,7 +293,7 @@ final class experiment_manager_test extends advanced_testcase {
     public function test_trim_condition_commands(string $actual, string $expected): void {
         global $DB;
         $this->resetAfterTest();
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $experiment = $manager->add_experiment('name', 'shortname', 'request');
         $condition = $manager->add_condition($experiment, 'condset1', '', $actual, 50, '');
 

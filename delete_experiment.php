@@ -37,7 +37,7 @@ require_login();
 require_capability('moodle/site:config', context_system::instance());
 
 $manageurl = new moodle_url('/admin/tool/abconfig/index.php');
-$manager = new tool_abconfig_experiment_manager();
+$manager = new \tool_abconfig\experiment_manager();
 $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
 
 if (!$experiment) {

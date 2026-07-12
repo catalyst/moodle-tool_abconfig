@@ -95,7 +95,7 @@ class manage_experiments extends \moodleform {
      */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        $manager = new \tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         $shortname = $data['experimentshortname'];
         if ($manager->experiment_exists($shortname)) {

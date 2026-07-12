@@ -45,7 +45,7 @@ foreach (['tools', 'abconfig', 'tool_abconfig_manageexperiments'] as $label) {
 }
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
-$manager = new tool_abconfig_experiment_manager();
+$manager = new \tool_abconfig\experiment_manager();
 $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
 $data = ['experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
     'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,

@@ -56,7 +56,7 @@ class edit_conditions extends \moodleform {
         ];
 
         // Get Data for repeating elements.
-        $manager = new \tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $experiment = $manager->get_experiment($eid);
         $scope = $experiment->scope ?? '';
         $records = $manager->get_conditions_for_experiment($eid);
@@ -277,7 +277,7 @@ class edit_conditions extends \moodleform {
 
         $total = 0;
 
-        $manager = new \tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $records = $manager->get_conditions_for_experiment($eid);
 
         // Validate edited form entries.

@@ -36,7 +36,7 @@ function tool_abconfig_after_config() {
 
     try {
         // Setup experiment manager.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Check if the param to disable ABconfig is present, if so, exit.
         if (!optional_param('abconfig', true, PARAM_BOOL)) {
@@ -167,7 +167,7 @@ function tool_abconfig_before_session_start() {
         }
 
         // Setup experiment manager.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Note: unlike tool_abconfig_after_config(), this hook fires before the session (and
         // therefore $USER) is available, so a URL param override here cannot be restricted to
@@ -233,7 +233,7 @@ function tool_abconfig_after_require_login() {
     global $SESSION, $USER;
 
     // Create experiment manager.
-    $manager = new tool_abconfig_experiment_manager();
+    $manager = new \tool_abconfig\experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit.
     if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
@@ -338,7 +338,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
     global $CFG;
 
     // Execute any commands passed in.
-    $manager = new tool_abconfig_experiment_manager();
+    $manager = new \tool_abconfig\experiment_manager();
     $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
         $command = strtok($commandstring, ',');
@@ -449,7 +449,7 @@ function tool_abconfig_execute_js(string $type) {
 
     try {
         // Get all experiments.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $records = $manager->get_experiments();
         $renderjs = $manager->get_render_js();
 

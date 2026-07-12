@@ -39,7 +39,7 @@ $url = new moodle_url('/admin/tool/abconfig/edit_conditions.php');
 $url->param('id', $eid);
 $PAGE->set_url($url);
 
-$manager = new tool_abconfig_experiment_manager();
+$manager = new \tool_abconfig\experiment_manager();
 
 $prevurl = ($CFG->wwwroot . "/admin/tool/abconfig/edit_experiment.php?id=$eid");
 

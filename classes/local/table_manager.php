@@ -130,7 +130,7 @@ class table_manager {
         $table->attributes['class'] = 'generaltable table table-bordered';
 
         // Get experiment conditions records.
-        $manager = new \tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         // Get experiment shortname once, it is the same for every condition record in this loop.
         $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid], '*', MUST_EXIST);
         $records = $manager->get_conditions_for_experiment($eid);

@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace tool_abconfig;
+
 /**
  * Local Library class
  *
@@ -31,7 +33,7 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_abconfig_experiment_manager {
+class experiment_manager {
     // Experiment functions.
 
     /** @var array Experiment js that needs to be rendered. */
@@ -336,7 +338,7 @@ class tool_abconfig_experiment_manager {
      * @return mixed
      */
     public function get_experiments() {
-        $cache = cache::make('tool_abconfig', 'experiments');
+        $cache = \cache::make('tool_abconfig', 'experiments');
         $experiments = $cache->get('allexperiment');
         // Return empty array if cache->get fails.
         return ($experiments != false) ? $experiments : [];
