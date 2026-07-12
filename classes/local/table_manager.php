@@ -86,9 +86,9 @@ class table_manager {
             $table->data[] = [
                 $record->id,
                 $enabled,
-                \html_writer::link($url, $record->name),
-                \html_writer::tag('code', $record->shortname),
-                $record->scope,
+                \html_writer::link($url, s($record->name)),
+                \html_writer::tag('code', s($record->shortname)),
+                s($record->scope),
                 $adminenabled,
                 \html_writer::link($url, get_string('edit')),
             ];
@@ -131,6 +131,8 @@ class table_manager {
 
         // Get experiment conditions records.
         $manager = new \tool_abconfig_experiment_manager();
+        // Get experiment shortname once, it is the same for every condition record in this loop.
+        $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid], '*', MUST_EXIST);
         $records = $manager->get_conditions_for_experiment($eid);
         foreach ($records as $record) {
             // Check for empty commands.
@@ -155,16 +157,19 @@ class table_manager {
             }
 
             // Construct URL for forcing condition.
-            $paramstring = '?';
-            // Get experiment shortname.
-            $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
-            $paramstring .= $experiment->shortname . '=';
-            $paramstring .= $record->condset;
+            $paramstring = '?' . $experiment->shortname . '=' . $record->condset;
 
             // URL for redirecting to the dashboard with conditions active.
             $url = new \moodle_url('/my/', [$experiment->shortname => $record->condset]);
 
-            $table->data[] = [$record->condset, $iplist, $commands, $record->value, $users, \html_writer::link($url, $paramstring)];
+            $table->data[] = [
+                s($record->condset),
+                s($iplist),
+                s($commands),
+                s($record->value),
+                s($users),
+                \html_writer::link($url, s($paramstring)),
+            ];
         }
 
         return \html_writer::table($table);
