@@ -358,6 +358,16 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
                 // same way it treats a value actually locked in config.php for this request.
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+
+                // This can run very early (e.g. before session start), before the event system
+                // is guaranteed to be ready, so failures here must never break the page.
+                try {
+                    \tool_abconfig\event\experiment_command_executed::create([
+                        'other' => ['shortname' => $shortname, 'setting' => $commandarray[1]],
+                    ])->trigger();
+                } catch (\Throwable $e) {
+                    unset($e);
+                }
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
@@ -376,6 +386,14 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
                     array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])
             ) {
                 $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+
+                try {
+                    \tool_abconfig\event\experiment_command_executed::create([
+                        'other' => ['shortname' => $shortname, 'setting' => $commandarray[1] . '/' . $commandarray[2]],
+                    ])->trigger();
+                } catch (\Throwable $e) {
+                    unset($e);
+                }
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
