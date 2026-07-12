@@ -280,7 +280,11 @@ class experiment_manager {
         if (!$this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
-            $record = $DB->get_record('tool_abconfig_condition', ['experiment' => $eid, 'condset' => $condset]);
+            $sql = 'SELECT *
+                      FROM {tool_abconfig_condition}
+                     WHERE experiment = :experiment
+                       AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
+            $record = $DB->get_record_sql($sql, ['experiment' => $eid, 'condset' => $condset]);
 
             $event = \tool_abconfig\event\condition_deleted::create([
                 'objectid' => $record->id,
