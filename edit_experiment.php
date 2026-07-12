@@ -46,15 +46,19 @@ foreach (['tools', 'abconfig', 'tool_abconfig_manageexperiments'] as $label) {
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
 $manager = new \tool_abconfig\experiment_manager();
+$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/index.php');
+
 $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
+if (!$experiment) {
+    redirect($prevurl, get_string('experimentnotfound', 'tool_abconfig'), null, \core\output\notification::NOTIFY_ERROR);
+}
+
 $data = ['experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
     'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,
     'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled,
     'numoffset' => $experiment->numoffset ?? rand(0, 99)];
 
 $customarray = ['eid' => $experiment->id];
-
-$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/index.php');
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {

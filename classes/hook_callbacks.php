@@ -29,6 +29,7 @@ class hook_callbacks {
      * Runs before HTTP headers.
      *
      * @param \core\hook\output\before_http_headers $hook
+     * @return void
      */
     public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
         global $CFG;
@@ -44,6 +45,7 @@ class hook_callbacks {
      * Runs before HTTP footers.
      *
      * @param \core\hook\output\before_footer_html_generation $hook
+     * @return void
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
         global $CFG;

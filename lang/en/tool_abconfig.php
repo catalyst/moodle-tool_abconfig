@@ -30,6 +30,7 @@ $string['abconfigsettings'] = 'A/B config settings';
 $string['manageexperimentspagename'] = 'Manage experiments';
 $string['editexperimentpagename'] = 'Edit experiment';
 $string['editexperimentconds'] = 'Edit experiment conditions';
+$string['experimentnotfound'] = 'Experiment not found';
 
 // Form Strings.
 $string['formaddexperiment'] = 'Add experiment';
@@ -57,7 +58,6 @@ $string['formeditconditions'] = 'Edit conditions';
 $string['formnocommands'] = 'No commands';
 $string['formnoips'] = 'No IPs';
 $string['formallusers'] = 'All users';
-$string['formaddexperiment'] = 'Add experiment';
 $string['formdeleteexperiment'] = 'Delete experiment';
 $string['confirmdeleteexperiment'] = 'Are you sure you want to delete the experiment \'{$a}\' and all of its condition sets? This cannot be undone.';
 $string['formexperimentforceurl'] = 'Force URL params';

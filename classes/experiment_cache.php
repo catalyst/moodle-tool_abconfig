@@ -81,7 +81,7 @@ class experiment_cache implements \cache_data_source {
         // Return array of all data items.
         $data = [];
         foreach ($keys as $key) {
-            $data[$key] = self::load_for_cache($key);
+            $data[$key] = $this->load_for_cache($key);
         }
         return $data;
     }

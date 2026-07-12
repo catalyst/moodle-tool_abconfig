@@ -45,8 +45,6 @@ $prevurl = ($CFG->wwwroot . "/admin/tool/abconfig/edit_experiment.php?id=$eid");
 
 $customdata = ['eid' => $eid];
 
-$experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
-
 $form = new \tool_abconfig\form\edit_conditions($url, $customdata);
 
 if ($form->is_cancelled()) {
