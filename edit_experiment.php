@@ -81,9 +81,9 @@ if ($form->is_cancelled()) {
     }
 
     if ($fromform->delete) {
-        // Delete experiment, and all orphaned experiment conditions.
-        $manager->delete_experiment($shortname);
-        $manager->delete_all_conditions($eid);
+        // Deleting an experiment cascades to all of its conditions, so require an explicit
+        // second confirmation step rather than acting on a single checkbox submission.
+        redirect(new moodle_url('/admin/tool/abconfig/delete_experiment.php', ['id' => $eid]));
     } else {
         $manager->update_experiment($prevshortname, $name, $shortname, $scope, $enabled, $adminenabled, $numoffset);
     }
