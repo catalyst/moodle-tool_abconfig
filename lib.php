@@ -169,23 +169,10 @@ function tool_abconfig_before_session_start() {
         // Setup experiment manager.
         $manager = new tool_abconfig_experiment_manager();
 
-        // Get all before session experiments and check params.
-        $experiments = $manager->get_before_session_experiments();
-        foreach ($experiments as $experiment => $contents) {
-            // Check URL params, and fire any experiments in the params.
-            $condition = optional_param($experiment, null, PARAM_TEXT);
-            if (empty($condition)) {
-                continue;
-            }
-
-            // Ensure condition set exists before executing.
-            if (array_key_exists($condition, $contents['conditions'])) {
-                tool_abconfig_execute_command_array(
-                    $contents['conditions'][$condition]['commands'],
-                    $contents['shortname']
-                );
-            }
-        }
+        // Note: unlike tool_abconfig_after_config(), this hook fires before the session (and
+        // therefore $USER) is available, so a URL param override here cannot be restricted to
+        // site admins. Forcing a condition set via URL param is intentionally not supported for
+        // before-session (device scoped) experiments.
 
         // First, Build a list of all commands that need to be executed.
         $commandarray = [];
@@ -365,6 +352,10 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 
             // Ensure that command hasn't already been set in config.php.
             if ($allow || !array_key_exists($commandarray[1], $CFG->config_php_settings)) {
+                // Intentionally set $CFG directly (not via set_config()) so this experiment
+                // override is request-scoped only and is never persisted to the database.
+                // config_php_settings is also updated so admin_setting UI treats this key the
+                // same way it treats a value actually locked in config.php for this request.
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
             } else {
@@ -429,6 +420,8 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
  * @return void|null
  */
 function tool_abconfig_execute_js(string $type) {
+    global $PAGE;
+
     // Check if the param to disable ABconfig is present, if so, exit.
     if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
         if (is_siteadmin()) {
@@ -451,8 +444,9 @@ function tool_abconfig_execute_js(string $type) {
             }
 
             if (array_key_exists($unique, $renderjs)) {
-                // Found JS to be executed.
-                echo "<script type='text/javascript'>{$renderjs[$unique]}</script>";
+                // Found JS to be executed, queue it via the page output API rather than echoing
+                // a raw <script> tag directly.
+                $PAGE->requires->js_init_code($renderjs[$unique], true);
             }
 
             // If experiment is request scope, unset var so it doesnt fire again.
