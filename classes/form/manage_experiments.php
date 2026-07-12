@@ -82,6 +82,7 @@ class manage_experiments extends \moodleform {
 
         // Select Scope.
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
+        $mform->setType('scope', PARAM_ALPHA);
 
         $this->add_action_buttons(true, get_string('formaddexperiment', 'tool_abconfig'));
     }

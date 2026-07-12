@@ -136,7 +136,7 @@ class edit_conditions extends \moodleform {
                 get_string("formexperimentvalue", "tool_abconfig"),
                 ["size" => 20]
             );
-            $mform->setType("value{$id}", PARAM_TEXT);
+            $mform->setType("value{$id}", PARAM_INT);
             $mform->setDefault("value{$id}", $record->value);
 
             // Delete.
@@ -148,6 +148,7 @@ class edit_conditions extends \moodleform {
                 [],
                 [0, 1]
             );
+            $mform->setType("delete{$id}", PARAM_BOOL);
             $mform->setDefault("delete{$id}", 0);
 
             $setcount++;
@@ -246,8 +247,9 @@ class edit_conditions extends \moodleform {
         $repeatoptions["repeatshortname"]["type"] = PARAM_ALPHANUM;
         $repeatoptions["repeatiplist"]["type"] = PARAM_TEXT;
         $repeatoptions["repeatcommands"]["type"] = PARAM_TEXT;
-        $repeatoptions["repeatvalue"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatvalue"]["type"] = PARAM_INT;
         $repeatoptions["repeatusers"]["type"] = PARAM_TEXT;
+        $repeatoptions["repeatdelete"]["type"] = PARAM_BOOL;
 
         $this->repeat_elements(
             $repeatarray,
