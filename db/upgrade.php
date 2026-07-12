@@ -59,5 +59,29 @@ function xmldb_tool_abconfig_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025011300, 'tool', 'abconfig');
     }
 
+    if ($oldversion < 2026071300) {
+        // Retype shortname from text to char(255) so it can be indexed, and add a unique index on it.
+        $table = new xmldb_table('tool_abconfig_experiment');
+        $field = new xmldb_field('shortname', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_type($table, $field);
+        }
+
+        $index = new xmldb_index('shortname', XMLDB_INDEX_UNIQUE, ['shortname']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Add an index on the foreign key column used to look up conditions for an experiment.
+        $table = new xmldb_table('tool_abconfig_condition');
+        $index = new xmldb_index('experiment', XMLDB_INDEX_NOTUNIQUE, ['experiment']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Abconfig savepoint reached.
+        upgrade_plugin_savepoint(true, 2026071300, 'tool', 'abconfig');
+    }
+
     return true;
 }
