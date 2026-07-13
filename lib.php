@@ -169,10 +169,23 @@ function tool_abconfig_before_session_start() {
         // Setup experiment manager.
         $manager = new \tool_abconfig\experiment_manager();
 
-        // Note: unlike tool_abconfig_after_config(), this hook fires before the session (and
-        // therefore $USER) is available, so a URL param override here cannot be restricted to
-        // site admins. Forcing a condition set via URL param is intentionally not supported for
-        // before-session (device scoped) experiments.
+        // Get all before session experiments and check params.
+        $experiments = $manager->get_before_session_experiments();
+        foreach ($experiments as $experiment => $contents) {
+            // Check URL params, and fire any experiments in the params.
+            $condition = optional_param($experiment, null, PARAM_TEXT);
+            if (empty($condition)) {
+                continue;
+            }
+
+            // Ensure condition set exists before executing.
+            if (array_key_exists($condition, $contents['conditions'])) {
+                tool_abconfig_execute_command_array(
+                    $contents['conditions'][$condition]['commands'],
+                    $contents['shortname']
+                );
+            }
+        }
 
         // First, Build a list of all commands that need to be executed.
         $commandarray = [];
