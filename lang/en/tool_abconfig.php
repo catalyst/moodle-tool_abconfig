@@ -30,6 +30,7 @@ $string['abconfigsettings'] = 'A/B config settings';
 $string['manageexperimentspagename'] = 'Manage experiments';
 $string['editexperimentpagename'] = 'Edit experiment';
 $string['editexperimentconds'] = 'Edit experiment conditions';
+$string['experimentnotfound'] = 'Experiment not found';
 
 // Form Strings.
 $string['formaddexperiment'] = 'Add experiment';
@@ -57,8 +58,8 @@ $string['formeditconditions'] = 'Edit conditions';
 $string['formnocommands'] = 'No commands';
 $string['formnoips'] = 'No IPs';
 $string['formallusers'] = 'All users';
-$string['formaddexperiment'] = 'Add experiment';
 $string['formdeleteexperiment'] = 'Delete experiment';
+$string['confirmdeleteexperiment'] = 'Are you sure you want to delete the experiment \'{$a}\' and all of its condition sets? This cannot be undone.';
 $string['formexperimentforceurl'] = 'Force URL params';
 $string['formexperimentadminenable'] = 'Enable this experiment for site admins.';
 
@@ -86,3 +87,11 @@ $string['cachedef_experiments'] = 'Cache to store experiments and conditions in.
 
 // Privacy Strings.
 $string['privacy:metadata'] = 'This plugin does not collect or store any user information.';
+
+// Event Strings.
+$string['event_experiment_created'] = 'Experiment created';
+$string['event_experiment_updated'] = 'Experiment updated';
+$string['event_experiment_deleted'] = 'Experiment deleted';
+$string['event_condition_created'] = 'Experiment condition set created';
+$string['event_condition_updated'] = 'Experiment condition set updated';
+$string['event_condition_deleted'] = 'Experiment condition set deleted';

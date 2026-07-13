@@ -917,7 +917,7 @@ final class lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Set up a valid experiment and a condition for User 1.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $experiment = $manager->add_experiment('Experiment', 'experiment', 'session');
         $manager->update_experiment('experiment', 'Experiment', 'experiment', 'session', 1, 1, 33);
         $manager->add_condition($experiment, 'Users', '', 'CFG,passwordpolicy,1', 100, [$user1->id, $user2->id]);
@@ -946,7 +946,7 @@ final class lib_test extends advanced_testcase {
         set_config('passwordpolicy', 0);
 
         // Set up a valid experiment and a condition for User 1.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $experiment = $manager->add_experiment('Experiment', 'experiment', 'session');
         $manager->update_experiment('experiment', 'Experiment', 'experiment', 'session', 1, 1, 33);
         $manager->add_condition($experiment, 'Users', '', 'CFG,passwordpolicy,1', 100, [$user1->id, $user3->id]);

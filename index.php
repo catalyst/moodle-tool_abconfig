@@ -26,7 +26,7 @@
 require_once(dirname(__FILE__) . '/../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
-$manager = new tool_abconfig_experiment_manager();
+$manager = new \tool_abconfig\experiment_manager();
 
 admin_externalpage_setup('tool_abconfig_manageexperiments');
 

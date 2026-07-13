@@ -29,12 +29,18 @@ class hook_callbacks {
      * Runs before HTTP headers.
      *
      * @param \core\hook\output\before_http_headers $hook
+     * @return void
      */
     public static function before_http_headers(\core\hook\output\before_http_headers $hook): void {
         global $CFG;
 
         if (during_initial_install() || isset($CFG->upgraderunning)) {
             return;
+        }
+
+        // Handles edge case where this callback fires before lib.php has been loaded.
+        if (!function_exists('tool_abconfig_execute_js')) {
+            require_once($CFG->dirroot . '/admin/tool/abconfig/lib.php');
         }
 
         tool_abconfig_execute_js('header');
@@ -44,12 +50,18 @@ class hook_callbacks {
      * Runs before HTTP footers.
      *
      * @param \core\hook\output\before_footer_html_generation $hook
+     * @return void
      */
     public static function before_footer_html_generation(\core\hook\output\before_footer_html_generation $hook): void {
         global $CFG;
 
         if (during_initial_install() || isset($CFG->upgraderunning)) {
             return;
+        }
+
+        // Handles edge case where this callback fires before lib.php has been loaded.
+        if (!function_exists('tool_abconfig_execute_js')) {
+            require_once($CFG->dirroot . '/admin/tool/abconfig/lib.php');
         }
 
         tool_abconfig_execute_js('footer');

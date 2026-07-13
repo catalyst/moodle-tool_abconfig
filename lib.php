@@ -36,7 +36,7 @@ function tool_abconfig_after_config() {
 
     try {
         // Setup experiment manager.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Check if the param to disable ABconfig is present, if so, exit.
         if (!optional_param('abconfig', true, PARAM_BOOL)) {
@@ -167,7 +167,7 @@ function tool_abconfig_before_session_start() {
         }
 
         // Setup experiment manager.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
 
         // Get all before session experiments and check params.
         $experiments = $manager->get_before_session_experiments();
@@ -246,7 +246,7 @@ function tool_abconfig_after_require_login() {
     global $SESSION, $USER;
 
     // Create experiment manager.
-    $manager = new tool_abconfig_experiment_manager();
+    $manager = new \tool_abconfig\experiment_manager();
 
     // Check if the param to disable ABconfig is present, if so, exit.
     if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
@@ -351,7 +351,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
     global $CFG;
 
     // Execute any commands passed in.
-    $manager = new tool_abconfig_experiment_manager();
+    $manager = new \tool_abconfig\experiment_manager();
     $commands = json_decode($commandsencoded);
     foreach ($commands as $commandstring) {
         $command = strtok($commandstring, ',');
@@ -365,6 +365,10 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
 
             // Ensure that command hasn't already been set in config.php.
             if ($allow || !array_key_exists($commandarray[1], $CFG->config_php_settings)) {
+                // Intentionally set $CFG directly (not via set_config()) so this experiment
+                // override is request-scoped only and is never persisted to the database.
+                // config_php_settings is also updated so admin_setting UI treats this key the
+                // same way it treats a value actually locked in config.php for this request.
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
             } else {
@@ -438,7 +442,7 @@ function tool_abconfig_execute_js(string $type) {
 
     try {
         // Get all experiments.
-        $manager = new tool_abconfig_experiment_manager();
+        $manager = new \tool_abconfig\experiment_manager();
         $records = $manager->get_experiments();
         $renderjs = $manager->get_render_js();
 
@@ -451,8 +455,9 @@ function tool_abconfig_execute_js(string $type) {
             }
 
             if (array_key_exists($unique, $renderjs)) {
-                // Found JS to be executed.
-                echo "<script type='text/javascript'>{$renderjs[$unique]}</script>";
+                // Found JS to be executed. Output it immediately (same place/timing as the
+                // original raw echo) via html_writer so it still picks up CSP nonce handling.
+                echo \html_writer::script($renderjs[$unique]);
             }
 
             // If experiment is request scope, unset var so it doesnt fire again.

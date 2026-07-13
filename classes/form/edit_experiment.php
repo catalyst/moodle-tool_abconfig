@@ -71,6 +71,7 @@ class edit_experiment extends \moodleform {
             'device' => get_string('device', 'tool_abconfig'),
         ];
         $mform->addElement('select', 'scope', get_string('formexperimentscopeselect', 'tool_abconfig'), $scopes);
+        $mform->setType('scope', PARAM_ALPHA);
 
         $mform->addElement('text', 'numoffset', get_string('offset', 'tool_abconfig'));
         $mform->setType('numoffset', PARAM_INT);
@@ -81,13 +82,16 @@ class edit_experiment extends \moodleform {
 
         // Enabled checkbox.
         $mform->addElement('advcheckbox', 'enabled', get_string('formexperimentenabled', 'tool_abconfig'));
+        $mform->setType('enabled', PARAM_BOOL);
 
         // Admin Enabled Checkbox.
         $mform->addElement('advcheckbox', 'adminenabled', '', get_string('formexperimentadminenable', 'tool_abconfig'));
+        $mform->setType('adminenabled', PARAM_BOOL);
         $mform->hideIf('adminenabled', 'scope', 'eq', 'device');
 
         // Delete experiment checkbox.
         $mform->addElement('advcheckbox', 'delete', get_string('formdeleteexperiment', 'tool_abconfig'));
+        $mform->setType('delete', PARAM_BOOL);
 
         // Experiment conditions.
         $mform->addElement('header', 'experimentconds', get_string('formexperimentconds', 'tool_abconfig'));

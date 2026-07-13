@@ -45,16 +45,20 @@ foreach (['tools', 'abconfig', 'tool_abconfig_manageexperiments'] as $label) {
 }
 $PAGE->navbar->add(get_string('editexperimentpagename', 'tool_abconfig'));
 
-$manager = new tool_abconfig_experiment_manager();
+$manager = new \tool_abconfig\experiment_manager();
+$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/index.php');
+
 $experiment = $DB->get_record('tool_abconfig_experiment', ['id' => $eid]);
+if (!$experiment) {
+    redirect($prevurl, get_string('experimentnotfound', 'tool_abconfig'), null, \core\output\notification::NOTIFY_ERROR);
+}
+
 $data = ['experimentname' => $experiment->name, 'experimentshortname' => $experiment->shortname,
     'prevshortname' => $experiment->shortname, 'scope' => $experiment->scope,
     'id' => $experiment->id, 'enabled' => $experiment->enabled, 'adminenabled' => $experiment->adminenabled,
     'numoffset' => $experiment->numoffset ?? rand(0, 99)];
 
 $customarray = ['eid' => $experiment->id];
-
-$prevurl = ($CFG->wwwroot . '/admin/tool/abconfig/index.php');
 $form = new \tool_abconfig\form\edit_experiment(null, $customarray);
 $form->set_data($data);
 if ($form->is_cancelled()) {
@@ -81,9 +85,9 @@ if ($form->is_cancelled()) {
     }
 
     if ($fromform->delete) {
-        // Delete experiment, and all orphaned experiment conditions.
-        $manager->delete_experiment($shortname);
-        $manager->delete_all_conditions($eid);
+        // Deleting an experiment cascades to all of its conditions, so require an explicit
+        // second confirmation step rather than acting on a single checkbox submission.
+        redirect(new moodle_url('/admin/tool/abconfig/delete_experiment.php', ['id' => $eid]));
     } else {
         $manager->update_experiment($prevshortname, $name, $shortname, $scope, $enabled, $adminenabled, $numoffset);
     }

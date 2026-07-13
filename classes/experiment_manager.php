@@ -23,6 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace tool_abconfig;
+
 /**
  * Local Library class
  *
@@ -31,7 +33,7 @@
  * @copyright Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_abconfig_experiment_manager {
+class experiment_manager {
     // Experiment functions.
 
     /** @var array Experiment js that needs to be rendered. */
@@ -69,6 +71,11 @@ class tool_abconfig_experiment_manager {
                 'adminenabled' => 0,
                 'numoffset' => rand(0, 99),
             ]);
+
+            \tool_abconfig\event\experiment_created::create([
+                'objectid' => $return,
+                'other' => ['shortname' => $shortname],
+            ])->trigger();
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -119,6 +126,11 @@ class tool_abconfig_experiment_manager {
                 'adminenabled' => $adminenabled,
                 'numoffset' => $numoffset,
             ]);
+
+            \tool_abconfig\event\experiment_updated::create([
+                'objectid' => $record->id,
+                'other' => ['shortname' => $shortname],
+            ])->trigger();
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -136,9 +148,22 @@ class tool_abconfig_experiment_manager {
         if (!$this->experiment_exists($shortname)) {
             $return = false;
         } else {
+            $sql = 'SELECT *
+                      FROM {tool_abconfig_experiment}
+                     WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
+            $record = $DB->get_record_sql($sql, ['shortname' => $shortname]);
+
+            $event = \tool_abconfig\event\experiment_deleted::create([
+                'objectid' => $record->id,
+                'other' => ['shortname' => $shortname],
+            ]);
+            $event->add_record_snapshot('tool_abconfig_experiment', $record);
+
             $sql = 'DELETE FROM {tool_abconfig_experiment}
                      WHERE ' . $DB->sql_compare_text('shortname') . ' = ' . $DB->sql_compare_text(':shortname');
             $return = $DB->execute($sql, ['shortname' => $shortname]);
+
+            $event->trigger();
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -191,6 +216,11 @@ class tool_abconfig_experiment_manager {
             ];
             $return = $DB->insert_record('tool_abconfig_condition', $record);
 
+            \tool_abconfig\event\condition_created::create([
+                'objectid' => $return,
+                'other' => ['experimentid' => $eid, 'condset' => $condset],
+            ])->trigger();
+
             $this->log_commands($commands, $value);
         }
         self::invalidate_experiment_cache();
@@ -228,6 +258,11 @@ class tool_abconfig_experiment_manager {
             ];
             $return = $DB->update_record('tool_abconfig_condition', $record);
 
+            \tool_abconfig\event\condition_updated::create([
+                'objectid' => $id,
+                'other' => ['experimentid' => $eid, 'condset' => $condset],
+            ])->trigger();
+
             $this->log_commands($commands, $value);
         }
         self::invalidate_experiment_cache();
@@ -245,6 +280,18 @@ class tool_abconfig_experiment_manager {
         if (!$this->condition_exists($eid, $condset)) {
             $return = false;
         } else {
+            $sql = 'SELECT *
+                      FROM {tool_abconfig_condition}
+                     WHERE experiment = :experiment
+                       AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
+            $record = $DB->get_record_sql($sql, ['experiment' => $eid, 'condset' => $condset]);
+
+            $event = \tool_abconfig\event\condition_deleted::create([
+                'objectid' => $record->id,
+                'other' => ['experimentid' => $eid, 'condset' => $condset],
+            ]);
+            $event->add_record_snapshot('tool_abconfig_condition', $record);
+
             $sql = 'DELETE FROM {tool_abconfig_condition}
                      WHERE experiment = :experiment
                        AND ' . $DB->sql_compare_text('condset') . ' = ' . $DB->sql_compare_text(':condset');
@@ -252,6 +299,8 @@ class tool_abconfig_experiment_manager {
                 'experiment' => $eid,
                 'condset' => $condset,
             ]);
+
+            $event->trigger();
         }
         self::invalidate_experiment_cache();
         return $return;
@@ -293,7 +342,7 @@ class tool_abconfig_experiment_manager {
      * @return mixed
      */
     public function get_experiments() {
-        $cache = cache::make('tool_abconfig', 'experiments');
+        $cache = \cache::make('tool_abconfig', 'experiments');
         $experiments = $cache->get('allexperiment');
         // Return empty array if cache->get fails.
         return ($experiments != false) ? $experiments : [];
