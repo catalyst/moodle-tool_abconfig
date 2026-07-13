@@ -433,8 +433,6 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
  * @return void|null
  */
 function tool_abconfig_execute_js(string $type) {
-    global $PAGE;
-
     // Check if the param to disable ABconfig is present, if so, exit.
     if (optional_param('abconfig', null, PARAM_TEXT) == 'off') {
         if (is_siteadmin()) {
@@ -457,9 +455,9 @@ function tool_abconfig_execute_js(string $type) {
             }
 
             if (array_key_exists($unique, $renderjs)) {
-                // Found JS to be executed, queue it via the page output API rather than echoing
-                // a raw <script> tag directly.
-                $PAGE->requires->js_init_code($renderjs[$unique], true);
+                // Found JS to be executed. Output it immediately (same place/timing as the
+                // original raw echo) via html_writer so it still picks up CSP nonce handling.
+                echo \html_writer::script($renderjs[$unique]);
             }
 
             // If experiment is request scope, unset var so it doesnt fire again.
