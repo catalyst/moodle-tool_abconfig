@@ -95,4 +95,3 @@ $string['event_experiment_deleted'] = 'Experiment deleted';
 $string['event_condition_created'] = 'Experiment condition set created';
 $string['event_condition_updated'] = 'Experiment condition set updated';
 $string['event_condition_deleted'] = 'Experiment condition set deleted';
-$string['event_experiment_command_executed'] = 'Experiment command executed';
