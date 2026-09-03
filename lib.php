@@ -69,7 +69,8 @@ function tool_abconfig_after_config() {
             if (array_key_exists($condition, $contents['conditions'])) {
                 tool_abconfig_execute_command_array(
                     $contents['conditions'][$condition]['commands'],
-                    $contents['shortname']
+                    $contents['shortname'],
+                    eid: $contents['id'],
                 );
             }
         }
@@ -111,7 +112,7 @@ function tool_abconfig_after_config() {
                 foreach ($crecords as $crecord) {
                     // If random number is within this range, set condition and break, else increment total.
                     if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
-                        $commandarray[$record['shortname']] = $crecord['commands'];
+                        $commandarray[$record['shortname']] = ['id' => $record['id'], 'commands' => $crecord['commands']];
                         // Do not select any more conditions.
                         break;
                     } else {
@@ -129,14 +130,17 @@ function tool_abconfig_after_config() {
                 // Check if a session var has been set for this experiment, only care if has been set.
                 $unique = 'abconfig_' . $record['shortname'];
                 if (property_exists($SESSION, $unique) && $SESSION->$unique != '') {
-                    $commandarray[$record['shortname']] = $record['conditions'][$SESSION->$unique]['commands'];
+                    $commandarray[$record['shortname']] = [
+                        'id' => $record['id'],
+                        'commands' => $record['conditions'][$SESSION->$unique]['commands'],
+                    ];
                 }
             }
         }
 
         // Now, execute all commands in the arrays.
         foreach ($commandarray as $shortname => $command) {
-            tool_abconfig_execute_command_array($command, $shortname);
+            tool_abconfig_execute_command_array($command['commands'], $shortname, eid: $command['id']);
         }
     } catch (Exception $e) {        // @codingStandardsIgnoreStart
         // Catch exceptions from stuff not existing during installation process, fail silently
@@ -182,7 +186,8 @@ function tool_abconfig_before_session_start() {
             if (array_key_exists($condition, $contents['conditions'])) {
                 tool_abconfig_execute_command_array(
                     $contents['conditions'][$condition]['commands'],
-                    $contents['shortname']
+                    $contents['shortname'],
+                    eid: $contents['id'],
                 );
             }
         }
@@ -217,7 +222,7 @@ function tool_abconfig_before_session_start() {
                 foreach ($crecords as $crecord) {
                     // If random hash is within this range, set condition and break, else increment total.
                     if ($num >= $prevtotal && $num < ($prevtotal + $crecord['value'])) {
-                        $commandarray[$record['shortname']] = $crecord['commands'];
+                        $commandarray[$record['shortname']] = ['id' => $record['id'], 'commands' => $crecord['commands']];
                         // Do not select any more conditions.
                         break;
                     } else {
@@ -230,7 +235,7 @@ function tool_abconfig_before_session_start() {
 
         // Now, execute all commands in the arrays.
         foreach ($commandarray as $shortname => $command) {
-            tool_abconfig_execute_command_array($command, $shortname);
+            tool_abconfig_execute_command_array($command['commands'], $shortname, eid: $command['id']);
         }
     } catch (Exception $e) {        // @codingStandardsIgnoreStart
         // Catch exceptions from stuff not existing during installation process, fail silently
@@ -290,7 +295,7 @@ function tool_abconfig_after_require_login() {
                 foreach ($crecords as $crecord) {
                     // If random number is within this range, set condition and break, else increment total.
                     if ($num > $prevtotal && $num <= ($prevtotal + $crecord['value'])) {
-                        tool_abconfig_execute_command_array($crecord['commands'], $record['shortname']);
+                        tool_abconfig_execute_command_array($crecord['commands'], $record['shortname'], eid: $record['id']);
 
                         // Set a session var for this command, so it is not executed again this session.
                         $SESSION->{$unique} = $crecord['condset'];
@@ -345,14 +350,20 @@ function tool_abconfig_before_http_headers() {
  * @param string $shortname
  * @param bool $js
  * @param string|null $string
+ * @param int|null $eid
  * @return void
  */
-function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, ?string $string = null) {
+function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js = false, ?string $string = null, ?int $eid = null) {
     global $CFG;
 
     // Execute any commands passed in.
     $manager = new tool_abconfig_experiment_manager();
     $commands = json_decode($commandsencoded);
+    $text = $shortname;
+    if ($eid !== null) {
+        $url = new moodle_url('/admin/tool/abconfig/edit_experiment.php', ['id' => $eid]);
+        $text = \html_writer::link($url, s($shortname));
+    }
     foreach ($commands as $commandstring) {
         $command = strtok($commandstring, ',');
 
@@ -367,6 +378,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
             if ($allow || !array_key_exists($commandarray[1], $CFG->config_php_settings)) {
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                $CFG->tool_abconfig_message[$commandarray[1]] = get_string('configsetmessage', 'tool_abconfig', $text);
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
@@ -385,6 +397,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
                     array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])
             ) {
                 $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+                $CFG->tool_abconfig_message[$commandarray[1]][$commandarray[2]] = get_string('configsetmessage', 'tool_abconfig', $text);
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
