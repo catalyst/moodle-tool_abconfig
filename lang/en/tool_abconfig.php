@@ -76,6 +76,7 @@ $string['enabled'] = 'Enabled';
 $string['yes'] = 'Yes';
 $string['no'] = 'No';
 $string['adminenabled'] = 'Enabled for admin';
+$string['configsetmessage'] = 'Defined by tool_abconfig: {$a}';
 
 // Setting Strings.
 $string['settingsenablename'] = 'Enable plugin';

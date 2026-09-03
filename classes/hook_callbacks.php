@@ -88,21 +88,40 @@ class hook_callbacks {
         $name = $hook->setting->name;
         $plugin = $hook->setting->plugin;
 
+        $override = null;
+
         // Checking if the setting is for a plugin.
         if (!empty($plugin) && $plugin !== 'core') {
-            // Check if there is a message set for this plugin setting.
+            // Check if there is an override recorded for this plugin setting.
             if (
-                isset($CFG->tool_abconfig_message[$plugin]) &&
-                is_array($CFG->tool_abconfig_message[$plugin]) &&
-                array_key_exists($name, $CFG->tool_abconfig_message[$plugin])
+                isset($CFG->tool_abconfig_overrides[$plugin]) &&
+                is_array($CFG->tool_abconfig_overrides[$plugin]) &&
+                array_key_exists($name, $CFG->tool_abconfig_overrides[$plugin])
             ) {
-                $hook->add_notification($CFG->tool_abconfig_message[$plugin][$name], \core\output\notification::NOTIFY_INFO);
+                $override = $CFG->tool_abconfig_overrides[$plugin][$name];
             }
-        } else {
-            // Check if there is a message set for this core setting.
-            if (isset($CFG->tool_abconfig_message[$name])) {
-                $hook->add_notification($CFG->tool_abconfig_message[$name], \core\output\notification::NOTIFY_INFO);
-            }
+        } else if (isset($CFG->tool_abconfig_overrides[$name])) {
+            // There is an override recorded for this core setting.
+            $override = $CFG->tool_abconfig_overrides[$name];
         }
+
+        if (!is_string($override)) {
+            return;
+        }
+
+        // Shortnames are unique, but if duplicates have slipped past form validation link to the main page instead.
+        global $DB;
+        $ids = $DB->get_fieldset_select('tool_abconfig_experiment', 'id', 'shortname = ?', [$override]);
+        if (count($ids) === 1) {
+            $url = new \moodle_url('/admin/tool/abconfig/edit_experiment.php', ['id' => $ids[0]]);
+        } else {
+            $url = new \moodle_url('/admin/tool/abconfig/index.php');
+        }
+        $text = \html_writer::link($url, s($override));
+
+        $hook->add_notification(
+            get_string('configsetmessage', 'tool_abconfig', $text),
+            \core\output\notification::NOTIFY_INFO,
+        );
     }
 }
