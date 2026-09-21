@@ -89,7 +89,7 @@ class hook_callbacks {
         $plugin = $hook->setting->plugin;
 
         // Checking if the setting is for a plugin.
-        if (!empty($plugin)) {
+        if (!empty($plugin) && $plugin !== 'core') {
             // Check if there is a message set for this plugin setting.
             if (
                 isset($CFG->tool_abconfig_message[$plugin]) &&
