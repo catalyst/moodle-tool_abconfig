@@ -69,7 +69,7 @@ function tool_abconfig_after_config() {
             if (array_key_exists($condition, $contents['conditions'])) {
                 tool_abconfig_execute_command_array(
                     $contents['conditions'][$condition]['commands'],
-                    $contents['shortname']
+                    $contents['shortname'],
                 );
             }
         }
@@ -135,8 +135,8 @@ function tool_abconfig_after_config() {
         }
 
         // Now, execute all commands in the arrays.
-        foreach ($commandarray as $shortname => $command) {
-            tool_abconfig_execute_command_array($command, $shortname);
+        foreach ($commandarray as $shortname => $commands) {
+            tool_abconfig_execute_command_array($commands, $shortname);
         }
     } catch (Exception $e) {        // @codingStandardsIgnoreStart
         // Catch exceptions from stuff not existing during installation process, fail silently
@@ -182,7 +182,7 @@ function tool_abconfig_before_session_start() {
             if (array_key_exists($condition, $contents['conditions'])) {
                 tool_abconfig_execute_command_array(
                     $contents['conditions'][$condition]['commands'],
-                    $contents['shortname']
+                    $contents['shortname'],
                 );
             }
         }
@@ -229,8 +229,8 @@ function tool_abconfig_before_session_start() {
         }
 
         // Now, execute all commands in the arrays.
-        foreach ($commandarray as $shortname => $command) {
-            tool_abconfig_execute_command_array($command, $shortname);
+        foreach ($commandarray as $shortname => $commands) {
+            tool_abconfig_execute_command_array($commands, $shortname);
         }
     } catch (Exception $e) {        // @codingStandardsIgnoreStart
         // Catch exceptions from stuff not existing during installation process, fail silently
@@ -367,6 +367,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
             if ($allow || !array_key_exists($commandarray[1], $CFG->config_php_settings)) {
                 $CFG->{$commandarray[1]} = $commandarray[2];
                 $CFG->config_php_settings[$commandarray[1]] = $commandarray[2];
+                $CFG->tool_abconfig_overrides[$commandarray[1]] = $shortname;
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
@@ -385,6 +386,7 @@ function tool_abconfig_execute_command_array($commandsencoded, $shortname, $js =
                     array_key_exists($commandarray[2] . '_allow_abconfig', $CFG->forced_plugin_settings[$commandarray[1]])
             ) {
                 $CFG->forced_plugin_settings[$commandarray[1]][$commandarray[2]] = $commandarray[3];
+                $CFG->tool_abconfig_overrides[$commandarray[1]][$commandarray[2]] = $shortname;
             } else {
                 // Debugging shouldn't be used before sessions are loaded.
                 // @codingStandardsIgnoreLine
